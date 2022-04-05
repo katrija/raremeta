@@ -67,4 +67,3 @@ nissen2010 <- data.frame(
 
 nissen2010$durationRosiglitazone <- nissen2010$nRosiglitazone*nissen2010$durationWeeks
 nissen2010$durationControl <- nissen2010$nControl*nissen2010$durationWeeks
-
