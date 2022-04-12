@@ -2,6 +2,16 @@ usethis::use_data_raw("Nissen2007", overwrite = TRUE)
 
 ## code to prepare `Nissen2007` dataset goes here
 
+## COMMENTS
+## Inconsistent   : 1172 -> 1181 in nRosiglitazone; 377 -> 382 in nControl
+##                in the first Table of the Paper (as opposed to third one)
+##
+## Method of coding
+## "SulfonylureaX": 1-either glyburide or gliclazide, 2-glyburide, gliclazide or glipizide
+##                  3-glyburide, gliclazide, chlorporopamide, glimepiride, or tolbatamide
+##                  4-uncpecified,
+##                  5-3-glyburide, gliclazide, chlorporopamide, glimepiride, or tolbatamide
+
 nissen2007 <- data.frame(
   study = c(
     "49653/011", "49653/020", "49653/024", "49653/093", "49653/094",
@@ -41,5 +51,14 @@ nissen2007 <- data.frame(
   cvControl = c(
     0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
     0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 10, 5
-  )
+  ),
+  methodControl = c("Placebo", "Glyburide", "Placebo", "Metformin",
+                        "Metformin", "Glyburide", "Glyburide", "Usual care",
+                        "Metformin", "Metformin", "Metformin and sulfonylurea1",
+                        "Usual care with or without metformin", "Placebo", "Insulin",
+                        "Sulfonylurea2", "Glyburide", "Glyburide", "Insulin", "Insulin", "Insulin",
+                        "Glyburide", "Sulfonylurea3", "Glyburide", "Placebo", "Placebo", "Glipizide",
+                        "Placebo", "Gliclazide", "Sulfonylurea4", "Glyburide", "Glimepiride", "Placebo", "Placebo",
+                        "Glyburide and metformin", "Metformin", "Metformin", "Metformin",
+                        "Insulin", "Sulfonylurea5", "Placebo", "Placebo", "Metformin and glyburide")
 )
