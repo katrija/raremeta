@@ -71,3 +71,9 @@ nissen2010 <- data.frame(
 
 nissen2010$durationRosiglitazone <- nissen2010$nRosiglitazone*nissen2010$durationWeeks
 nissen2010$durationControl <- nissen2010$nControl*nissen2010$durationWeeks
+
+##Replication
+#library(metafor)
+#dat <- escalc(measure = "OR", ai = miRosiglitazone , n1i = nRosiglitazone ,
+#              ci= miControl , n2i = nControl, data= nissen2010)
+#res <- rma(yi,vi, data= dat)
