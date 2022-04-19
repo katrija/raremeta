@@ -3,7 +3,7 @@ usethis::use_data_raw("Nissen2007", overwrite = TRUE)
 ## code to prepare `Nissen2007` dataset goes here
 
 ## COMMENTS
-## Inconsistent   : 1172 -> 1181 in nRosiglitazone; 377 -> 382 in nControl
+## Inconsistent   : Study 49653/330  1172 -> 1181 in nRosiglitazone; 377 -> 382 in nControl
 ##                in the first Table of the Paper (as opposed to third one)
 ##
 ## Method of coding
