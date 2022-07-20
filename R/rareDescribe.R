@@ -11,7 +11,7 @@
 #' @param n2i Data frame column to specify the sample sizes in group 2 (i.e., the control group).
 #' @param data Data frame.
 #'
-#' @return An object of the class rareData, which contains descriptives of the meta-analytic data.
+#' @return An object of the class `"rareData"`, which contains descriptives of the meta-analytic data.
 #' @export
 #'
 #' @examples
