@@ -128,7 +128,7 @@ rareDescribe <- function(ai, bi, ci, di, n1i, n2i,
   ni <- n1i + n2i
 
   # vector of sample size ratios:
-  nratio <- n1i / n2i
+  nratioi <- n1i / n2i
 
   # summary statistics:
   n1 <- c(
@@ -153,9 +153,9 @@ rareDescribe <- function(ai, bi, ci, di, n1i, n2i,
   names(n) <- c("mean", "median", "q25", "q75", "min", "max")
 
   nratio <- c(
-    mean(nratio, na.rm = TRUE), median(nratio, na.rm = TRUE),
-    stats::quantile(nratio, c(0.25, 0.75), na.rm = TRUE),
-    min(nratio, na.rm = TRUE), max(nratio, na.rm = TRUE)
+    mean(nratioi, na.rm = TRUE), median(nratioi, na.rm = TRUE),
+    stats::quantile(nratioi, c(0.25, 0.75), na.rm = TRUE),
+    min(nratioi, na.rm = TRUE), max(nratioi, na.rm = TRUE)
   )
   names(nratio) <- c("mean", "median", "q25", "q75", "min", "max")
 
@@ -195,7 +195,7 @@ rareDescribe <- function(ai, bi, ci, di, n1i, n2i,
   # CREATE LIST
   res <- list(
     ai = ai, bi = bi, ci = ci, di = di,
-    n1i = n1i, n2i = n2i, n = n, nratio = nratio,
+    n1i = n1i, n2i = n2i, ni = ni, nratioi = nratioi,
     k = k, kdz = kdz, ksz = ksz, k1sz = k1sz, k2sz = k2sz,
     n1 = n1, n2 = n2, n = n, nratio = nratio,
     rf1 = rf1, rf2 = rf2, rf = rf,
