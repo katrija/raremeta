@@ -25,7 +25,8 @@ rareDescribe(ai, bi, ci, di, n1i, n2i, data)
 An object of the class rareData, which contains descriptives of the meta-analytic data.
 }
 \description{
-Descriptives for a meta-analysis of a rare event
+Function to compute descriptives based on the \eqn{latex}{2 x 2} tables of the individual studies
+for meta-analytic rare event data.
 }
 \examples{
 data <- data.frame(

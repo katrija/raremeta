@@ -1,5 +1,8 @@
 #' Descriptives for a meta-analysis of a rare event
 #'
+#' Function to compute descriptives based on the \eqn{latex}{2 x 2} tables of the individual studies
+#' for meta-analytic rare event data.
+#'
 #' @param ai Data frame column to specify the number of events in group 1 (i.e., the treatment group).
 #' @param bi Data frame column to specify the number of non-events in group 1 (i.e., the treatment group).
 #' @param ci Data frame column to specify the number of events in group 2 (i.e., the control group).
