@@ -1,3 +1,17 @@
+#' Descriptives for a meta-analysis of a rare event
+#'
+#' @param ai Data frame column to specify the number of events in group 1 (i.e., the treatment group).
+#' @param bi Data frame column to specify the number of non-events in group 1 (i.e., the treatment group).
+#' @param ci Data frame column to specify the number of events in group 2 (i.e., the control group).
+#' @param di Data frame column to specify number of non-events in group 2 (i.e., the control group).
+#' @param n1i Data frame column to specify the sample sizes in group 1 (i.e., the treatment group).
+#' @param n2i Data frame column to specify the sample sizes in group 2 (i.e., the control group).
+#' @param data Data frame.
+#'
+#' @return An object of the class rareData, which contains descriptives of the meta-analytic data.
+#' @export
+#'
+#' @examples
 rareDescribe <- function(ai, bi, ci, di, n1i, n2i,
                          data){
 
