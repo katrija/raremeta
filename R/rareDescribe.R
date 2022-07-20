@@ -87,11 +87,103 @@ rareDescribe <- function(ai, bi, ci, di, n1i, n2i,
     }
   }
 
+  # count all studies
+  k <- length(ai)
 
-  nEventsT <- sum(ai, na.rm = TRUE)
-  nEventsC <- sum(ci, na.rm = TRUE)
+  # count 0 and 00 studies:
+  kdz <- sum(ai == 0 & ci == 0, na.rm = TRUE)
+  ksz <- sum((ai == 0 | ci == 0) & !(ai == 0 & ci == 0), na.rm = TRUE)
+  k1sz <- sum((ai == 0) & !(ai == 0 & ci == 0), na.rm = TRUE)
+  k2sz <- sum((ci == 0) & !(ai == 0 & ci == 0), na.rm = TRUE)
 
-  descEvents <- paste("There are", nEventsT, "events in the treatment group and", nEventsC, "in the control group.")
+  # vector for sample size treatment group:
+  n1i <- ai + bi
 
-  return(descEvents)
+  # vector for sample size control group:
+  n2i <- ci + di
+
+  # vector for total sample size:
+  ni <- n1i + n2i
+
+  # vector of sample size ratios:
+  nratio <- n1i / n2i
+
+  # summary statistics:
+  n1 <- c(
+    mean(n1i, na.rm = TRUE), median(n1i, na.rm = TRUE),
+    stats::quantile(n1i, c(0.25, 0.75), na.rm = TRUE),
+    min(n1i, na.rm = TRUE), max(n1i, na.rm = TRUE)
+  )
+  names(n1) <- c("mean", "median", "q25", "q75", "min", "max")
+
+  n2 <- c(
+    mean(n2i, na.rm = TRUE), median(n2i, na.rm = TRUE),
+    stats::quantile(n2i, c(0.25, 0.75), na.rm = TRUE),
+    min(n2i, na.rm = TRUE), max(n2i, na.rm = TRUE)
+  )
+  names(n2) <- c("mean", "median", "q25", "q75", "min", "max")
+
+  n <- c(
+    mean(ni, na.rm = TRUE), median(ni, na.rm = TRUE),
+    stats::quantile(ni, c(0.25, 0.75), na.rm = TRUE),
+    min(ni, na.rm = TRUE), max(ni, na.rm = TRUE)
+  )
+  names(n) <- c("mean", "median", "q25", "q75", "min", "max")
+
+  nratio <- c(
+    mean(nratio, na.rm = TRUE), median(nratio, na.rm = TRUE),
+    stats::quantile(nratio, c(0.25, 0.75), na.rm = TRUE),
+    min(nratio, na.rm = TRUE), max(nratio, na.rm = TRUE)
+  )
+  names(nratio) <- c("mean", "median", "q25", "q75", "min", "max")
+
+  # relative frequencies:
+  rf1i <- ai / n1i
+  rf2i <- ci / n2i
+
+  rfi <- (ai + ci) / ni
+
+  rf1 <- c(
+    mean(rf1i, na.rm = TRUE), median(rf1i, na.rm = TRUE),
+    min(rf1i, na.rm = TRUE), max(rf1i, na.rm = TRUE)
+  )
+  names(rf1) <- c("mean", "median", "min", "max")
+
+  rf2 <- c(
+    mean(rf2i, na.rm = TRUE), median(rf2i, na.rm = TRUE),
+    min(rf2i, na.rm = TRUE), max(rf2i, na.rm = TRUE)
+  )
+  names(rf2) <- c("mean", "median", "min", "max")
+
+  rf <- c(
+    mean(rfi, na.rm = TRUE), median(rfi, na.rm = TRUE),
+    min(rfi, na.rm = TRUE), max(rfi, na.rm = TRUE)
+  )
+  names(rf) <- c("mean", "median", "min", "max")
+
+  krare <- sum(rfi <= 0.05 & rfi > 0.01, na.rm = TRUE)
+  kveryrare <- sum(rfi <= 0.01, na.rm = TRUE)
+
+  k1rare <- sum(rf1i <= 0.05 & rf1i > 0.01, na.rm = TRUE)
+  k1veryrare <- sum(rf1i <= 0.01, na.rm = TRUE)
+
+  k2rare <- sum(rf2i <= 0.05 & rf2i > 0.01, na.rm = TRUE)
+  k2veryrare <- sum(rf2i <= 0.01, na.rm = TRUE)
+
+  # CREATE LIST
+  res <- list(
+    ai = ai, bi = bi, ci = ci, di = di,
+    n1i = n1i, n2i = n2i, n = n, nratio = nratio,
+    k = k, kdz = kdz, ksz = ksz, k1sz = k1sz, k2sz = k2sz,
+    n1 = n1, n2 = n2, n = n, nratio = nratio,
+    rf1 = rf1, rf2 = rf2, rf = rf,
+    krare = krare, kveryrare = kveryrare,
+    k1rare = k1rare, k1veryrare = k1veryrare,
+    k2rare = k2rare, k2veryrare = k2veryrare
+  )
+
+  # make res class rareData:
+  res <- rareData(res)
+
+  return(res)
 }
