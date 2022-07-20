@@ -12,6 +12,14 @@
 #' @export
 #'
 #' @examples
+#' data <- data.frame(
+#' ai = c(0,3,2,0),
+#' bi = c(20,18,15,19),
+#' ci = c(1,4,0,0),
+#' di = c(19,17,16,20)
+#' )
+#'
+#' rareDescribe(ai = ai, bi = bi, ci = ci, di = di, data = data)
 rareDescribe <- function(ai, bi, ci, di, n1i, n2i,
                          data){
 
