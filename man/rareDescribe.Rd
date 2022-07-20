@@ -35,5 +35,5 @@ ci = c(1,4,0,0),
 di = c(19,17,16,20)
 )
 
-rareDescribe(ai = ai, bi = bi, ci = ci, data = data)
+rareDescribe(ai = ai, bi = bi, ci = ci, di = di, data = data)
 }
