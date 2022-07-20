@@ -132,28 +132,28 @@ rareDescribe <- function(ai, bi, ci, di, n1i, n2i,
 
   # summary statistics:
   n1 <- c(
-    mean(n1i, na.rm = TRUE), median(n1i, na.rm = TRUE),
+    mean(n1i, na.rm = TRUE), stats::median(n1i, na.rm = TRUE),
     stats::quantile(n1i, c(0.25, 0.75), na.rm = TRUE),
     min(n1i, na.rm = TRUE), max(n1i, na.rm = TRUE)
   )
   names(n1) <- c("mean", "median", "q25", "q75", "min", "max")
 
   n2 <- c(
-    mean(n2i, na.rm = TRUE), median(n2i, na.rm = TRUE),
+    mean(n2i, na.rm = TRUE), stats::median(n2i, na.rm = TRUE),
     stats::quantile(n2i, c(0.25, 0.75), na.rm = TRUE),
     min(n2i, na.rm = TRUE), max(n2i, na.rm = TRUE)
   )
   names(n2) <- c("mean", "median", "q25", "q75", "min", "max")
 
   n <- c(
-    mean(ni, na.rm = TRUE), median(ni, na.rm = TRUE),
+    mean(ni, na.rm = TRUE), stats::median(ni, na.rm = TRUE),
     stats::quantile(ni, c(0.25, 0.75), na.rm = TRUE),
     min(ni, na.rm = TRUE), max(ni, na.rm = TRUE)
   )
   names(n) <- c("mean", "median", "q25", "q75", "min", "max")
 
   nratio <- c(
-    mean(nratioi, na.rm = TRUE), median(nratioi, na.rm = TRUE),
+    mean(nratioi, na.rm = TRUE), stats::median(nratioi, na.rm = TRUE),
     stats::quantile(nratioi, c(0.25, 0.75), na.rm = TRUE),
     min(nratioi, na.rm = TRUE), max(nratioi, na.rm = TRUE)
   )
@@ -166,19 +166,19 @@ rareDescribe <- function(ai, bi, ci, di, n1i, n2i,
   rfi <- (ai + ci) / ni
 
   rf1 <- c(
-    mean(rf1i, na.rm = TRUE), median(rf1i, na.rm = TRUE),
+    mean(rf1i, na.rm = TRUE), stats::median(rf1i, na.rm = TRUE),
     min(rf1i, na.rm = TRUE), max(rf1i, na.rm = TRUE)
   )
   names(rf1) <- c("mean", "median", "min", "max")
 
   rf2 <- c(
-    mean(rf2i, na.rm = TRUE), median(rf2i, na.rm = TRUE),
+    mean(rf2i, na.rm = TRUE), stats::median(rf2i, na.rm = TRUE),
     min(rf2i, na.rm = TRUE), max(rf2i, na.rm = TRUE)
   )
   names(rf2) <- c("mean", "median", "min", "max")
 
   rf <- c(
-    mean(rfi, na.rm = TRUE), median(rfi, na.rm = TRUE),
+    mean(rfi, na.rm = TRUE), stats::median(rfi, na.rm = TRUE),
     min(rfi, na.rm = TRUE), max(rfi, na.rm = TRUE)
   )
   names(rf) <- c("mean", "median", "min", "max")

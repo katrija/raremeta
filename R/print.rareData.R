@@ -28,15 +28,15 @@ print.rareData <- function(x, ...){
   cat("\n")
 
   cat("\nSample sizes: \n")
-  printCoefmat(sampleSize)
+  stats::printCoefmat(sampleSize)
   cat("\n")
 
   cat("\nSample size ratios: \n")
-  printCoefmat(sampleRatio)
+  stats::printCoefmat(sampleRatio)
   cat("\n")
 
   cat("\nRelative frequencies of the event: \n")
-  printCoefmat(relFreq)
+  stats::printCoefmat(relFreq)
   cat("\n")
 
   cat("\nNumber of studies in which the event is rare (0.01 < rel. freq. < 0.05):", x$krare, "out of", x$k, "studies.")
