@@ -70,7 +70,7 @@ rareIV <- function(x, measure, method, cc, ccval = 0.5, ccto = "only0",
   }
 
   # check if measure argument is valid
-  if(!(measure %in% c("logOR", "logRR", "RD"))){
+  if(!is.element(measure, c("logOR", "logRR", "RD"))){
     stop("'measure' must be either 'logOR', 'logRR', or 'RD'.")
   }
 
@@ -85,30 +85,37 @@ rareIV <- function(x, measure, method, cc, ccval = 0.5, ccto = "only0",
   if(any(c(x$ai, x$bi, x$ci, x$di) == 0) & missing(cc)){
     stop("Some studies have zero events. \n
          You must specify the 'cc' argument to determine how they are handled.\n
-         If you want to exclude all zero-studies, set 'cc' equal to 'none'.")
+         In case you want to exclude all zero-studies, set 'cc' equal to 'none'.")
+  }
+
+  if(!is.logical(drop00)){
+    print("'drop00' must be a logical")
   }
 
   # check if cc argument is valid
-  if(!(cc %in% c("constant", "reciprocal", "empirical"))){
-    stop("'cc' must be either 'constant', 'reciprocal', or 'empirical'")
+  if(!is.element(cc, c("none", "constant", "reciprocal", "empirical"))){
+    stop("'cc' must be either 'none', 'constant', 'reciprocal', or 'empirical'")
   }
 
 
-  # check if ccto argument is valid
-  if(!(ccto %in% c("only0", "all", "if0all"))){
-    stop("'ccto' must be either 'only0', 'all', or 'if0all'")
-  }
-
-  # check if ccval argument is valid
-  if(drop00 == FALSE){
-    if(!(length(ccval) %in% c(1,x$k))){
-      stop("'ccval' must have length 1 or length equal to the number of studies.")
+  # if cc argument exists, check that ccto argument is valid
+  if(!missing(cc)){
+    if(!is.element(ccto, c("only0", "all", "if0all"))){
+      stop("'ccto' must be either 'only0', 'all', or 'if0all'")
     }
   }
 
-  if(drop00 == TRUE){
-    if(!(length(ccval) %in% c(1,x$k,x$k-x$kdz))){
-      stop("'ccval' must have length 1 or length equal to the number of studies (in- or excluding double-zero studies).")
+  # check if ccval argument is valid
+  if(cc == "constant"){
+    if(drop00 == FALSE){
+      if(!is.element(length(ccval), c(1,x$k))){
+        stop("'ccval' must have length 1 or length equal to the number of studies.")
+      }
+    }
+    if(drop00 == TRUE){
+      if(!is.element(length(ccval), c(1,x$k,x$k-x$kdz))){
+        stop("'ccval' must have length 1 or length equal to the number of studies (in- or excluding double-zero studies).")
+      }
     }
   }
 
@@ -119,7 +126,7 @@ rareIV <- function(x, measure, method, cc, ccval = 0.5, ccto = "only0",
   }
 
   # check if test argument is valid
-  if(!(test %in% c("z", "hksj"))){
+  if(!is.element(test, c("z", "hksj"))){
     stop("'test' must be either 'z' or 'hksj'")
   }
 
@@ -129,10 +136,17 @@ rareIV <- function(x, measure, method, cc, ccval = 0.5, ccto = "only0",
   }
 
   # apply continuity correction (and drop double-zero studies if drop00 = TRUE)
-  ai_cc <- x$ai
-  bi_cc <- x$bi
-  ci_cc <- x$ci
-  di_cc <- x$di
+  # UNDER CONSTRUCTION
+
+
+
+  ai_cc <- x$ai+tcc
+  bi_cc <- x$bi+tcc
+  ci_cc <- x$ci+ccc
+  di_cc <- x$di+ccc
+
+  n1i_cc <- ai_cc+bi_cc
+  n2i_cc <- ci_cc+di_cc
 
   # convert measure to the metafor notation
   metafor_measure <- sub("log", "", measure)
@@ -144,6 +158,9 @@ rareIV <- function(x, measure, method, cc, ccval = 0.5, ccto = "only0",
                       test = test,
                       to = "none", # prevent application of further continuity corrections
                       digits = digits, verbose = verbose)
+
+  # treat the case of method = "iPM" (improved Paule-Mandel)
+  # UNDER CONSTRUCTION
 
 
   return(res)
