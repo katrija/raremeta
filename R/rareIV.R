@@ -158,6 +158,10 @@ rareIV <- function(x, measure, method, cc, ccval = 0.5, ccto = "only0",
     stop("continuity correction of type 'empirical' can only be applied if there is at least one non-zero study.")
   }
 
+  if(cc == "empirical" & method == "IPM"){
+    stop("method = 'IPM' is currently not defined for cc = 'empirical'.")
+  }
+
   # convert measure to the metafor notation
   metafor_measure <- sub("log", "", measure)
 
@@ -239,7 +243,7 @@ rareIV <- function(x, measure, method, cc, ccval = 0.5, ccto = "only0",
     }
 
     if(!(cc == "constant" & ccto == "all")){
-      warning("method = 'IPM' is defined for cc = 'constant' and ccto = 'all'. \n
+      warning("method = 'IPM' was developed for cc = 'constant' and ccto = 'all'.
               Using method = 'IPM' with other values for cc and ccto has never been evaluated empirically.")
     }
 
