@@ -56,7 +56,7 @@
 #' @export
 #'
 rareIV <- function(x, measure, method, cc, ccval = 0.5, ccto = "only0",
-                   drop00 = TRUE, test="z", digits, verbose=FALSE, control,
+                   drop00 = TRUE, test="z", digits = 3, verbose=FALSE, control,
                    ...){
 
   # check if x is an object of class rareData
@@ -135,33 +135,161 @@ rareIV <- function(x, measure, method, cc, ccval = 0.5, ccto = "only0",
     stop("'digits' must be an integer of length 1.")
   }
 
-  # apply continuity correction (and drop double-zero studies if drop00 = TRUE)
-  # UNDER CONSTRUCTION
+  # check if ccval is non-negative
+  if(cc == "constant" & any(ccval < 0)){
+    stop("'ccval' must be non-negative.")
+  }
 
+  # empirical cc currently not supported for RD
+  if(cc == "empirical" & measure == "RD"){
+    stop("continuity correction of type 'empirical' is currently not supported for measure 'RD'.")
+  }
 
+  # extract counts and sample sizes
+  ai <- x$ai
+  bi <- x$bi
+  ci <- x$ci
+  di <- x$di
+  n1i <- x$n1i
+  n2i <- x$n2i
 
-  ai_cc <- x$ai+tcc
-  bi_cc <- x$bi+tcc
-  ci_cc <- x$ci+ccc
-  di_cc <- x$di+ccc
-
-  n1i_cc <- ai_cc+bi_cc
-  n2i_cc <- ci_cc+di_cc
+  # check that there are non-zero studies when the empirical cc shall be applied
+  if(cc == "empirical" & all(ai == 0 | bi == 0 | ci == 0 | di == 0)){
+    stop("continuity correction of type 'empirical' can only be applied if there is at least one non-zero study.")
+  }
 
   # convert measure to the metafor notation
   metafor_measure <- sub("log", "", measure)
 
+  # remove double-zero studies if desired:
+  if(drop00 == TRUE){
+    remove <- (ai == 0 & ci == 0) | (bi == 0 & di == 0)
+    ai <- ai[!remove]
+    bi <- bi[!remove]
+    ci <- ci[!remove]
+    di <- di[!remove]
+    n1i <- n1i[!remove]
+    n2i <- n2i[!remove]
+
+    if(length(ccval) > length(ai)){
+      ccval <- ccval[!remove]
+    }
+  }
+
+  # specify studies to be continuity corrected:
+  if(ccto == "only0"){
+    ccstudies <- (ai == 0 | ci == 0 | bi == 0 | di == 0)
+  }
+
+  if(ccto == "all" | (ccto == "if0all" & any(ai == 0 | ci == 0 | bi == 0 | di == 0) )){
+    ccstudies <- rep(TRUE, length(ai))
+  }
+
+  if(cc == "constant"){
+    tcc <- ccval
+    ccc <- ccval
+
+    if(length(ccval) == 1){
+      tcc <- rep(tcc, length(ai))
+      ccc <- rep(ccc, length(ai))
+    }
+  }
+
+  if(cc == "reciprocal"){
+    rinv <- n2i/n1i
+
+    tcc <- 1/(rinv+1)
+    ccc <- rinv/(rinv+1)
+  }
+
+  if(cc == "empirical" & is.element(measure, c("logOR", "logRR"))){
+    rinv <- n2i/n1i
+    nozero <- which((ai != 0) & (bi != 0) & (ci != 0) & (di != 0))
+    fit_nozero <- metafor::rma(ai = ai[nozero], bi = bi[nozero],
+                               ci = ci[nozero], di = di[nozero],
+                               measure = metafor_measure, method = method)
+    prior <- exp(as.numeric(fit_nozero$beta))
+
+    tcc <- prior/(rinv+prior)
+    ccc <- rinv/(rinv+prior)
+
+  }
+
+  ai_cc <- ai; bi_cc <- bi; ci_cc <- ci; di_cc <- di
+
+  # apply continuity correction:
+  ai_cc[ccstudies] <- ai[ccstudies]+tcc[ccstudies]
+  bi_cc[ccstudies] <- bi[ccstudies]+tcc[ccstudies]
+  ci_cc[ccstudies] <- ci[ccstudies]+ccc[ccstudies]
+  di_cc[ccstudies] <- di[ccstudies]+ccc[ccstudies]
+
+  n1i_cc <- ai_cc+bi_cc
+  n2i_cc <- ci_cc+di_cc
+
+  # treat the case of method = "IPM" (improved Paule-Mandel)
+  # UNDER CONSTRUCTION
+  # calculate the IPM estimate and assign it to tau2
+  # then, rma will handle tau2 as known and use the IPM estimate in all its calculations
+  # this would make it easy to add further estimators for tau2 if necessary
+  if(method == "IPM"){
+    metafor_method = "REML" # workaround - method needs to be specified properly when rma is used later on
+
+    if(measure != "logOR"){
+      stop("method = 'IPM' is only defined for measure = 'logOR'.")
+    }
+
+    if(!(cc == "constant" & ccto == "all")){
+      warning("method = 'IPM' is defined for cc = 'constant' and ccto = 'all'. \n
+              Using method = 'IPM' with other values for cc and ccto has never been evaluated empirically.")
+    }
+
+    yi <- log(ai_cc*di_cc/(bi_cc*ci_cc))
+    vi <- 1/ai_cc+1/bi_cc+1/ci_cc+1/di_cc
+
+    mu_hat <- mean(log(ci_cc/(n2i_cc-ci_cc)))
+    theta_hat <- mean(yi)
+
+    ipm_optim <- function(tau2){
+      k <- length(yi)
+
+      sigma2i <- 1/n1i_cc*(exp(-mu_hat-theta_hat+tau2/2)+2+exp(mu_hat+theta_hat+tau2/2))+1/n2i_cc*(exp(-mu_hat)+2+exp(mu_hat))
+      # note that here, it is n1i+1 and no n1i because the continuity correction is added here
+      # so it is crucial to make sure that the cc has not yet been applied to n1i!
+
+      weights_ipm <- 1/(sigma2i+tau2)
+
+      theta_w <- sum(weights_ipm*yi)/sum(weights_ipm)
+
+      f_tau2 <- sum(weights_ipm*(yi-theta_w)^2)-(k-1)
+
+      return(f_tau2)
+    }
+
+    if(ipm_optim(0) < 0){
+      tau2 <- 0
+    }else{
+      tau2 <- uniroot(ipm_optim, c(0,100))$root
+    }
+  }else{
+    # what do do if method != "IPM"
+    metafor_method = method
+    tau2 = NULL
+  }
+
   # run metafor
   res <- metafor::rma(ai = ai_cc, bi = bi_cc,
                       ci = ci_cc, di = di_cc,
-                      measure = metafor_measure, method = method,
+                      measure = metafor_measure, method = metafor_method,
                       test = test,
+                      tau2 = tau2,
                       to = "none", # prevent application of further continuity corrections
                       digits = digits, verbose = verbose)
 
-  # treat the case of method = "iPM" (improved Paule-Mandel)
+  # make results list
   # UNDER CONSTRUCTION
 
+  # apply class "raremeta"
+  # UNDER CONSTRUCTION
 
   return(res)
 }
