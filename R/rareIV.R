@@ -272,7 +272,7 @@ rareIV <- function(x, measure, method, cc, ccval = 0.5, ccto = "only0",
     if(ipm_optim(0) < 0){
       tau2 <- 0
     }else{
-      tau2 <- uniroot(ipm_optim, c(0,100))$root
+      tau2 <- stats::uniroot(ipm_optim, c(0,100))$root
     }
   }else{
     # what do do if method != "IPM"
