@@ -13,7 +13,7 @@ rareIV(
   ccto = "only0",
   drop00 = TRUE,
   test = "z",
-  digits,
+  digits = 3,
   verbose = FALSE,
   control,
   ...
