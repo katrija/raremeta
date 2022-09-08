@@ -16,15 +16,15 @@
 #'
 #' @examples
 #' data <- data.frame(
-#' ai = c(0,3,2,0),
-#' bi = c(20,18,15,19),
-#' ci = c(1,4,0,0),
-#' di = c(19,17,16,20)
+#'   ai = c(0, 3, 2, 0),
+#'   bi = c(20, 18, 15, 19),
+#'   ci = c(1, 4, 0, 0),
+#'   di = c(19, 17, 16, 20)
 #' )
 #'
 #' rareDescribe(ai = ai, bi = bi, ci = ci, di = di, data = data)
 rareDescribe <- function(ai, bi, ci, di, n1i, n2i,
-                         data){
+                         data) {
 
   # check if all arguments are given - function needs ai, n1i, ci, n2i or ai, bi, ci, di
   # if it is given, check if it is integer
@@ -67,24 +67,29 @@ rareDescribe <- function(ai, bi, ci, di, n1i, n2i,
   }
 
   # check if all variables are not negative
-  if (any(c(ai, bi, ci, di) < 0, na.rm = TRUE)) {
+  if (any(c(ai, bi, ci, di, n1i, n2i) < 0, na.rm = TRUE)) {
     stop("Arguments must not be negative.")
   }
 
-  # check if length of all variables is the same
-  if (!equalLength(ai, bi, ci, di, n1i, n2i)) {
-    stop("Data vectors must be of the same length")
+  if (!is.null(ai) & !is.null(n1i) & any(ai > n1i, na.rm = TRUE)) {
+    stop("ai cannot be larger than n1i.")
+  }
+
+  if (!is.null(bi) & !is.null(n2i) & any(bi > n2i, na.rm = TRUE)) {
+    stop("bi cannot be larger than n2i.")
   }
 
   # in case bi and n1i (di and n2i) are given: check whether ai + bi = n1i (ci + di = n2i)
   if (!is.null(ai) & !is.null(bi) & !is.null(n1i)) {
-    if (any(ai + bi != n1i)) {
+    if (any(ai + bi != n1i, na.rm = TRUE)) {
       stop("ai and bi must add up to n1i.")
     }
   }
 
+
+
   if (!is.null(ci) & !is.null(di) & !is.null(n2i)) {
-    if (any(ci + di != n2i)) {
+    if (any(ci + di != n2i, na.rm = TRUE)) {
       stop("ci and di must add up to n2i.")
     }
   }
@@ -96,7 +101,6 @@ rareDescribe <- function(ai, bi, ci, di, n1i, n2i,
   if (!is.null(n2i) & is.null(di)) {
     di <- n2i - ci
   }
-
 
   # give warning if there are missing values
   if (any(is.na(c(ai, bi, ci, di)))) {
@@ -110,6 +114,10 @@ rareDescribe <- function(ai, bi, ci, di, n1i, n2i,
     if (length(k2NA) != 0) {
       warning(paste0("There are missing values in group 2 in studies: ", k2NA))
     }
+  }
+
+  if (any(c(ai, bi, ci, di) %% 1 != 0, na.rm = TRUE)) {
+    warning("Some values in ai, bi, ci or di are not integers. Please check whether this is intended.")
   }
 
   # count all studies
