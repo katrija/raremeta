@@ -80,6 +80,11 @@ rareIV <- function(x, measure, method, cc, ccval = 0.5, ccto = "only0",
   }
 
   # check if method argument is valid
+  if(!is.element(method, c("FE","EE","CE","HS","HSk","HE","DL","DLIT","GENQ",
+                           "GENQM","SJ","SJIT","PM","MP","PMM","ML","REML","EB",
+                           "IPM"))){
+    stop("unknown 'method' specified See ?rareIV for more details.")
+  }
 
   # check if cc is specified (in case there are zero-studies)
   if(any(c(x$ai, x$bi, x$ci, x$di) == 0) & missing(cc)){
@@ -89,7 +94,7 @@ rareIV <- function(x, measure, method, cc, ccval = 0.5, ccto = "only0",
   }
 
   if(!is.logical(drop00)){
-    print("'drop00' must be a logical")
+    stop("'drop00' must be a logical")
   }
 
   # check if cc argument is valid
@@ -119,15 +124,9 @@ rareIV <- function(x, measure, method, cc, ccval = 0.5, ccto = "only0",
     }
   }
 
-  # check if test = "knha". if so, set test to "hksj"
-  if(test == "knha"){
-    warning("`test = 'knha'` is no valid option. Setting `test = 'hksj'` instead.")
-    test = "hksj"
-  }
-
   # check if test argument is valid
-  if(!is.element(test, c("z", "hksj"))){
-    stop("'test' must be either 'z' or 'hksj'")
+  if(!is.element(test, c("z", "knha", "hksj"))){
+    stop("'test' must be either 'z', 'knha', or 'hksj'")
   }
 
   # check if digits argument is valid
@@ -164,6 +163,11 @@ rareIV <- function(x, measure, method, cc, ccval = 0.5, ccto = "only0",
 
   # convert measure to the metafor notation
   metafor_measure <- sub("log", "", measure)
+
+  # convert test to metafor notation if needed
+  if(test == "hksj"){
+    test = "knha"
+  }
 
   # remove double-zero studies if desired:
   if(drop00 == TRUE){
@@ -231,10 +235,8 @@ rareIV <- function(x, measure, method, cc, ccval = 0.5, ccto = "only0",
   n2i_cc <- ci_cc+di_cc
 
   # treat the case of method = "IPM" (improved Paule-Mandel)
-  # UNDER CONSTRUCTION
   # calculate the IPM estimate and assign it to tau2
   # then, rma will handle tau2 as known and use the IPM estimate in all its calculations
-  # this would make it easy to add further estimators for tau2 if necessary
   if(method == "IPM"){
     metafor_method = "REML" # workaround - method needs to be specified properly when rma is used later on
 
@@ -275,7 +277,7 @@ rareIV <- function(x, measure, method, cc, ccval = 0.5, ccto = "only0",
       tau2 <- stats::uniroot(ipm_optim, c(0,100))$root
     }
   }else{
-    # what do do if method != "IPM"
+    # what to do if method != "IPM"
     metafor_method = method
     tau2 = NULL
   }
