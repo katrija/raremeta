@@ -130,7 +130,7 @@ rareIV <- function(x, measure, method, cc, ccval = 0.5, ccto = "only0",
   }
 
   # check if digits argument is valid
-  if(length(digits) != 1 | digits%%1 != 0){
+  if(length(digits) != 1 | digits%%1 != 0 | digits < 0){
     stop("'digits' must be an integer of length 1.")
   }
 
