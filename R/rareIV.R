@@ -193,21 +193,28 @@ rareIV <- function(x, measure, method, cc, ccval = 0.5, ccto = "only0",
     ccstudies <- rep(TRUE, length(ai))
   }
 
+  tcc <- rep(0,length(ai))
+  ccc <- rep(0,length(ci))
+
   if(cc == "constant"){
-    tcc <- ccval
-    ccc <- ccval
 
     if(length(ccval) == 1){
-      tcc <- rep(tcc, length(ai))
-      ccc <- rep(ccc, length(ai))
+      tcc[ccstudies] <- ccval
+      ccc[ccstudies] <- ccval
+    }else{
+      tcc <- ccval
+      ccc <- ccval
     }
+
   }
 
-  if(cc == "reciprocal"){
+  # continuity corrections for logOR and logRR:
+
+  if(cc == "reciprocal" & is.element(measure, c("logOR", "logRR"))){
     rinv <- n2i/n1i
 
-    tcc <- 1/(rinv+1)
-    ccc <- rinv/(rinv+1)
+    tcc[ccstudies] <- 1/(rinv+1)
+    ccc[ccstudies] <- rinv/(rinv+1)
   }
 
   if(cc == "empirical" & is.element(measure, c("logOR", "logRR"))){
@@ -218,18 +225,18 @@ rareIV <- function(x, measure, method, cc, ccval = 0.5, ccto = "only0",
                                measure = metafor_measure, method = method)
     prior <- exp(as.numeric(fit_nozero$beta))
 
-    tcc <- prior/(rinv+prior)
-    ccc <- rinv/(rinv+prior)
+    tcc[ccstudies] <- prior/(rinv+prior)
+    ccc[ccstudies] <- rinv/(rinv+prior)
 
   }
 
   ai_cc <- ai; bi_cc <- bi; ci_cc <- ci; di_cc <- di
 
   # apply continuity correction:
-  ai_cc[ccstudies] <- ai[ccstudies]+tcc[ccstudies]
-  bi_cc[ccstudies] <- bi[ccstudies]+tcc[ccstudies]
-  ci_cc[ccstudies] <- ci[ccstudies]+ccc[ccstudies]
-  di_cc[ccstudies] <- di[ccstudies]+ccc[ccstudies]
+  ai_cc <- ai+tcc
+  bi_cc <- bi+tcc
+  ci_cc <- ci+ccc
+  di_cc <- di+ccc
 
   n1i_cc <- ai_cc+bi_cc
   n2i_cc <- ci_cc+di_cc
