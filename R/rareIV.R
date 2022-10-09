@@ -9,7 +9,7 @@
 #' or `"RD"` for the risk difference).
 #' @param method character string specifying whether a fixed- or a random-effects model should be fitted.
 #' A fixed-effects model is fitted when using `method = "FE"`. A random-effects model is fitted
-#' by setting `method` equal to one of the following: "DL", "HE", "SJ", "ML", "REML", "EB", "HS", "PM", or "GENQ".
+#' by setting `method` equal to one of the following: "DL", "HE", "SJ", "ML", "REML", "EB", "HS", "PM", "IPM", or "GENQ".
 #' Default is `"SJ"`.
 #' @param cc character string specifying the type of continuity corrections to be used
 #' (either `"constant"`, `"reciprocal"` or `"empirical"`). Default is "constant". See 'Details'.
@@ -17,7 +17,15 @@
 #' `cc = "constant"`. Must be a scalar or a vector of length equal to the number of studies.
 #' Default is `ccval = 0.5`. If a scalar is specified, the value is added to all studies for
 #' which the number of events is zero in at least one of the groups. This behavior can be changed
-#' using the argument `ccto`.
+#' using the argument `ccto`. `ccval` is overwritten by tccval and cccval if both arguments are specified.
+#' @param tccval scalar or numerical vector specifying the value of the continuity correction
+#' applied to the observations from the treatment group if `cc = "constant"`. Must be a scalar or a vector
+#' of length equal to the number of studies. If `cc = "constant"` and `tccval` is not specified, `tccval` is
+#' set to the value of `ccval` internally.
+#' @param cccval scalar or numerical vector specifying the value of the continuity correction
+#' applied to the observations from the control group if `cc = "constant"`. Must be a scalar or a vector
+#' of length equal to the number of studies. If `cc = "constant"` and `cccval` is not specified, `cccval` is
+#' set to the value of `ccval` internally.
 #' @param ccto character string indicating to which studies the continuity correction should
 #' be applied. Either `"only0"`, for which the continuity correction is applied to all studies
 #' for which the number of events is zero in at least one of the groups, `"all"`, for which the
@@ -29,7 +37,8 @@
 #' individual studies.
 #' @param test character string specifying how test statistics and confidence intervals for the
 #' fixed effects should be computed (either `"z"`, for Wald-type tests and CIs, or `"hksj"`, for
-#' tests and CIs based on the method by Knapp and Hartung (2003) and Sidik and Jonkman (2002)).
+#' tests and CIs based on the method by Knapp and Hartung (2003) and Sidik and Jonkman (2002).
+#' Specifying `test = "knha"` instead of `test = "hksj"` will produce the same results).
 #' @param digits integer specifying the number of decimal places to which the printed results
 #' should be rounded (if unspecified, the default is 4).
 #' @param verbose logical indicating whether output should be generated on the progress of model
@@ -55,7 +64,7 @@
 #'
 #' @export
 #'
-rareIV <- function(x, measure, method, cc, ccval = 0.5, ccto = "only0",
+rareIV <- function(x, measure, method, cc, ccval = 0.5, tccval, cccval, ccto = "only0",
                    drop00 = TRUE, test="z", digits = 3, verbose=FALSE, control,
                    ...){
 
@@ -120,17 +129,38 @@ rareIV <- function(x, measure, method, cc, ccval = 0.5, ccto = "only0",
 
   # check if ccval argument is valid
   if(cc == "constant"){
-    if(drop00 == FALSE){
-      if(!is.element(length(ccval), c(1,x$k))){
+
+    if(drop00 == FALSE & !is.element(length(ccval), c(1,x$k))){
+      stop("'ccval' must have length 1 or length equal to the number of studies.")
+    }
+
+    if(drop00 == TRUE & !is.element(length(ccval), c(1,x$k,x$k-x$kdz))){
+      stop("'ccval' must have length 1 or length equal to the number of studies (in- or excluding double-zero studies).")
+    }
+
+    if(!missing(tccval)){
+
+      if((!missing(tccval) & missing(cccval))|(!missing(cccval) & missing(tccval))){
+        stop("Please specify both 'tccval' and 'cccval'.")
+      }
+
+      if(!equalLength(tccval, cccval)){
+        stop("'tccval' and 'cccval' must have equal length.")
+      }
+
+      if(drop00 == FALSE & !is.element(length(tccval), c(1,x$k))){
         stop("'ccval' must have length 1 or length equal to the number of studies.")
       }
-    }
-    if(drop00 == TRUE){
-      if(!is.element(length(ccval), c(1,x$k,x$k-x$kdz))){
+
+      if(drop00 == TRUE & !is.element(length(tccval), c(1,x$k,x$k-x$kdz))){
         stop("'ccval' must have length 1 or length equal to the number of studies (in- or excluding double-zero studies).")
       }
+
     }
+
+
   }
+
 
   # check if test argument is valid
   if(!is.element(test, c("z", "knha", "hksj"))){
@@ -169,6 +199,12 @@ rareIV <- function(x, measure, method, cc, ccval = 0.5, ccto = "only0",
     test = "knha"
   }
 
+  # check whether tccval and cccval are specified; if not, set them to ccval:
+  if(missing(tccval)){
+    tccval <- ccval
+    cccval <- ccval
+  }
+
   # remove double-zero studies if desired:
   if(drop00 == TRUE){
     remove <- (ai == 0 & ci == 0) | (bi == 0 & di == 0)
@@ -179,8 +215,9 @@ rareIV <- function(x, measure, method, cc, ccval = 0.5, ccto = "only0",
     n1i <- n1i[!remove]
     n2i <- n2i[!remove]
 
-    if(length(ccval) > length(ai)){
-      ccval <- ccval[!remove]
+    if(length(tccval) > length(ai)){
+      tccval <- tccval[!remove]
+      cccval <- cccval[!remove]
     }
   }
 
@@ -198,12 +235,12 @@ rareIV <- function(x, measure, method, cc, ccval = 0.5, ccto = "only0",
 
   if(cc == "constant"){
 
-    if(length(ccval) == 1){
-      tcc[ccstudies] <- ccval
-      ccc[ccstudies] <- ccval
+    if(length(tccval) == 1){
+      tcc[ccstudies] <- tccval
+      ccc[ccstudies] <- cccval
     }else{
-      tcc <- ccval
-      ccc <- ccval
+      tcc <- tccval
+      ccc <- cccval
     }
 
   }
@@ -296,7 +333,8 @@ rareIV <- function(x, measure, method, cc, ccval = 0.5, ccto = "only0",
                       test = test,
                       tau2 = tau2,
                       to = "none", # prevent application of further continuity corrections
-                      digits = digits, verbose = verbose)
+                      digits = digits, verbose = verbose,
+                      control = control)
 
   # make results list
   # UNDER CONSTRUCTION

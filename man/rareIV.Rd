@@ -10,6 +10,8 @@ rareIV(
   method,
   cc,
   ccval = 0.5,
+  tccval,
+  cccval,
   ccto = "only0",
   drop00 = TRUE,
   test = "z",
@@ -28,7 +30,7 @@ or \code{"RD"} for the risk difference).}
 
 \item{method}{character string specifying whether a fixed- or a random-effects model should be fitted.
 A fixed-effects model is fitted when using \code{method = "FE"}. A random-effects model is fitted
-by setting \code{method} equal to one of the following: "DL", "HE", "SJ", "ML", "REML", "EB", "HS", "PM", or "GENQ".
+by setting \code{method} equal to one of the following: "DL", "HE", "SJ", "ML", "REML", "EB", "HS", "PM", "IPM", or "GENQ".
 Default is \code{"SJ"}.}
 
 \item{cc}{character string specifying the type of continuity corrections to be used
@@ -38,7 +40,17 @@ Default is \code{"SJ"}.}
 \code{cc = "constant"}. Must be a scalar or a vector of length equal to the number of studies.
 Default is \code{ccval = 0.5}. If a scalar is specified, the value is added to all studies for
 which the number of events is zero in at least one of the groups. This behavior can be changed
-using the argument \code{ccto}.}
+using the argument \code{ccto}. \code{ccval} is overwritten by tccval and cccval if both arguments are specified.}
+
+\item{tccval}{scalar or numerical vector specifying the value of the continuity correction
+applied to the observations from the treatment group if \code{cc = "constant"}. Must be a scalar or a vector
+of length equal to the number of studies. If \code{cc = "constant"} and \code{tccval} is not specified, \code{tccval} is
+set to the value of \code{ccval} internally.}
+
+\item{cccval}{scalar or numerical vector specifying the value of the continuity correction
+applied to the observations from the control group if \code{cc = "constant"}. Must be a scalar or a vector
+of length equal to the number of studies. If \code{cc = "constant"} and \code{cccval} is not specified, \code{cccval} is
+set to the value of \code{ccval} internally.}
 
 \item{ccto}{character string indicating to which studies the continuity correction should
 be applied. Either \code{"only0"}, for which the continuity correction is applied to all studies
@@ -53,7 +65,8 @@ individual studies.}
 
 \item{test}{character string specifying how test statistics and confidence intervals for the
 fixed effects should be computed (either \code{"z"}, for Wald-type tests and CIs, or \code{"hksj"}, for
-tests and CIs based on the method by Knapp and Hartung (2003) and Sidik and Jonkman (2002)).}
+tests and CIs based on the method by Knapp and Hartung (2003) and Sidik and Jonkman (2002).
+Specifying \code{test = "knha"} instead of \code{test = "hksj"} will produce the same results).}
 
 \item{digits}{integer specifying the number of decimal places to which the printed results
 should be rounded (if unspecified, the default is 4).}
