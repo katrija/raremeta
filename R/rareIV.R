@@ -86,8 +86,16 @@ rareIV <- function(x, measure, method, cc, ccval = 0.5, ccto = "only0",
     stop("unknown 'method' specified See ?rareIV for more details.")
   }
 
+  # extract counts and sample sizes
+  ai <- x$ai
+  bi <- x$bi
+  ci <- x$ci
+  di <- x$di
+  n1i <- x$n1i
+  n2i <- x$n2i
+
   # check if cc is specified (in case there are zero-studies)
-  if(any(c(x$ai, x$bi, x$ci, x$di) == 0) & missing(cc)){
+  if(any(c(ai,bi,ci,di) == 0) & missing(cc)){
     stop("Some studies have zero events. \n
          You must specify the 'cc' argument to determine how they are handled.\n
          In case you want to exclude all zero-studies, set 'cc' equal to 'none'.")
@@ -143,14 +151,6 @@ rareIV <- function(x, measure, method, cc, ccval = 0.5, ccto = "only0",
   if(cc == "empirical" & measure == "RD"){
     stop("continuity correction of type 'empirical' is currently not supported for measure 'RD'.")
   }
-
-  # extract counts and sample sizes
-  ai <- x$ai
-  bi <- x$bi
-  ci <- x$ci
-  di <- x$di
-  n1i <- x$n1i
-  n2i <- x$n2i
 
   # check that there are non-zero studies when the empirical cc shall be applied
   if(cc == "empirical" & all(ai == 0 | bi == 0 | ci == 0 | di == 0)){
