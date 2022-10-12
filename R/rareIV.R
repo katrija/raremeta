@@ -33,7 +33,7 @@
 #' correction is applied to all studies if any of the individual studies has zero events in at
 #' least one of the groups.
 #' @param drop00 logical indicating whether double-zero studies (i.e., studies with no events or
-#' only events in both groups) should be excluded when calculating the outcome measures for the
+#' only events in both groups) should be excluded when calculating the outcome measufit for the
 #' individual studies.
 #' @param test character string specifying how test statistics and confidence intervals for the
 #' fixed effects should be computed (either `"z"`, for Wald-type tests and CIs, or `"hksj"`, for
@@ -205,6 +205,10 @@ rareIV <- function(x, measure, method, cc, ccval = 0.5, tccval, cccval, ccto = "
     cccval <- ccval
   }
 
+  mf <- match.call()
+
+  remove <- rep(FALSE, length(ai))
+
   # remove double-zero studies if desired:
   if(drop00 == TRUE){
     remove <- (ai == 0 & ci == 0) | (bi == 0 & di == 0)
@@ -220,6 +224,8 @@ rareIV <- function(x, measure, method, cc, ccval = 0.5, tccval, cccval, ccto = "
       cccval <- cccval[!remove]
     }
   }
+
+  ccstudies <- rep(FALSE, length(ai))
 
   # specify studies to be continuity corrected:
   if(ccto == "only0"){
@@ -248,14 +254,14 @@ rareIV <- function(x, measure, method, cc, ccval = 0.5, tccval, cccval, ccto = "
   # continuity corrections for logOR and logRR:
 
   if(cc == "reciprocal" & is.element(measure, c("logOR", "logRR"))){
-    rinv <- n2i/n1i
+    rinv <- n2i[ccstudies]/n1i[ccstudies]
 
     tcc[ccstudies] <- 1/(rinv+1)
     ccc[ccstudies] <- rinv/(rinv+1)
   }
 
   if(cc == "empirical" & is.element(measure, c("logOR", "logRR"))){
-    rinv <- n2i/n1i
+    rinv <- n2i[ccstudies]/n1i[ccstudies]
     nozero <- which((ai != 0) & (bi != 0) & (ci != 0) & (di != 0))
     fit_nozero <- metafor::rma(ai = ai[nozero], bi = bi[nozero],
                                ci = ci[nozero], di = di[nozero],
@@ -327,7 +333,7 @@ rareIV <- function(x, measure, method, cc, ccval = 0.5, tccval, cccval, ccto = "
   }
 
   # run metafor
-  res <- metafor::rma(ai = ai_cc, bi = bi_cc,
+  fit <- metafor::rma(ai = ai_cc, bi = bi_cc,
                       ci = ci_cc, di = di_cc,
                       measure = metafor_measure, method = metafor_method,
                       test = test,
@@ -336,8 +342,80 @@ rareIV <- function(x, measure, method, cc, ccval = 0.5, tccval, cccval, ccto = "
                       digits = digits, verbose = verbose,
                       control = control)
 
+
   # make results list
   # UNDER CONSTRUCTION
+  res <- list(
+    # model information:
+    b = fit$b,
+    beta = fit$beta,
+    se = fit$se,
+    zval = fit$zval,
+    pval = fit$pval,
+    ci.lb = fit$ci.lb,
+    ci.ub = fit$ci.ub,
+    vb = fit$vb,
+    tau2 = fit$tau2,
+    se.tau2 = fit$se.tau2,
+    I2 = fit$I2,
+    H2 = fit$H2,
+    R2 = fit$R2,
+    vt = fit$vt,
+    QE = fit$QE,
+    QEp = fit$QEp,
+    QM = fit$QM,
+    QMdf = fit$QMdf,
+    QMp = fit$QMp,
+    fit.stats = fit$fit.stats,
+    p = fit$p,
+    # study numbers:
+    k = fit$k,
+    k.all = x$k,
+    kdz = x$kdz,
+    ksz = x$ksz,
+    k1sz = x$k1sz,
+    k2sz = x$k2sz,
+    ids = 1:length(ai),
+    incl.studies = !remove,
+    # effect sizes and sampling variances:
+    yi = fit$yi,
+    vi = fit$vi,
+    # model matrix:
+    X = fit$X,
+    # counts and sample sizes::
+    ai = ai,
+    bi = bi,
+    ci = ci,
+    di = di,
+    ai.cc = ai_cc,
+    bi.cc = bi_cc,
+    ci.cc = ci_cc,
+    di.cc = di_cc,
+    ni = n1i+n2i,
+    n1i = n1i,
+    n2i = n2i,
+    n1i.cc = n1i_cc,
+    n2i.cc = n2i_cc,
+    # continuity corrections:
+    tcc = tcc,
+    ccc = ccc,
+    cc.studies = ccstudies,
+    # arguments:
+    measure = measure,
+    method = method,
+    cc = cc,
+    ccval = ccval,
+    tccval = tccval,
+    cccval = cccval,
+    ccto = ccto,
+    drop00 = drop00,
+    test = test,
+    digits = digits,
+    # control = control,
+    # package version and call:
+    version = packageVersion("raremeta"),
+    call = mf
+  )
 
   # apply class "raremeta"
   # UNDER CONSTRUCTION
