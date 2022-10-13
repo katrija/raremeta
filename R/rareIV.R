@@ -413,7 +413,7 @@ rareIV <- function(x, measure, method, cc, ccval = 0.5, tccval, cccval, ccto = "
     digits = digits,
     # control = control,
     # package version and call:
-    version = packageVersion("raremeta"),
+    version = utils::packageVersion("raremeta"),
     call = mf
   )
 
