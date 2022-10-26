@@ -35,6 +35,9 @@
 #' @param drop00 logical indicating whether double-zero studies (i.e., studies with no events or
 #' only events in both groups) should be excluded when calculating the outcome measufit for the
 #' individual studies.
+#' @param weighted logical specifying whether weighted (default) or unweighted estimation of the pooled
+#' effect size should be used.
+#' @param level numeric between 0 and 95 specifying the confdeince interval level (the default is 95)
 #' @param test character string specifying how test statistics and confidence intervals for the
 #' fixed effects should be computed (either `"z"`, for Wald-type tests and CIs, or `"hksj"`, for
 #' tests and CIs based on the method by Knapp and Hartung (2003) and Sidik and Jonkman (2002).
@@ -46,8 +49,6 @@
 #' @param control optional list of control values for the iterative algorithms. If unspecified, default
 #' values are defined inside the functions.
 #' @param ... additional arguments.
-#' @param weighted logical specifying whether weighted (default) or unweighted estimation of the pooled
-#' effect size should be used.
 #'
 #' @return an object of class raremeta. The object is a list containing the following elements:
 #'
@@ -73,7 +74,7 @@
 #' @export
 #'
 rareIV <- function(x, measure, method, cc, ccval = 0.5, tccval, cccval, ccto = "only0",
-                   drop00 = TRUE, weighted = TRUE,
+                   drop00 = TRUE, weighted = TRUE, level = 95,
                    test="z", digits = 3, verbose=FALSE, control,
                    ...){
 
@@ -347,6 +348,7 @@ rareIV <- function(x, measure, method, cc, ccval = 0.5, tccval, cccval, ccto = "
                       test = test,
                       tau2 = tau2,
                       to = "none", # prevent application of further continuity corrections
+                      level = level,
                       digits = digits, verbose = verbose,
                       control = control)
 
@@ -417,6 +419,8 @@ rareIV <- function(x, measure, method, cc, ccval = 0.5, tccval, cccval, ccto = "
     cccval = cccval,
     ccto = ccto,
     drop00 = drop00,
+    weighted = weighted,
+    level = level,
     test = test,
     digits = digits,
     # control = control,
