@@ -14,6 +14,7 @@ rareIV(
   cccval,
   ccto = "only0",
   drop00 = TRUE,
+  weighted = TRUE,
   test = "z",
   digits = 3,
   verbose = FALSE,
@@ -62,6 +63,9 @@ least one of the groups.}
 \item{drop00}{logical indicating whether double-zero studies (i.e., studies with no events or
 only events in both groups) should be excluded when calculating the outcome measufit for the
 individual studies.}
+
+\item{weighted}{logical specifying whether weighted (default) or unweighted estimation of the pooled
+effect size should be used.}
 
 \item{test}{character string specifying how test statistics and confidence intervals for the
 fixed effects should be computed (either \code{"z"}, for Wald-type tests and CIs, or \code{"hksj"}, for

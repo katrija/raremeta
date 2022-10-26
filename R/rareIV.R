@@ -46,6 +46,8 @@
 #' @param control optional list of control values for the iterative algorithms. If unspecified, default
 #' values are defined inside the functions.
 #' @param ... additional arguments.
+#' @param weighted logical specifying whether weighted (default) or unweighted estimation of the pooled
+#' effect size should be used.
 #'
 #' @return an object of class raremeta. The object is a list containing the following elements:
 #'
