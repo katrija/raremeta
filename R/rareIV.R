@@ -71,7 +71,8 @@
 #' @export
 #'
 rareIV <- function(x, measure, method, cc, ccval = 0.5, tccval, cccval, ccto = "only0",
-                   drop00 = TRUE, test="z", digits = 3, verbose=FALSE, control,
+                   drop00 = TRUE, weighted = TRUE,
+                   test="z", digits = 3, verbose=FALSE, control,
                    ...){
 
   # check if x is an object of class rareData
@@ -315,8 +316,6 @@ rareIV <- function(x, measure, method, cc, ccval = 0.5, tccval, cccval, ccto = "
       k <- length(yi)
 
       sigma2i <- 1/n1i_cc*(exp(-mu_hat-theta_hat+tau2/2)+2+exp(mu_hat+theta_hat+tau2/2))+1/n2i_cc*(exp(-mu_hat)+2+exp(mu_hat))
-      # note that here, it is n1i+1 and no n1i because the continuity correction is added here
-      # so it is crucial to make sure that the cc has not yet been applied to n1i!
 
       weights_ipm <- 1/(sigma2i+tau2)
 
@@ -342,6 +341,7 @@ rareIV <- function(x, measure, method, cc, ccval = 0.5, tccval, cccval, ccto = "
   fit <- metafor::rma(ai = ai_cc, bi = bi_cc,
                       ci = ci_cc, di = di_cc,
                       measure = metafor_measure, method = metafor_method,
+                      weighted = weighted,
                       test = test,
                       tau2 = tau2,
                       to = "none", # prevent application of further continuity corrections
