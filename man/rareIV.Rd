@@ -12,6 +12,7 @@ rareIV(
   ccval = 0.5,
   tccval,
   cccval,
+  ccsum = 1,
   ccto = "only0",
   drop00 = TRUE,
   weighted = TRUE,
@@ -53,6 +54,11 @@ set to the value of \code{ccval} internally.}
 applied to the observations from the control group if \code{cc = "constant"}. Must be a scalar or a vector
 of length equal to the number of studies. If \code{cc = "constant"} and \code{cccval} is not specified, \code{cccval} is
 set to the value of \code{ccval} internally.}
+
+\item{ccsum}{numeric value specifying the value of the sum of the continuity correction applied to the
+observations from the treatment group and the continuity correction applied to the observations from
+the control group. Default is \code{ccsum = 1}. Currently, setting this argument to a different number only has
+an effect when \code{cc = "tacc"} or \code{cc = "empirical"}.}
 
 \item{ccto}{character string indicating to which studies the continuity correction should
 be applied. Either \code{"only0"}, for which the continuity correction is applied to all studies

@@ -26,6 +26,10 @@
 #' applied to the observations from the control group if `cc = "constant"`. Must be a scalar or a vector
 #' of length equal to the number of studies. If `cc = "constant"` and `cccval` is not specified, `cccval` is
 #' set to the value of `ccval` internally.
+#' @param ccsum numeric value specifying the value of the sum of the continuity correction applied to the
+#' observations from the treatment group and the continuity correction applied to the observations from
+#' the control group. Default is `ccsum = 1`. Currently, setting this argument to a different number only has
+#' an effect when `cc = "tacc"` or `cc = "empirical"`.
 #' @param ccto character string indicating to which studies the continuity correction should
 #' be applied. Either `"only0"`, for which the continuity correction is applied to all studies
 #' for which the number of events is zero in at least one of the groups, `"all"`, for which the
@@ -73,7 +77,8 @@
 #'
 #' @export
 #'
-rareIV <- function(x, measure, method, cc, ccval = 0.5, tccval, cccval, ccto = "only0",
+rareIV <- function(x, measure, method, cc, ccval = 0.5, tccval, cccval, ccsum = 1,
+                   ccto = "only0",
                    drop00 = TRUE, weighted = TRUE, level = 95,
                    test="z", digits = 3, verbose=FALSE, control,
                    ...){
@@ -266,8 +271,8 @@ rareIV <- function(x, measure, method, cc, ccval = 0.5, tccval, cccval, ccto = "
   if(cc == "tacc" & is.element(measure, c("logOR", "logRR"))){
     rinv <- n2i[ccstudies]/n1i[ccstudies]
 
-    tcc[ccstudies] <- 1/(rinv+1)
-    ccc[ccstudies] <- rinv/(rinv+1)
+    tcc[ccstudies] <- ccsum*1/(rinv+1)
+    ccc[ccstudies] <- ccsum*rinv/(rinv+1)
   }
 
   if(cc == "empirical" & is.element(measure, c("logOR", "logRR"))){
@@ -278,8 +283,8 @@ rareIV <- function(x, measure, method, cc, ccval = 0.5, tccval, cccval, ccto = "
                                measure = metafor_measure, method = method)
     prior <- exp(as.numeric(fit_nozero$beta))
 
-    tcc[ccstudies] <- prior/(rinv+prior)
-    ccc[ccstudies] <- rinv/(rinv+prior)
+    tcc[ccstudies] <- ccsum*prior/(rinv+prior)
+    ccc[ccstudies] <- ccsum*rinv/(rinv+prior)
 
   }
 
@@ -417,6 +422,7 @@ rareIV <- function(x, measure, method, cc, ccval = 0.5, tccval, cccval, ccto = "
     ccval = ccval,
     tccval = tccval,
     cccval = cccval,
+    ccsum = ccsum,
     ccto = ccto,
     drop00 = drop00,
     weighted = weighted,
