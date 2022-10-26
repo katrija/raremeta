@@ -52,9 +52,15 @@
 #' ...
 #'
 #' @details
-#'
-#' ...
-#'
+#' # Details
+#' ## Data input
+#' ## Effect size measures
+#' ## Handling single-zero and double-zero studies
+#' ## Differences between effect size measures in the application of continuity corrections
+#' ## Model specification
+#' ## Estimation of the between-study variance in random-effects meta-analysis
+#' ## Tests and confidence intervals for model coefficients
+#' ## Tests for residual heterogeneity
 #' @references
 #' Hartung, J., and Knapp, G. (2001). A refined method for the meta-analysis of controlled clinical trials
 #' with binary outcome. Statistics in Medicine 20, 3875-3889. doi: 10.1002/sim.1009
