@@ -206,6 +206,16 @@ rareIV <- function(x, measure, method, cc, ccval = 0.5, tccval, cccval, ccsum = 
     stop("method = 'IPM' is currently not defined for cc = 'empirical'.")
   }
 
+  # check ccsum argument:
+  if(!is.numeric(ccsum) | length(ccsum) > 1 | ccsum < 0){
+    stop("ccsum must be a scalar larger than 0.")
+  }
+
+  # check if level argument is valid:
+  if(!is.numeric(level) | length(level) > 1 | level < 0 | level > 100){
+    stop("level must be a scalar between 0 and 100.")
+  }
+
   # convert measure to the metafor notation
   metafor_measure <- sub("log", "", measure)
 
