@@ -34,7 +34,7 @@ by setting \code{method} equal to one of the following: "DL", "HE", "SJ", "ML", 
 Default is \code{"SJ"}.}
 
 \item{cc}{character string specifying the type of continuity corrections to be used
-(either \code{"constant"}, \code{"reciprocal"} or \code{"empirical"}). Default is "constant". See 'Details'.}
+(either \code{"constant"}, \code{"tacc"} or \code{"empirical"}). Default is "constant". See 'Details'.}
 
 \item{ccval}{scalar or numerical vector specifying the value of the continuity correction if
 \code{cc = "constant"}. Must be a scalar or a vector of length equal to the number of studies.
@@ -60,7 +60,7 @@ correction is applied to all studies if any of the individual studies has zero e
 least one of the groups.}
 
 \item{drop00}{logical indicating whether double-zero studies (i.e., studies with no events or
-only events in both groups) should be excluded when calculating the outcome measures for the
+only events in both groups) should be excluded when calculating the outcome measufit for the
 individual studies.}
 
 \item{test}{character string specifying how test statistics and confidence intervals for the

@@ -12,7 +12,7 @@
 #' by setting `method` equal to one of the following: "DL", "HE", "SJ", "ML", "REML", "EB", "HS", "PM", "IPM", or "GENQ".
 #' Default is `"SJ"`.
 #' @param cc character string specifying the type of continuity corrections to be used
-#' (either `"constant"`, `"reciprocal"` or `"empirical"`). Default is "constant". See 'Details'.
+#' (either `"constant"`, `"tacc"` or `"empirical"`). Default is "constant". See 'Details'.
 #' @param ccval scalar or numerical vector specifying the value of the continuity correction if
 #' `cc = "constant"`. Must be a scalar or a vector of length equal to the number of studies.
 #' Default is `ccval = 0.5`. If a scalar is specified, the value is added to all studies for
@@ -115,8 +115,8 @@ rareIV <- function(x, measure, method, cc, ccval = 0.5, tccval, cccval, ccto = "
   }
 
   # check if cc argument is valid
-  if(!is.element(cc, c("none", "constant", "reciprocal", "empirical"))){
-    stop("'cc' must be either 'none', 'constant', 'reciprocal', or 'empirical'")
+  if(!is.element(cc, c("none", "constant", "tacc", "empirical"))){
+    stop("'cc' must be either 'none', 'constant', 'tacc', or 'empirical'")
   }
 
 
@@ -253,7 +253,7 @@ rareIV <- function(x, measure, method, cc, ccval = 0.5, tccval, cccval, ccto = "
 
   # continuity corrections for logOR and logRR:
 
-  if(cc == "reciprocal" & is.element(measure, c("logOR", "logRR"))){
+  if(cc == "tacc" & is.element(measure, c("logOR", "logRR"))){
     rinv <- n2i[ccstudies]/n1i[ccstudies]
 
     tcc[ccstudies] <- 1/(rinv+1)

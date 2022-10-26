@@ -68,7 +68,7 @@ test_that("rareIV returns errors and warning messages", {
 
   # error if cc argument is not valid
   expect_error(rareIV(x, measure = "logOR", method = "FE", cc = "None"),
-               "'cc' must be either 'none', 'constant', 'reciprocal', or 'empirical'")
+               "'cc' must be either 'none', 'constant', 'tacc', or 'empirical'")
 
   # error if ccto argument is not valid
   expect_error(rareIV(x, measure = "logOR", method = "FE", cc = "constant", ccto = "Only0"),
