@@ -446,7 +446,7 @@ rareIV <- function(x, measure, method, cc, ccval = 0.5, tccval, cccval, ccsum = 
   )
 
   # apply class "raremeta"
-  # UNDER CONSTRUCTION
+  res <- raremeta(res)
 
   return(res)
 }
