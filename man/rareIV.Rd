@@ -18,7 +18,7 @@ rareIV(
   weighted = TRUE,
   level = 95,
   test = "z",
-  digits = 3,
+  digits = 4,
   verbose = FALSE,
   control,
   ...
