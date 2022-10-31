@@ -284,7 +284,12 @@ rareIV <- function(x, measure, method, cc, ccval = 0.5, tccval, cccval, ccsum = 
       stop("'ccval' must have length 1 or length equal to the number of studies (in- or excluding double-zero studies).")
     }
 
-    if(!missing(tccval)){
+    # check if ccval is non-negative
+    if(any(ccval < 0)){
+      stop("'ccval' must be non-negative.")
+    }
+
+    if(!missing(tccval) | !missing(cccval)){
 
       if((!missing(tccval) & missing(cccval))|(!missing(cccval) & missing(tccval))){
         stop("Please specify both 'tccval' and 'cccval'.")
@@ -295,11 +300,15 @@ rareIV <- function(x, measure, method, cc, ccval = 0.5, tccval, cccval, ccsum = 
       }
 
       if(drop00 == FALSE & !is.element(length(tccval), c(1,x$k))){
-        stop("'ccval' must have length 1 or length equal to the number of studies.")
+        stop("'tccval' must have length 1 or length equal to the number of studies.")
       }
 
       if(drop00 == TRUE & !is.element(length(tccval), c(1,x$k,x$k-x$kdz))){
-        stop("'ccval' must have length 1 or length equal to the number of studies (in- or excluding double-zero studies).")
+        stop("'tccval' must have length 1 or length equal to the number of studies (in- or excluding double-zero studies).")
+      }
+
+      if(any(c(tccval, cccval) < 0)){
+        stop("All values in 'tccval' and 'cccval' must be non-negative.")
       }
 
     }
@@ -316,11 +325,6 @@ rareIV <- function(x, measure, method, cc, ccval = 0.5, tccval, cccval, ccsum = 
   # check if digits argument is valid
   if(length(digits) != 1 | digits%%1 != 0 | digits < 0){
     stop("'digits' must be an integer of length 1.")
-  }
-
-  # check if ccval is non-negative
-  if(cc == "constant" & any(ccval < 0)){
-    stop("'ccval' must be non-negative.")
   }
 
   # empirical cc currently not supported for RD
