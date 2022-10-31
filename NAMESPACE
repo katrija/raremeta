@@ -2,5 +2,6 @@
 
 S3method(print,rareData)
 S3method(print,raremeta)
+S3method(summary,raremeta)
 export(rareDescribe)
 export(rareIV)
