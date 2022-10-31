@@ -34,7 +34,7 @@ or \code{"RD"} for the risk difference).}
 \item{method}{character string specifying whether a fixed- or a random-effects model should be fitted.
 A fixed-effects model is fitted when using \code{method = "FE"} . A random-effects model is fitted
 by setting \code{method} equal to one of the following: \code{"DL"}, \code{"HE"}, \code{"SJ"}, \code{"ML"}, \code{"REML"}, \code{"EB"}, \code{"HS"},
-\code{"PM"}, \code{"IPM"}, or \code{"GENQ"}.}
+\code{"PM"}, \code{"IPM"}, \code{"GENQ"}, \code{"PMM"} or \code{"GENQM"}.}
 
 \item{cc}{character string specifying the type of continuity corrections to be used
 (either \code{"constant"}, \code{"tacc"} or \code{"empirical"}). Default is "constant". See 'Details'.}
