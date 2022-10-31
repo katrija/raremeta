@@ -1,16 +1,17 @@
 #' Conduct a meta-analysis of a rare event using the inverse variance model
 #'
 #' Function to conduct a meta-analysis of a rare event using the fixed- or
-#' random-effects model of the inverse variance approach.
+#' random-effects model of the inverse variance approach. See below for more details
+#' on these models and their application in meta-analyses of rare events.
 #'
 #' @param x an object of class `"rareData"`.
 #' @param measure character string specifying the effect size or outcome measure to be used
 #' (either `"logOR"` for the log odds ratio, `"logRR"` for the log relative risk,
 #' or `"RD"` for the risk difference).
 #' @param method character string specifying whether a fixed- or a random-effects model should be fitted.
-#' A fixed-effects model is fitted when using `method = "FE"`. A random-effects model is fitted
-#' by setting `method` equal to one of the following: "DL", "HE", "SJ", "ML", "REML", "EB", "HS", "PM", "IPM", or "GENQ".
-#' Default is `"SJ"`.
+#' A fixed-effects model is fitted when using `method = "FE"` . A random-effects model is fitted
+#' by setting `method` equal to one of the following: `"DL"`, `"HE"`, `"SJ"`, `"ML"`, `"REML"`, `"EB"`, `"HS"`,
+#' `"PM"`, `"IPM"`, or `"GENQ"`.
 #' @param cc character string specifying the type of continuity corrections to be used
 #' (either `"constant"`, `"tacc"` or `"empirical"`). Default is "constant". See 'Details'.
 #' @param ccval scalar or numerical vector specifying the value of the continuity correction if
@@ -19,11 +20,11 @@
 #' which the number of events is zero in at least one of the groups. This behavior can be changed
 #' using the argument `ccto`. `ccval` is overwritten by tccval and cccval if both arguments are specified.
 #' @param tccval scalar or numerical vector specifying the value of the continuity correction
-#' applied to the observations from the treatment group if `cc = "constant"`. Must be a scalar or a vector
+#' applied to the observations from the treatment group (group 1) if `cc = "constant"`. Must be a scalar or a vector
 #' of length equal to the number of studies. If `cc = "constant"` and `tccval` is not specified, `tccval` is
 #' set to the value of `ccval` internally.
 #' @param cccval scalar or numerical vector specifying the value of the continuity correction
-#' applied to the observations from the control group if `cc = "constant"`. Must be a scalar or a vector
+#' applied to the observations from the control group (group 2) if `cc = "constant"`. Must be a scalar or a vector
 #' of length equal to the number of studies. If `cc = "constant"` and `cccval` is not specified, `cccval` is
 #' set to the value of `ccval` internally.
 #' @param ccsum numeric value specifying the value of the sum of the continuity correction applied to the
@@ -54,26 +55,156 @@
 #' values are defined inside the functions.
 #' @param ... additional arguments.
 #'
-#' @return an object of class raremeta. The object is a list containing the following elements:
-#'
-#' ...
-#'
 #' @details
 #' # Details
 #' ## Data input
+#' The main input of the `rareIV()` function is a so-called `rareData` object. A `rareData` object
+#' can be produced from a data frame by applying the `rareDescribe()` function to it. The `rareDescribe()`
+#' function pre-processes the data frame and stores the information required by the `rareIV()` function
+#' in a list. See `?rareDescribe` for more details.
 #' ## Effect size measures
+#' The function includes meta-analytic methods for log odds ratios, log risk ratios, and risk differences.
+#' The effect size measure can be specified using the `measure` argument. The respective effect size,
+#' along with an estimate of its sampling variance, is then calculated for each study based on the
+#' entries of the study's 2x2 table:
+#'
+#' |                   | event | no event|
+#' |:------------------|------:|--------:|
+#' |group1 (treatment) | ai    | bi      |
+#' |group2 (control)   | ci    | di      |
+#'
 #' ## Handling single-zero and double-zero studies
-#' ## Differences between effect size measures in the application of continuity corrections
+#' Single-zero studies are studies for which one entry of the 2x2 table is zero. Double-zero studies are
+#' studies for which two entries of the same column of the 2x2 table are zero.
+#' The function includes a variety of arguments to handle single-zero and double-zero studies. Per default,
+#' double-zero studies are currently excluded from the analysis (this behavior might be changed in the future).
+#' The inclusion of double-zero studies can be enforced by setting the argument `drop00` to `FALSE`.
+#' If the data include at least one single-zero study, the function throws an error if the user
+#' did not specify whether or not a continuity correction shall be applied.
+#' By setting `cc = "none"`, any zero-studies (studies with at least one zero-cell)
+#' which remain in the data are excluded from the analysis. If it is desired that zero-studies are
+#' included, the user needs to specify which continuity correction shall be used, and to which
+#' studies it shall be applied. Per default, the continuity correction is only applied to zero-studies, while
+#' studies for which all cells are larger than zero are left uncorrected. This behavior can be changed
+#' using the argument `ccto`. Per default, the constant value 0.5 (`cc = "constant"`, `ccval = 0.5`) is added to
+#' all cells of the studies specified by `ccto`. This continuity correcton was desribed by Gart and Zweifel (1967).
+#' Alternative continuity corrections which were described by Sweeting et al. (2004) can be applied by setting `cc` to `"tacc"`
+#' (for the treatment-arm continuity correction), and to `"empirical"` for the empirical continuity correction.
+#' Per default sum of the corrections for treatment and control groups is set to `1`, but this can be changed by setting the
+#' the argument `ccsum` to a different value.
+#' It is possible to set the continuity correction to a user-defined value (or a vector of user-defined values) using the
+#' argument `ccval` (if the value). If the user wants to specify different values for the treatment and the control group,
+#' this is possible via the arguments `tccval` and `cccval`.
+#'
+#' ### Differences between effect size measures in the application of continuity corrections
+#' When either the log odds ratio or the log risk ratio is used as an effect size measure, both the effect sizes and
+#' their sampling variances are calculated based on the continuity-corrected 2x2 table.
+#' When the effect size measure is the risk difference, the continuity-corrected 2x2 table is only used in the
+#' calculation of the sampling variances.
+#'
 #' ## Model specification
+#' The function can be used to fit fixed-effects models (also known as equal-effects models)
+#' and random-effects models using the inverse variance approach. Currently, it is not possible to include moderators in any of these models.
+#' A fixed-effects model is fitted when `method` is set to `"FE"` (or `"EE"`). A random-effects model
+#' is fitted when `method` is set to either `"DL"`, `"HE"`, `"SJ"`, `"ML"`, `"REML"`, `"EB"`, `"HS"`,
+#' `"PM"`, `"IPM"`, `"GENQ"`, `"PMM"` or `"GENQM"`. See below for details on heterogeneity estimation in random-effects meta-analysis.
+#' For a basic introduction to fixed-effects and random-effects meta-analysis, please refer to Borenstein et al. (2021)
+#' In usual applications of fixed- and random-effects meta-analyses, weighted estimation is used, i.e.,
+#' the pooled effect size is calculated as a weighted average of the study effect sizes, where the weights are
+#' defined as the inverse variances of the effect sizes. It is possible to switch to unweighted estimation
+#' via `weighted = FALSE`.
+#'
 #' ## Estimation of the between-study variance in random-effects meta-analysis
+#' Different estimators can be used to estimate the between-study variance, tau^2, in random-effects
+#' meta-analysis. The estimator to be used is specified via the `methods` argument.
+#' * `"DL"`: DerSimonian-Laird estimator
+#' * `"HE"`: Hedges estimator
+#' * `"SJ"`: Sidik-Jonkman estimator
+#' * `"ML"`: maximum likelihood estimator
+#' * `"REML"`: restricted maximum likelihood estimator
+#' * `"EB"`: empirical Bayes estimator
+#' * `"HS"`: Hunter-Schmidt estimator
+#' * `"PM"`: Paule-Mandel estimator
+#' * `"IPM"`: improved Paule-Mandel estimator
+#' * `"GENQ"`: generalized Q-statistic estimator
+#' * `"PMM"`: median-unbiased Paule-Mandel estimator
+#' * `"GENQM"`: median-unbiased generalized Q-statistic estimator
+#'
+#' Most of these estimators are described in Zhang et al. (2021). For details on the improved Paule-Mandel estimator,
+#' see also Bhaumik et al. (2012). The median-unbiased Paule-Mandel estimator and the median-unbiased generalized
+#' Q-statistic estimator are described in Viechtbauer (2021).
+#'
 #' ## Tests and confidence intervals for model coefficients
+#' Currently, tests and confidence intervals for model coefficients are obtained from the output of the
+#' function `rma()` from the `metafor()` package. Note that setting the argument `test`
+#' to `"hksj"` produces the same result as setting it to `"knha"`. See `?metafor::rma` for further details.
+#'
 #' ## Tests for residual heterogeneity
+#' Currently, the results of the test for residual heterogeneity are obtained from the output of the function
+#' `rma()` from the `metafor()` package. See `?metafor::rma` for further details.
+#'
+#'
+#' @return an object of class "raremeta". The object is a list containing the following elements:
+#' * `model`: name of the model used for conducting the meta-analysis.
+#' * `beta`: estimated coefficients of the model.
+#' * `se`: standard errors of the  coefficients.
+#' * `zval`: test statistics of the coefficients.
+#' * `zval`: p-values corresponding to the test statistics.
+#' * `ci.lb`: lower bound of the confidence intervals for the coefficients.
+#' * `ci.ub`: upper bound of the confidence intervals for the coefficients.
+#' * `vb`: variance-covariance matrix of the estimated coefficients.
+#' * `tau2`: estimated amount of (residual) heterogeneity. Always `0` when `method = "FE"`.
+#' * `se.tau2`: standard error of the estimated amount of (residual) heterogeneity.
+#' * `I2`: value of I^2 (total heterogeneity/total variability).
+#' * `H2`: value of H^2 (total variability/sampling variability).
+#' * `R2`: value of R^2.
+#' * `QE`: test statistic of the test for (residual) heterogeneity.
+#' * `QEp`: p-value corresponding to the test statistic.
+#' * `fit.stats`: a list with log-likelihood, deviance, AIC, BIC, and AICc values under
+#' the unrestricted and restricted likelihood.
+#' * `p`: number of coefficients in the model (including the intercept).
+#' * `k`: number of studies included in the analysis.
+#' * `k.all`: total number of studies (before exclusion).
+#' * `kdz`,`ksz`: number of double-zero and single-zero studies.
+#' * `k1sz`, `k2sz`: number of single-zero studies where the zero is in group 1 or group 2.
+#' * `yi`, `vi`: vectors containing the estimated effect sizes and their estimated sampling
+#' variances for all study.
+#' * `ai`, `bi`, `ci`, `di`: original entries of the 2x2 tables for all studies.
+#' * `ai.cc`, `bi.cc`, `ci.cc`, `di.cc`: entries of the 2x2 tables for all studies after
+#' application of the specified continuity correction.
+#' * `ni`, `n1i`, `n2i`: original total and group sample sizes.
+#' * `ni.cc`, `n1i.cc`, `n2i.cc`: total and group sample sizes after application of the
+#' specified continuity correction.
+#' * `tcc`, `ccc`: value of the specified continuity correction for the treatment group (group 1) and control
+#' group (group 2).
+#' * `cc.studies`: vector which indicates whether the continuity correction was applied
+#' to a study.
+#' * ...
 #' @references
+#' Borenstein, M., Hedges, L. V., Higgins, J. P., & Rothstein, H. R. (2021). Introduction to meta-analysis.
+#' John Wiley & Sons.
+#'
+#' Bhaumik, D. K., Amatya, A., Normand, S.-L. T., Greenhouse, J., Kaizar, E., Neelon, B., & Gibbons, R. D. (2012).
+#' Meta-analysis of rare binary adverse event data. Journal of the American Statistical
+#' Association 107, 555–567. doi: 10.1080/01621459.2012.664484
+#'
+#' Gart, John J, and James R Zweifel. 1967. On the bias of various estimators of the logit and
+#' its variance with application to quantal bioassay. Biometrika, 54, 181–187. doi:10.1093/BIOMET/54.1-2.181
+#'
 #' Hartung, J., and Knapp, G. (2001). A refined method for the meta-analysis of controlled clinical trials
-#' with binary outcome. Statistics in Medicine 20, 3875-3889. doi: 10.1002/sim.1009
+#' with binary outcome. Statistics in Medicine, 20, 3875-3889. doi: 10.1002/sim.1009
 #'
 #' Sidik, K., and Jonkman, J. N. (2002). A simple confidence interval for meta-analysis.
-#' Statistics in Medicine 21, 3153-3159. doi: 10.1002/sim.1262
+#' Statistics in Medicine, 21, 3153-3159. doi: 10.1002/sim.1262
+#'
+#' Sweeting, M. J., Sutton, A. J., & Lambert, P. C. (2004). What to add to nothing? Use and avoidance of
+#' continuity corrections in meta-analysis of sparse data. Statistics in Medicine, 23, 1351–1375. doi: 10.1002/sim.1761
+#'
+#' Viechtbauer, W. (2021). Median-unbiased estimators for the amount of heterogeneity in meta-analysis. European Congress of Methodology,
+#' Valencia, Spain. https://www.wvbauer.com/lib/exe/fetch.php/talks:2021_viechtbauer_eam_median_tau2.pdf
+#'
+#' Zhang, C., Chen, M., & Wang, X. (2020). Statistical methods for quantifying between-study heterogeneity in meta-analysis
+#' with focus on rare binary events. Statistics and its interface, 13(4), 449. doi: 10.4310/sii.2020.v13.n4.a3
 #'
 #' @export
 #'

@@ -32,9 +32,9 @@ rareIV(
 or \code{"RD"} for the risk difference).}
 
 \item{method}{character string specifying whether a fixed- or a random-effects model should be fitted.
-A fixed-effects model is fitted when using \code{method = "FE"}. A random-effects model is fitted
-by setting \code{method} equal to one of the following: "DL", "HE", "SJ", "ML", "REML", "EB", "HS", "PM", "IPM", or "GENQ".
-Default is \code{"SJ"}.}
+A fixed-effects model is fitted when using \code{method = "FE"} . A random-effects model is fitted
+by setting \code{method} equal to one of the following: \code{"DL"}, \code{"HE"}, \code{"SJ"}, \code{"ML"}, \code{"REML"}, \code{"EB"}, \code{"HS"},
+\code{"PM"}, \code{"IPM"}, or \code{"GENQ"}.}
 
 \item{cc}{character string specifying the type of continuity corrections to be used
 (either \code{"constant"}, \code{"tacc"} or \code{"empirical"}). Default is "constant". See 'Details'.}
@@ -46,12 +46,12 @@ which the number of events is zero in at least one of the groups. This behavior 
 using the argument \code{ccto}. \code{ccval} is overwritten by tccval and cccval if both arguments are specified.}
 
 \item{tccval}{scalar or numerical vector specifying the value of the continuity correction
-applied to the observations from the treatment group if \code{cc = "constant"}. Must be a scalar or a vector
+applied to the observations from the treatment group (group 1) if \code{cc = "constant"}. Must be a scalar or a vector
 of length equal to the number of studies. If \code{cc = "constant"} and \code{tccval} is not specified, \code{tccval} is
 set to the value of \code{ccval} internally.}
 
 \item{cccval}{scalar or numerical vector specifying the value of the continuity correction
-applied to the observations from the control group if \code{cc = "constant"}. Must be a scalar or a vector
+applied to the observations from the control group (group 2) if \code{cc = "constant"}. Must be a scalar or a vector
 of length equal to the number of studies. If \code{cc = "constant"} and \code{cccval} is not specified, \code{cccval} is
 set to the value of \code{ccval} internally.}
 
@@ -93,44 +93,180 @@ values are defined inside the functions.}
 \item{...}{additional arguments.}
 }
 \value{
-an object of class raremeta. The object is a list containing the following elements:
-
-...
+an object of class "raremeta". The object is a list containing the following elements:
+\itemize{
+\item \code{model}: name of the model used for conducting the meta-analysis.
+\item \code{beta}: estimated coefficients of the model.
+\item \code{se}: standard errors of the  coefficients.
+\item \code{zval}: test statistics of the coefficients.
+\item \code{zval}: p-values corresponding to the test statistics.
+\item \code{ci.lb}: lower bound of the confidence intervals for the coefficients.
+\item \code{ci.ub}: upper bound of the confidence intervals for the coefficients.
+\item \code{vb}: variance-covariance matrix of the estimated coefficients.
+\item \code{tau2}: estimated amount of (residual) heterogeneity. Always \code{0} when \code{method = "FE"}.
+\item \code{se.tau2}: standard error of the estimated amount of (residual) heterogeneity.
+\item \code{I2}: value of I^2 (total heterogeneity/total variability).
+\item \code{H2}: value of H^2 (total variability/sampling variability).
+\item \code{R2}: value of R^2.
+\item \code{QE}: test statistic of the test for (residual) heterogeneity.
+\item \code{QEp}: p-value corresponding to the test statistic.
+\item \code{fit.stats}: a list with log-likelihood, deviance, AIC, BIC, and AICc values under
+the unrestricted and restricted likelihood.
+\item \code{p}: number of coefficients in the model (including the intercept).
+\item \code{k}: number of studies included in the analysis.
+\item \code{k.all}: total number of studies (before exclusion).
+\item \code{kdz},\code{ksz}: number of double-zero and single-zero studies.
+\item \code{k1sz}, \code{k2sz}: number of single-zero studies where the zero is in group 1 or group 2.
+\item \code{yi}, \code{vi}: vectors containing the estimated effect sizes and their estimated sampling
+variances for all study.
+\item \code{ai}, \code{bi}, \code{ci}, \code{di}: original entries of the 2x2 tables for all studies.
+\item \code{ai.cc}, \code{bi.cc}, \code{ci.cc}, \code{di.cc}: entries of the 2x2 tables for all studies after
+application of the specified continuity correction.
+\item \code{ni}, \code{n1i}, \code{n2i}: original total and group sample sizes.
+\item \code{ni.cc}, \code{n1i.cc}, \code{n2i.cc}: total and group sample sizes after application of the
+specified continuity correction.
+\item \code{tcc}, \code{ccc}: value of the specified continuity correction for the treatment group (group 1) and control
+group (group 2).
+\item \code{cc.studies}: vector which indicates whether the continuity correction was applied
+to a study.
+\item ...
+}
 }
 \description{
 Function to conduct a meta-analysis of a rare event using the fixed- or
-random-effects model of the inverse variance approach.
+random-effects model of the inverse variance approach. See below for more details
+on these models and their application in meta-analyses of rare events.
 }
 \section{Details}{
 \subsection{Data input}{
+
+The main input of the \code{rareIV()} function is a so-called \code{rareData} object. A \code{rareData} object
+can be produced from a data frame by applying the \code{rareDescribe()} function to it. The \code{rareDescribe()}
+function pre-processes the data frame and stores the information required by the \code{rareIV()} function
+in a list. See \code{?rareDescribe} for more details.
 }
 
 \subsection{Effect size measures}{
+
+The function includes meta-analytic methods for log odds ratios, log risk ratios, and risk differences.
+The effect size measure can be specified using the \code{measure} argument. The respective effect size,
+along with an estimate of its sampling variance, is then calculated for each study based on the
+entries of the study's 2x2 table:\tabular{lrr}{
+    \tab event \tab no event \cr
+   group1 (treatment) \tab ai \tab bi \cr
+   group2 (control) \tab ci \tab di \cr
+}
+
 }
 
 \subsection{Handling single-zero and double-zero studies}{
+
+Single-zero studies are studies for which one entry of the 2x2 table is zero. Double-zero studies are
+studies for which two entries of the same column of the 2x2 table are zero.
+The function includes a variety of arguments to handle single-zero and double-zero studies. Per default,
+double-zero studies are currently excluded from the analysis (this behavior might be changed in the future).
+The inclusion of double-zero studies can be enforced by setting the argument \code{drop00} to \code{FALSE}.
+If the data include at least one single-zero study, the function throws an error if the user
+did not specify whether or not a continuity correction shall be applied.
+By setting \code{cc = "none"}, any zero-studies (studies with at least one zero-cell)
+which remain in the data are excluded from the analysis. If it is desired that zero-studies are
+included, the user needs to specify which continuity correction shall be used, and to which
+studies it shall be applied. Per default, the continuity correction is only applied to zero-studies, while
+studies for which all cells are larger than zero are left uncorrected. This behavior can be changed
+using the argument \code{ccto}. Per default, the constant value 0.5 (\code{cc = "constant"}, \code{ccval = 0.5}) is added to
+all cells of the studies specified by \code{ccto}. This continuity correcton was desribed by Gart and Zweifel (1967).
+Alternative continuity corrections which were described by Sweeting et al. (2004) can be applied by setting \code{cc} to \code{"tacc"}
+(for the treatment-arm continuity correction), and to \code{"empirical"} for the empirical continuity correction.
+Per default sum of the corrections for treatment and control groups is set to \code{1}, but this can be changed by setting the
+the argument \code{ccsum} to a different value.
+It is possible to set the continuity correction to a user-defined value (or a vector of user-defined values) using the
+argument \code{ccval} (if the value). If the user wants to specify different values for the treatment and the control group,
+this is possible via the arguments \code{tccval} and \code{cccval}.
+\subsection{Differences between effect size measures in the application of continuity corrections}{
+
+When either the log odds ratio or the log risk ratio is used as an effect size measure, both the effect sizes and
+their sampling variances are calculated based on the continuity-corrected 2x2 table.
+When the effect size measure is the risk difference, the continuity-corrected 2x2 table is only used in the
+calculation of the sampling variances.
 }
 
-\subsection{Differences between effect size measures in the application of continuity corrections}{
 }
 
 \subsection{Model specification}{
+
+The function can be used to fit fixed-effects models (also known as equal-effects models)
+and random-effects models using the inverse variance approach. Currently, it is not possible to include moderators in any of these models.
+A fixed-effects model is fitted when \code{method} is set to \code{"FE"} (or \code{"EE"}). A random-effects model
+is fitted when \code{method} is set to either \code{"DL"}, \code{"HE"}, \code{"SJ"}, \code{"ML"}, \code{"REML"}, \code{"EB"}, \code{"HS"},
+\code{"PM"}, \code{"IPM"}, \code{"GENQ"}, \code{"PMM"} or \code{"GENQM"}. See below for details on heterogeneity estimation in random-effects meta-analysis.
+For a basic introduction to fixed-effects and random-effects meta-analysis, please refer to Borenstein et al. (2021)
+In usual applications of fixed- and random-effects meta-analyses, weighted estimation is used, i.e.,
+the pooled effect size is calculated as a weighted average of the study effect sizes, where the weights are
+defined as the inverse variances of the effect sizes. It is possible to switch to unweighted estimation
+via \code{weighted = FALSE}.
 }
 
 \subsection{Estimation of the between-study variance in random-effects meta-analysis}{
+
+Different estimators can be used to estimate the between-study variance, tau^2, in random-effects
+meta-analysis. The estimator to be used is specified via the \code{methods} argument.
+\itemize{
+\item \code{"DL"}: DerSimonian-Laird estimator
+\item \code{"HE"}: Hedges estimator
+\item \code{"SJ"}: Sidik-Jonkman estimator
+\item \code{"ML"}: maximum likelihood estimator
+\item \code{"REML"}: restricted maximum likelihood estimator
+\item \code{"EB"}: empirical Bayes estimator
+\item \code{"HS"}: Hunter-Schmidt estimator
+\item \code{"PM"}: Paule-Mandel estimator
+\item \code{"IPM"}: improved Paule-Mandel estimator
+\item \code{"GENQ"}: generalized Q-statistic estimator
+\item \code{"PMM"}: median-unbiased Paule-Mandel estimator
+\item \code{"GENQM"}: median-unbiased generalized Q-statistic estimator
+}
+
+Most of these estimators are described in Zhang et al. (2021). For details on the improved Paule-Mandel estimator,
+see also Bhaumik et al. (2012). The median-unbiased Paule-Mandel estimator and the median-unbiased generalized
+Q-statistic estimator are described in Viechtbauer (2021).
 }
 
 \subsection{Tests and confidence intervals for model coefficients}{
+
+Currently, tests and confidence intervals for model coefficients are obtained from the output of the
+function \code{rma()} from the \code{metafor()} package. Note that setting the argument \code{test}
+to \code{"hksj"} produces the same result as setting it to \code{"knha"}. See \code{?metafor::rma} for further details.
 }
 
 \subsection{Tests for residual heterogeneity}{
+
+Currently, the results of the test for residual heterogeneity are obtained from the output of the function
+\code{rma()} from the \code{metafor()} package. See \code{?metafor::rma} for further details.
 }
 }
 
 \references{
+Borenstein, M., Hedges, L. V., Higgins, J. P., & Rothstein, H. R. (2021). Introduction to meta-analysis.
+John Wiley & Sons.
+
+Bhaumik, D. K., Amatya, A., Normand, S.-L. T., Greenhouse, J., Kaizar, E., Neelon, B., & Gibbons, R. D. (2012).
+Meta-analysis of rare binary adverse event data. Journal of the American Statistical
+Association 107, 555–567. doi: 10.1080/01621459.2012.664484
+
+Gart, John J, and James R Zweifel. 1967. On the bias of various estimators of the logit and
+its variance with application to quantal bioassay. Biometrika, 54, 181–187. doi:10.1093/BIOMET/54.1-2.181
+
 Hartung, J., and Knapp, G. (2001). A refined method for the meta-analysis of controlled clinical trials
-with binary outcome. Statistics in Medicine 20, 3875-3889. doi: 10.1002/sim.1009
+with binary outcome. Statistics in Medicine, 20, 3875-3889. doi: 10.1002/sim.1009
 
 Sidik, K., and Jonkman, J. N. (2002). A simple confidence interval for meta-analysis.
-Statistics in Medicine 21, 3153-3159. doi: 10.1002/sim.1262
+Statistics in Medicine, 21, 3153-3159. doi: 10.1002/sim.1262
+
+Sweeting, M. J., Sutton, A. J., & Lambert, P. C. (2004). What to add to nothing? Use and avoidance of
+continuity corrections in meta-analysis of sparse data. Statistics in Medicine, 23, 1351–1375. doi: 10.1002/sim.1761
+
+Viechtbauer, W. (2021). Median-unbiased estimators for the amount of heterogeneity in meta-analysis. European Congress of Methodology,
+Valencia, Spain. https://www.wvbauer.com/lib/exe/fetch.php/talks:2021_viechtbauer_eam_median_tau2.pdf
+
+Zhang, C., Chen, M., & Wang, X. (2020). Statistical methods for quantifying between-study heterogeneity in meta-analysis
+with focus on rare binary events. Statistics and its interface, 13(4), 449. doi: 10.4310/sii.2020.v13.n4.a3
 }
