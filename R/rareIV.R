@@ -80,7 +80,7 @@
 rareIV <- function(x, measure, method, cc, ccval = 0.5, tccval, cccval, ccsum = 1,
                    ccto = "only0",
                    drop00 = TRUE, weighted = TRUE, level = 95,
-                   test="z", digits = 3, verbose=FALSE, control,
+                   test="z", digits = 4, verbose=FALSE, control,
                    ...){
 
   # check if x is an object of class rareData
