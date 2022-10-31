@@ -327,6 +327,11 @@ rareIV <- function(x, measure, method, cc, ccval = 0.5, tccval, cccval, ccsum = 
     stop("'digits' must be an integer of length 1.")
   }
 
+  # tacc currently not supported for RD
+  if(cc == "tacc" & measure == "RD"){
+    stop("continuity correction of type 'tacc' is currently not supported for measure 'RD'.")
+  }
+
   # empirical cc currently not supported for RD
   if(cc == "empirical" & measure == "RD"){
     stop("continuity correction of type 'empirical' is currently not supported for measure 'RD'.")
