@@ -1,5 +1,3 @@
-usethis::use_data_raw("Nissen2007", overwrite = TRUE)
-
 ## code to prepare `Nissen2007` dataset goes here
 
 ## COMMENTS
@@ -12,7 +10,7 @@ usethis::use_data_raw("Nissen2007", overwrite = TRUE)
 ##                  4-uncpecified,
 ##                  5-3-glyburide, gliclazide, chlorporopamide, glimepiride, or tolbatamide
 
-nissen2007 <- data.frame(
+dat.nissen2007 <- data.frame(
   study = c(
     "49653/011", "49653/020", "49653/024", "49653/093", "49653/094",
     "100684", "49653/143", "49653/211", "49653/284", "712753/008",
@@ -62,3 +60,5 @@ nissen2007 <- data.frame(
                         "Glyburide and metformin", "Metformin", "Metformin", "Metformin",
                         "Insulin", "Sulfonylurea5", "Placebo", "Placebo", "Metformin and glyburide")
 )
+
+usethis::use_data(dat.nissen2007)
