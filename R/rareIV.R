@@ -433,16 +433,32 @@ rareIV <- function(x, measure, method, cc, ccval = 0.5, tccval, cccval, ccsum = 
 
   }
 
-  ai_cc <- ai; bi_cc <- bi; ci_cc <- ci; di_cc <- di
+  ai.cc <- ai; bi.cc <- bi; ci.cc <- ci; di.cc <- di
 
   # apply continuity correction:
-  ai_cc <- ai+tcc
-  bi_cc <- bi+tcc
-  ci_cc <- ci+ccc
-  di_cc <- di+ccc
+  ai.cc <- ai+tcc
+  bi.cc <- bi+tcc
+  ci.cc <- ci+ccc
+  di.cc <- di+ccc
 
-  n1i_cc <- ai_cc+bi_cc
-  n2i_cc <- ci_cc+di_cc
+  n1i.cc <- ai.cc+bi.cc
+  n2i.cc <- ci.cc+di.cc
+
+  # calculate effect sizes and sampling variances:
+  if(measure == "logOR"){
+    yi <- log(ai.cc*di.cc/(bi.cc*ci.cc))
+    vi <- 1/ai.cc+1/bi.cc+1/ci.cc+1/di.cc
+  }
+
+  if(measure == "logRR"){
+    yi <- log((ai.cc/n1i.cc)/(ci.cc/n2i.cc))
+    vi <- 1/ai.cc-1/n1i.cc+1/ci.cc-1/n2i.cc
+  }
+
+  if(measure == "RD"){
+    yi <- ai/n1i - ci/n2i
+    vi <- (ai.cc*(n1i.cc-ai.cc))/(n1i.cc^3)+(ci.cc*(n2i.cc-ci.cc))/(n2i.cc^3)
+  }
 
   # treat the case of method = "IPM" (improved Paule-Mandel)
   # calculate the IPM estimate and assign it to tau2
@@ -459,16 +475,13 @@ rareIV <- function(x, measure, method, cc, ccval = 0.5, tccval, cccval, ccsum = 
               Using method = 'IPM' with other values for cc and ccto has never been evaluated empirically.")
     }
 
-    yi <- log(ai_cc*di_cc/(bi_cc*ci_cc))
-    vi <- 1/ai_cc+1/bi_cc+1/ci_cc+1/di_cc
-
-    mu_hat <- mean(log(ci_cc/(n2i_cc-ci_cc)))
+    mu_hat <- mean(log(ci.cc/(n2i.cc-ci.cc)))
     theta_hat <- mean(yi)
 
     ipm_optim <- function(tau2){
       k <- length(yi)
 
-      sigma2i <- 1/n1i_cc*(exp(-mu_hat-theta_hat+tau2/2)+2+exp(mu_hat+theta_hat+tau2/2))+1/n2i_cc*(exp(-mu_hat)+2+exp(mu_hat))
+      sigma2i <- 1/n1i.cc*(exp(-mu_hat-theta_hat+tau2/2)+2+exp(mu_hat+theta_hat+tau2/2))+1/n2i.cc*(exp(-mu_hat)+2+exp(mu_hat))
 
       weights_ipm <- 1/(sigma2i+tau2)
 
@@ -491,9 +504,8 @@ rareIV <- function(x, measure, method, cc, ccval = 0.5, tccval, cccval, ccsum = 
   }
 
   # run metafor
-  fit <- metafor::rma(ai = ai_cc, bi = bi_cc,
-                      ci = ci_cc, di = di_cc,
-                      measure = metafor_measure, method = metafor_method,
+  fit <- metafor::rma(yi = yi, vi = vi,
+                      method = metafor_method,
                       weighted = weighted,
                       test = test,
                       tau2 = tau2,
@@ -548,15 +560,15 @@ rareIV <- function(x, measure, method, cc, ccval = 0.5, tccval, cccval, ccsum = 
     bi = bi,
     ci = ci,
     di = di,
-    ai.cc = ai_cc,
-    bi.cc = bi_cc,
-    ci.cc = ci_cc,
-    di.cc = di_cc,
+    ai.cc = ai.cc,
+    bi.cc = bi.cc,
+    ci.cc = ci.cc,
+    di.cc = di.cc,
     ni = n1i+n2i,
     n1i = n1i,
     n2i = n2i,
-    n1i.cc = n1i_cc,
-    n2i.cc = n2i_cc,
+    n1i.cc = n1i.cc,
+    n2i.cc = n2i.cc,
     # continuity corrections:
     tcc = tcc,
     ccc = ccc,
