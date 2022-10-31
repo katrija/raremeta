@@ -1,12 +1,10 @@
-usethis::use_data_raw("Nissen2010", overwrite = TRUE)
-
 ## code to prepare `Nissen2010` dataset goes here
 
 ## COMMENTS
 ## Insonsistent: Study 49653/452 nControl Table1: 25, Table3: 24
 ##
 
-nissen2010 <- data.frame(
+dat.nissen2010 <- data.frame(
   study = c(
     "49653/011", "49653/020", "49653/024", "49653/093", "49653/094",
     "100684", "49653/143", "49653/211", "49653/284", "712753/008",
@@ -69,11 +67,7 @@ nissen2010 <- data.frame(
 )
 
 
-nissen2010$durationRosiglitazone <- nissen2010$nRosiglitazone*nissen2010$durationWeeks
-nissen2010$durationControl <- nissen2010$nControl*nissen2010$durationWeeks
+dat.nissen2010$durationRosiglitazone <- dat.nissen2010$nRosiglitazone*dat.nissen2010$durationWeeks
+dat.nissen2010$durationControl <- dat.nissen2010$nControl*dat.nissen2010$durationWeeks
 
-##Replication
-#library(metafor)
-#dat <- escalc(measure = "OR", ai = miRosiglitazone , n1i = nRosiglitazone ,
-#              ci= miControl , n2i = nControl, data= nissen2010)
-#res <- rma(yi,vi, data= dat)
+usethis::use_data_raw(dat.nissen2010, overwrite = TRUE)
