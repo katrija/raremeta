@@ -372,6 +372,7 @@ rareIV <- function(x, measure, method, cc, ccval = 0.5, tccval, cccval, ccsum = 
   # UNDER CONSTRUCTION
   res <- list(
     # model information:
+    model = "rareIV",
     b = fit$b,
     beta = fit$beta,
     se = fit$se,
