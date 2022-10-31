@@ -70,4 +70,4 @@ dat.nissen2010 <- data.frame(
 dat.nissen2010$durationRosiglitazone <- dat.nissen2010$nRosiglitazone*dat.nissen2010$durationWeeks
 dat.nissen2010$durationControl <- dat.nissen2010$nControl*dat.nissen2010$durationWeeks
 
-usethis::use_data_raw(dat.nissen2010, overwrite = TRUE)
+usethis::use_data(dat.nissen2010, overwrite = TRUE)
