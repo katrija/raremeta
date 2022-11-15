@@ -9,9 +9,49 @@ A data frame with 56 rows and 10 columns.
 }
 \usage{
 dat.nissen2010
+
+# load data frame:
+
+data <- dat.nissen2010
+
+# calculate descriptives using rareDescribe():
+
+descr <- rareDescribe(ai = miRosiglitazone,
+                      n1i = nRosiglitazone,
+                      ci = miControl,
+                      n2i = nControl,
+                      data = data)
+
+print(descr)
+
+# conduct random-effects meta-analysis
+# using the inverse variance model:
+
+ma <- rareIV(descr,
+             measure = "logRR",
+             method = "REML",
+             cc = "constant",
+             ccto = "only0",
+             ccval = 0.5,
+             drop00 = FALSE)
+
+summary(ma)
 }
 \description{
-Meta-analytic data from Nissen and Wolski (2010)
+A data frame with 56 rows and 10 columns.
+\itemize{
+\item study: study identifier
+\item durationWeeks: study duration in weeks
+\item nRosiglitazone: number of patients in the Rosiglitazone group
+\item miRosiglitazone: number of myocardial infarctions in the Rosiglitazone group
+\item cvRosiglitazone: number of deaths from cardiovascular causes in the Rosiglitazone group
+\item nControl: number of patients in the control group
+\item miControl: number of myocardial infarctions in the control group
+\item cvControl: number of deaths from cardiovascular causes in the control group
+\item methodControl: type of control group
+\item durationRosiglitazone: person times of the Rosiglitazone group (durationWeeks * nRosiglitazone)
+\item durationcontrol: person times of the control group (durationWeeks * nControl)
+}
 }
 \references{
 Nissen and Wolski (2010) (\href{https://jamanetwork.com/journals/jamainternalmedicine/article-abstract/225844}{JAMA})
