@@ -32,7 +32,10 @@
 #' @param drop00 logical indicating whether double-zero studies (i.e., studies with no events or
 #' only events in both groups) should be excluded when calculating the outcome measufit for the
 #' individual studies.
-#' @param ...
+#' @param method Needs to be specified when `cc = "empirical"`. Meta-analytic method to be used when
+#' determining the prior used for the empirical continuity correction. Current default is `method = "FE"`.
+#' See Sweeting et al. (2004) for details.
+#' @param ... additional arguments
 #'
 #' @details
 #' # Details
@@ -88,9 +91,10 @@
 #' Sweeting, M. J., Sutton, A. J., & Lambert, P. C. (2004). What to add to nothing? Use and avoidance of
 #' continuity corrections in meta-analysis of sparse data. Statistics in Medicine, 23, 1351–1375. doi: 10.1002/sim.1761
 #'
-#' @return a matrix with two columns. The first column (`"yi"`) contains the effect sizes, the second column (`"vi"`)
-#' contains the sampling variances. Information on how the effect sizes were obtained (in particular with regard to the
-#' use of continuity corrections) are stored in attributes.
+#' @return a matrix with eight columns. The first six columns (`"ai.cc"`, `"bi.cc"`, `"ci.cc"`, `"di.cc"`, `"n1i.cc"`, `"n2i.cc"`)
+#' contain the continuity corrected counts and sample sizes. The last two columns (`"yi"` and `"vi"`) contain
+#' the effect sizes and sampling variances, respectively. Information on how the effect sizes were obtained (in particular
+#' with regard to the use of continuity corrections) is stored in attributes.
 #'
 #' @export
 #'
@@ -107,7 +111,8 @@
 #'
 #' rareES(x, measure = "logOR", cc = "constant", ccval = 0.5)
 rareES <- function(x, measure, cc, ccval = 0.5, tccval, cccval, ccsum = 1,
-                   ccto = "only0", drop00 = TRUE, ...){
+                   ccto = "only0", drop00 = TRUE,
+                   method = "FE", ...){
 
   # check if x is an object of class rareData
   if(!class(x) == "rareData"){
@@ -216,11 +221,16 @@ rareES <- function(x, measure, cc, ccval = 0.5, tccval, cccval, ccsum = 1,
     stop("ccsum must be a scalar larger than 0.")
   }
 
+  # convert measure to the metafor notation
+  metafor_measure <- sub("log", "", measure)
+
   # check whether tccval and cccval are specified; if not, set them to ccval:
   if(missing(tccval)){
     tccval <- ccval
     cccval <- ccval
   }
+
+  remove <- rep(FALSE, length(ai))
 
   # remove double-zero studies if desired:
   if(drop00 == TRUE){
@@ -313,15 +323,17 @@ rareES <- function(x, measure, cc, ccval = 0.5, tccval, cccval, ccsum = 1,
     vi <- (ai.cc*(n1i.cc-ai.cc))/(n1i.cc^3)+(ci.cc*(n2i.cc-ci.cc))/(n2i.cc^3)
   }
 
-  out <- cbind(yi, vi)
+  out <- cbind(ai.cc, bi.cc, ci.cc, di.cc, n1i.cc, n2i.cc, yi, vi)
   attr(out, "measure") <- measure
   attr(out, "cc") <- cc
   attr(out, "ccto") <- ccto
-  attr(out, "cccval") <- cccval
-  attr(out, "tccval") <- tccval
+  attr(out, "ccstudies") <- ccstudies
+  attr(out, "ccc") <- ccc
+  attr(out, "tcc") <- tcc
   attr(out, "drop00") <- drop00
+  attr(out, "remove") <- remove
 
-  names(out) <- c("yi", "vi")
+  names(out) <- c("ai.cc", "bi.cc", "ci.cc", "di.cc", "n1i.cc", "n2i.cc", "yi", "vi")
 
   return(out)
 }

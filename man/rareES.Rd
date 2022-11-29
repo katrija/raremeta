@@ -14,6 +14,7 @@ rareES(
   ccsum = 1,
   ccto = "only0",
   drop00 = TRUE,
+  method = "FE",
   ...
 )
 }
@@ -59,12 +60,17 @@ least one of the groups.}
 only events in both groups) should be excluded when calculating the outcome measufit for the
 individual studies.}
 
-\item{...}{}
+\item{method}{Needs to be specified when \code{cc = "empirical"}. Meta-analytic method to be used when
+determining the prior used for the empirical continuity correction. Current default is \code{method = "FE"}.
+See Sweeting et al. (2004) for details.}
+
+\item{...}{additional arguments}
 }
 \value{
-a matrix with two columns. The first column (\code{"yi"}) contains the effect sizes, the second column (\code{"vi"})
-contains the sampling variances. Information on how the effect sizes were obtained (in particular with regard to the
-use of continuity corrections) are stored in attributes.
+a matrix with eight columns. The first six columns (\code{"ai.cc"}, \code{"bi.cc"}, \code{"ci.cc"}, \code{"di.cc"}, \code{"n1i.cc"}, \code{"n2i.cc"})
+contain the continuity corrected counts and sample sizes. The last two columns (\code{"yi"} and \code{"vi"}) contain
+the effect sizes and sampling variances, respectively. Information on how the effect sizes were obtained (in particular
+with regard to the use of continuity corrections) is stored in attributes.
 }
 \description{
 Calculate effect sizes for meta-analyses of rare events.
