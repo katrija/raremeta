@@ -9,7 +9,21 @@ An object of class \code{data.frame} with 42 rows and 8 columns.
 }
 \usage{
 dat.nissen2007
-
+}
+\description{
+A data frame with 42 rows and 8 columns.
+\itemize{
+\item study: study identifier
+\item nRosiglitazone: number of patients in the Rosiglitazone group
+\item miRosiglitazone: number of myocardial infarctions in the Rosiglitazone group
+\item cvRosiglitazone: number of deaths from cardiovascular causes in the Rosiglitazone group
+\item nControl: number of patients in the control group
+\item miControl: number of myocardial infarctions in the control group
+\item cvControl: number of deaths from cardiovascular causes in the control group
+\item methodControl: type of control group
+}
+}
+\examples{
 # load data frame:
 
 data <- dat.nissen2007
@@ -36,19 +50,7 @@ ma <- rareIV(descr,
              drop00 = FALSE)
 
 summary(ma)
-}
-\description{
-A data frame with 42 rows and 8 columns.
-\itemize{
-\item study: study identifier
-\item nRosiglitazone: number of patients in the Rosiglitazone group
-\item miRosiglitazone: number of myocardial infarctions in the Rosiglitazone group
-\item cvRosiglitazone: number of deaths from cardiovascular causes in the Rosiglitazone group
-\item nControl: number of patients in the control group
-\item miControl: number of myocardial infarctions in the control group
-\item cvControl: number of deaths from cardiovascular causes in the control group
-\item methodControl: type of control group
-}
+
 }
 \references{
 Nissen and Wolski (2007) (\href{https://www.nejm.org/doi/full/10.1056/NEJMoa072761}{NEJM})

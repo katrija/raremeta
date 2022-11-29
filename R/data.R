@@ -14,6 +14,7 @@
 #'
 #' @usage dat.nissen2007
 #'
+#' @examples
 #' # load data frame:
 #'
 #' data <- dat.nissen2007
@@ -64,6 +65,7 @@
 #'
 #' @usage dat.nissen2010
 #'
+#' @examples
 #' # load data frame:
 #'
 #' data <- dat.nissen2010
