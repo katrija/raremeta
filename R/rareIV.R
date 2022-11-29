@@ -364,106 +364,30 @@ rareIV <- function(x, measure, method, cc, ccval = 0.5, tccval, cccval, ccsum = 
     test = "knha"
   }
 
+  mf <- match.call()
+
+  if(missing(cc)){
+    cc = "none"
+  }
+
   # check whether tccval and cccval are specified; if not, set them to ccval:
   if(missing(tccval)){
     tccval <- ccval
     cccval <- ccval
   }
 
-  mf <- match.call()
+  # calculate effect sizes with the specified continuity correction:
+  es <- rareES(x, measure = measure, cc = cc, ccval = ccval, tccval = tccval, cccval = cccval,
+               ccsum = ccsum, ccto = ccto, drop00 = drop00)
 
-  remove <- rep(FALSE, length(ai))
-
-  # remove double-zero studies if desired:
-  if(drop00 == TRUE){
-    remove <- (ai == 0 & ci == 0) | (bi == 0 & di == 0)
-    ai <- ai[!remove]
-    bi <- bi[!remove]
-    ci <- ci[!remove]
-    di <- di[!remove]
-    n1i <- n1i[!remove]
-    n2i <- n2i[!remove]
-
-    if(length(tccval) > length(ai)){
-      tccval <- tccval[!remove]
-      cccval <- cccval[!remove]
-    }
-  }
-
-  ccstudies <- rep(FALSE, length(ai))
-
-  # specify studies to be continuity corrected:
-  if(ccto == "only0"){
-    ccstudies <- (ai == 0 | ci == 0 | bi == 0 | di == 0)
-  }
-
-  if(ccto == "all" | (ccto == "if0all" & any(ai == 0 | ci == 0 | bi == 0 | di == 0) )){
-    ccstudies <- rep(TRUE, length(ai))
-  }
-
-  tcc <- rep(0,length(ai))
-  ccc <- rep(0,length(ci))
-
-  if(cc == "constant"){
-
-    if(length(tccval) == 1){
-      tcc[ccstudies] <- tccval
-      ccc[ccstudies] <- cccval
-    }else{
-      tcc <- tccval
-      ccc <- cccval
-    }
-
-  }
-
-  # continuity corrections for logOR and logRR:
-
-  if(cc == "tacc" & is.element(measure, c("logOR", "logRR"))){
-    rinv <- n2i[ccstudies]/n1i[ccstudies]
-
-    tcc[ccstudies] <- ccsum*1/(rinv+1)
-    ccc[ccstudies] <- ccsum*rinv/(rinv+1)
-  }
-
-  if(cc == "empirical" & is.element(measure, c("logOR", "logRR"))){
-    rinv <- n2i[ccstudies]/n1i[ccstudies]
-    nozero <- which((ai != 0) & (bi != 0) & (ci != 0) & (di != 0))
-    fit_nozero <- metafor::rma(ai = ai[nozero], bi = bi[nozero],
-                               ci = ci[nozero], di = di[nozero],
-                               measure = metafor_measure, method = method)
-    prior <- exp(as.numeric(fit_nozero$beta))
-
-    tcc[ccstudies] <- ccsum*prior/(rinv+prior)
-    ccc[ccstudies] <- ccsum*rinv/(rinv+prior)
-
-  }
-
-  ai.cc <- ai; bi.cc <- bi; ci.cc <- ci; di.cc <- di
-
-  # apply continuity correction:
-  ai.cc <- ai+tcc
-  bi.cc <- bi+tcc
-  ci.cc <- ci+ccc
-  di.cc <- di+ccc
-
-  n1i.cc <- ai.cc+bi.cc
-  n2i.cc <- ci.cc+di.cc
-
-  # calculate effect sizes and sampling variances:
-  if(measure == "logOR"){
-    yi <- log(ai.cc*di.cc/(bi.cc*ci.cc))
-    vi <- 1/ai.cc+1/bi.cc+1/ci.cc+1/di.cc
-  }
-
-  if(measure == "logRR"){
-    yi <- log((ai.cc/n1i.cc)/(ci.cc/n2i.cc))
-    vi <- 1/ai.cc-1/n1i.cc+1/ci.cc-1/n2i.cc
-  }
-
-  if(measure == "RD"){
-    yi <- ai/n1i - ci/n2i
-    vi <- (ai.cc*(n1i.cc-ai.cc))/(n1i.cc^3)+(ci.cc*(n2i.cc-ci.cc))/(n2i.cc^3)
-  }
+  yi <- es[,"yi"]
+  vi <- es[,"vi"]
+  ai.cc <- es[,"ai.cc"]
+  bi.cc <- es[,"bi.cc"]
+  ci.cc <- es[,"ci.cc"]
+  di.cc <- es[,"di.cc"]
+  n1i.cc <- es[,"n1i.cc"]
+  n2i.cc <- es[,"n2i.cc"]
 
   # treat the case of method = "IPM" (improved Paule-Mandel)
   # calculate the IPM estimate and assign it to tau2
@@ -554,10 +478,10 @@ rareIV <- function(x, measure, method, cc, ccval = 0.5, tccval, cccval, ccsum = 
     k1sz = x$k1sz,
     k2sz = x$k2sz,
     ids = 1:length(ai),
-    incl.studies = !remove,
+    incl.studies = !attr(es, "remove"),
     # effect sizes and sampling variances:
-    yi = fit$yi,
-    vi = fit$vi,
+    yi = yi,
+    vi = vi,
     # model matrix:
     X = fit$X,
     # counts and sample sizes::
@@ -575,9 +499,9 @@ rareIV <- function(x, measure, method, cc, ccval = 0.5, tccval, cccval, ccsum = 
     n1i.cc = n1i.cc,
     n2i.cc = n2i.cc,
     # continuity corrections:
-    tcc = tcc,
-    ccc = ccc,
-    cc.studies = ccstudies,
+    tcc = attr(es, "tcc"),
+    ccc = attr(es, "ccc"),
+    cc.studies = attr(es, "ccstudies"),
     # arguments:
     measure = measure,
     method = method,
