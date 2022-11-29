@@ -16,6 +16,7 @@ rareIV(
   ccto = "only0",
   drop00 = TRUE,
   weighted = TRUE,
+  weights,
   level = 95,
   test = "z",
   digits = 4,
@@ -74,7 +75,9 @@ individual studies.}
 \item{weighted}{logical specifying whether weighted (default) or unweighted estimation of the pooled
 effect size should be used.}
 
-\item{level}{numeric between 0 and 95 specifying the confdeince interval level (the default is 95)}
+\item{weights}{numeric specifying user-defined weights to be used when fitting the model.}
+
+\item{level}{numeric between 0 and 95 specifying the confidence interval level (the default is 95)}
 
 \item{test}{character string specifying how test statistics and confidence intervals for the
 fixed effects should be computed (either \code{"z"}, for Wald-type tests and CIs, or \code{"hksj"}, for

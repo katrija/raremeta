@@ -42,7 +42,8 @@
 #' individual studies.
 #' @param weighted logical specifying whether weighted (default) or unweighted estimation of the pooled
 #' effect size should be used.
-#' @param level numeric between 0 and 95 specifying the confdeince interval level (the default is 95)
+#' @param weights numeric specifying user-defined weights to be used when fitting the model.
+#' @param level numeric between 0 and 95 specifying the confidence interval level (the default is 95)
 #' @param test character string specifying how test statistics and confidence intervals for the
 #' fixed effects should be computed (either `"z"`, for Wald-type tests and CIs, or `"hksj"`, for
 #' tests and CIs based on the method by Knapp and Hartung (2003) and Sidik and Jonkman (2002).
@@ -210,7 +211,8 @@
 #'
 rareIV <- function(x, measure, method, cc, ccval = 0.5, tccval, cccval, ccsum = 1,
                    ccto = "only0",
-                   drop00 = TRUE, weighted = TRUE, level = 95,
+                   drop00 = TRUE, weighted = TRUE, weights,
+                   level = 95,
                    test="z", digits = 4, verbose=FALSE, control,
                    ...){
 
@@ -376,6 +378,17 @@ rareIV <- function(x, measure, method, cc, ccval = 0.5, tccval, cccval, ccsum = 
     cccval <- ccval
   }
 
+  udweights <- FALSE
+
+  # check whether weights are defined
+  if(!missing(weights)){
+    udweights <- TRUE
+
+    if(drop00 == FALSE & !is.element(length(weights), c(1, x$k))|drop00 == TRUE & !is.element(length(weights), c(1, x$k, x$k-x$kdz))){
+      stop("'weights' must be of length 1 or of length equal to the number of studies.")
+    }
+  }
+
   # calculate effect sizes with the specified continuity correction:
   es <- rareES(x, measure = measure, cc = cc, ccval = ccval, tccval = tccval, cccval = cccval,
                ccsum = ccsum, ccto = ccto, drop00 = drop00)
@@ -433,15 +446,31 @@ rareIV <- function(x, measure, method, cc, ccval = 0.5, tccval, cccval, ccsum = 
   }
 
   # run metafor
-  fit <- metafor::rma(yi = yi, vi = vi,
-                      method = metafor_method,
-                      weighted = weighted,
-                      test = test,
-                      tau2 = tau2,
-                      to = "none", # prevent application of further continuity corrections
-                      level = level,
-                      digits = digits, verbose = verbose,
-                      control = control)
+  if(udweights == FALSE){
+    fit <- metafor::rma(yi = yi, vi = vi,
+                        method = metafor_method,
+                        weighted = weighted,
+                        test = test,
+                        tau2 = tau2,
+                        to = "none", # prevent application of further continuity corrections
+                        level = level,
+                        digits = digits, verbose = verbose,
+                        control = control)
+  }
+
+  if(udweights == TRUE){
+    fit <- metafor::rma(yi = yi, vi = vi,
+                        method = metafor_method,
+                        weighted = weighted,
+                        weights = weights,
+                        test = test,
+                        tau2 = tau2,
+                        to = "none", # prevent application of further continuity corrections
+                        level = level,
+                        digits = digits, verbose = verbose,
+                        control = control)
+  }
+
 
 
   # make results list
