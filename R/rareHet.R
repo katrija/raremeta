@@ -12,9 +12,9 @@
 #' `"lrt"` (for a likelihood-ratio test), `"score"` (for a score test), `"wald"` (for a Wald test).
 #' Default is `q`.
 #' @param type specific type of test to be used. For `test = "q"`,
-#' `type` can be set to `"standard"`, `"modified"`, `"jackson"`, `"gart"`, `"bliss"`, or
+#' `type` can be set to `"standard"`, `"modified"`, `"jackson1", "jackson2"`, `"gart"`, `"bliss"`, or
 #' `"kd"` (short for Kulinskaya-Dollinger). For `test = "lrt"`, `test = "score"` or `test = "wald"`,
-#' `method` can be set to `"ML"` or `"REML"`.
+#' `method` can be set to `"ML"` or `"REML"`. See Details.
 #' @param approx logical to specify whether an approximate distribution shall be used if possible
 #' @param cc character string specifying the type of continuity corrections to be used
 #' (either `"constant"`, `"tacc"` or `"empirical"`). Default is "constant".
@@ -54,79 +54,180 @@
 #' @export
 #'
 #' @examples
-#'
 rareHet <- function(x, measure = "logOR", method = "FE",
                     test = "q", type = "standard",
                     approx = FALSE,
                     cc, ccval = 0.5, tccval, cccval, ccsum = 1,
-                    ccto = "only0", drop00 = TRUE){
-
-  if(missing(x)){
+                    ccto = "only0", drop00 = TRUE) {
+  if (missing(x)) {
     stop("x must be specified.")
   }
 
-  if(!is.element(class(x), c("rareData", "raremeta"))){
+  if (!is.element(class(x), c("rareData", "raremeta"))) {
     stop("x must be either of class 'rareData', or of class 'raremeta'.")
   }
 
-  if(test == "q" & !is.element(type, c("standard", "modified", "jackson", "bliss", "kd"))){
+  if (test == "q" & !is.element(type, c("standard", "gart", "modified", "bhaumik", "jackson1", "jackson2", "bliss", "kd"))) {
     stop("For `type = 'q'`, type must be chosen from one of the following:
-         'standard', 'modified', 'jackson', 'bhaumik', 'gart', 'bliss', 'kd'." )
+         'standard', 'modified', 'jackson1', 'jackson2', 'bhaumik', 'gart', 'bliss', 'kd'.")
   }
 
-  if(test == "lrt" & is.element(type, c("ML", "REML", "uncondFE", "uncondRE", "cond"))){
+  if (test == "lrt" & is.element(type, c("ML", "REML", "uncondFE", "uncondRE", "cond"))) {
     stop("For `type = 'lrt'`, type must be chosen from one of the following:
          'ML', 'REML', 'uncondFE', 'uncondRE', 'cond'.")
   }
 
-  if(test == "score" & is.element(type, c("ML", "REML", "uncondFE", "uncondRE", "cond", "BD"))){
+  if (test == "score" & is.element(type, c("ML", "REML", "uncondFE", "uncondRE", "cond", "BD"))) {
     stop("For `type = 'score'`, type must be chosen from one of the following:
          'ML', 'REML', 'uncondFE', 'uncondRE', 'cond', 'BD'.")
   }
 
-  if(test == "wald" & is.element(type, c("ML", "REML", "FE"))){
+  if (test == "wald" & is.element(type, c("ML", "REML", "FE"))) {
     stop("For `type = 'wald'`, method must be chosen from one of the following:
          'ML', 'REML', 'FE'.")
   }
 
+  if(test == "q" & type == "gart"){
+    warning("You can obtain the Q-test according to Gart (1966) with the following settings:
+            `test = 'q'`, `type = 'standard'`, `method = 'FE'`, `ccto = 'constant', `ccval = 0.5`, and `to = 'all'.
+             Results were obtained by resetting the arguments to these values.")
+
+    test <- "q"; type = "standard"; method = "FE"; cc = "constant"; ccto = "all"; ccval = 0.5
+  }
+
   # check whether tccval and cccval are specified; if not, set them to ccval:
-  if(missing(tccval)){
+  if (missing(tccval)) {
     tccval <- ccval
     cccval <- ccval
   }
 
-  # fit inverse variance model (such that results can be used in the calculation of the Q-Test)
-  ivfit <- rareIV(x, measure = measure, method = method,
-                  cc = cc, ccval = ccval, tccval = tccval, cccval = cccval, ccsum = 1,
-                  ccto = ccto,
-                  drop00 = drop00)
+  # fit fixed-effects inverse variance model
+  # (such that results can be used in the calculation of the Q-Test)
+  fit <- rareIV(x,
+    measure = measure, method = method,
+    cc = cc, ccval = ccval, tccval = tccval, cccval = cccval, ccsum = ccsum,
+    ccto = ccto,
+    drop00 = drop00
+  )
 
-  yi <- ivfit$yi
-  vi <- ivfit$vi
-  wi <- 1/vi
-  beta <- ivfit$beta
-  k <- ivfit$k
+  yi <- fit$yi
+  vi <- fit$vi
+  beta <- as.numeric(fit$beta)
+  tau2 <- as.numeric(fit$tau2)
+  k <- fit$k
 
-  ai <- ivfit$ai
-  ci <- ivfit$ci
-  n1i <- ivfit$n1i
-  n2i <- ivfit$n2i
+  ai <- fit$ai
+  ci <- fit$ci
+  n1i <- fit$n1i
+  n2i <- fit$n2i
+  ni <- n1i+n2i
 
-  if(test == "q"){
+  incl.studies <- fit$incl.studies
 
-    if(type == "standard"){
-      Qval <- sum(wi*(yi-beta)^2)
-      pval <- stats::pchisq(Qval, k-1, lower.tail = FALSE)
+  if (test == "q") {
+    if (type == "standard") {
+      wi <- 1 / vi
+      betaFE <- sum(wi*yi)/sum(wi)
+      stat <- sum(wi * (yi - betaFE)^2)
+      pval <- stats::pchisq(Qval, k - 1, lower.tail = FALSE)
     }
 
-    if(type == "modified"){
-      vi_mod <- (n1i-16*(1-2*ai/n1i)^2)/n1i*(1/(ai+0.5)+1/(n1i-ai+0.5))+(n2i-16*(1-2*ci/n2i)^2)/n2i*(1/(ci+0.5)+1/(n2i-ci+0.5))
-      wi_mod <- 1/vi_mod
+    if (type == "modified") {
+      vi_mod <- (n1i - 16 * (1 - 2 * ai / n1i)^2) / n1i * (1 / (ai + 0.5) + 1 / (n1i - ai + 0.5)) + (n2i - 16 * (1 - 2 * ci / n2i)^2) / n2i * (1 / (ci + 0.5) + 1 / (n2i - ci + 0.5))
+      vi_mod <- vi_mod[incl.studies]
+
+      if(any(vi_mod < 0)){
+        stop("Some of the modified sampling variances are negative. Please choose a different test and/or type.")
       }
+
+      wi_mod <- 1 / (vi_mod+tau2)
+
+      stat <- sum(wi_mod*(yi-beta)^2)
+      pval <-stats::pchisq(Qval, k - 1, lower.tail = FALSE)
+    }
+
+    if(type == "jackson1"){
+
+      if(method != "FE"){
+        warning("You are using a method which is not recommended for this type of test.
+                Consider choosing `method = 'FE'` for reliable results.")
+      }
+
+      wi <- 1 / (vi+tau2)
+      stat <- sum(wi*(yi-beta)^2)
+      W <- diag(wi)
+      w <- matrix(wi, ncol = 1)
+      wsum <- sum(wi)
+      A <- W-(1/wsum)*w%*%t(w)
+
+      Y <- matrix(yi, ncol = 1)
+      Q <- t(Y)%*%A%*%Y
+
+      Sigma2 <- diag(vi)
+      S <- sqrt(Sigma2)%*% A %*% sqrt(Sigma2)
+      lambda <- eigen(S)$values
+
+      pval <- CompQuadForm::farebrother(Q, lambda[-k])$Qq
+    }
+
+    if(type == "jackson2"){
+
+      if(method != "FE"){
+        warning("You are using a method which is not recommended for this type of test.
+                Consider choosing `method = 'FE'` for reliable results.")
+      }
+
+      wi <- 1 / sqrt(vi+tau2)
+      stat <- sum(wi*(yi-beta)^2)
+      W <- diag(wi)
+      w <- matrix(wi, ncol = 1)
+      wsum <- sum(wi)
+      A <- W-(1/wsum)*w%*%t(w)
+
+      Y <- matrix(yi, ncol = 1)
+      Q <- t(Y)%*%A%*%Y
+
+      Sigma2 <- diag(vi)
+      S <- sqrt(Sigma2)%*% A %*% sqrt(Sigma2)
+      lambda <- eigen(S)$values
+
+      pval <- CompQuadForm::farebrother(Q, lambda[-k])$Qq
+    }
+
+    if(type == "bliss"){
+      wi <- 1 / vi
+      QFE <- sum(wi * (yi - beta)^2)
+
+      nn <- sum(ni-2)/k
+      stat <- k-1 + sqrt((nn-4)/(nn-1))*((nn-2)/nn*QFE-(k-1))
+      pval <-stats::pchisq(Qval, k - 1, lower.tail = FALSE)
+    }
+
+    if(type == "bhaumik"){
+      wi = 1/vi
+      betaFE = sum(wi*yi)/sum(wi)
+      QFE = sum(wi*(yi-betaFE)^2)
+      Var.QFE <- 2*sum(wi*(vi+1/sum(wi)-2*wi*vi/sum(wi))^2)
+      Var.lnQ <- Var.QFE*(1/(k-1))^2
+
+      wi <- 1/(vi+tau2)
+      QRE <- sum(wi*(yi-beta)^2)
+      stat <- (k-1)*(log(QRE)-log(k-1))/sqrt(Var.lnQ)
+      pval <- pnorm(stat, lower.tail = F) # double-check
+    }
+
+
 
 
   }
 
+  res <- list(test = test,
+              type = type,
+              measure = measure,
+              method = method,
+              stat = stat,
+              pval = pval)
 
+  return(res)
 
 }

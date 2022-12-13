@@ -37,9 +37,9 @@ The test is carried out in a random-effects framework if \code{method} equal to 
 Default is \code{q}.}
 
 \item{type}{specific type of test to be used. For \code{test = "q"},
-\code{type} can be set to \code{"standard"}, \code{"modified"}, \code{"jackson"}, \code{"gart"}, \code{"bliss"}, or
+\code{type} can be set to \code{"standard"}, \code{"modified"}, \verb{"jackson1", "jackson2"}, \code{"gart"}, \code{"bliss"}, or
 \code{"kd"} (short for Kulinskaya-Dollinger). For \code{test = "lrt"}, \code{test = "score"} or \code{test = "wald"},
-\code{method} can be set to \code{"ML"} or \code{"REML"}.}
+\code{method} can be set to \code{"ML"} or \code{"REML"}. See Details.}
 
 \item{approx}{logical to specify whether an approximate distribution shall be used if possible}
 
