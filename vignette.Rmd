@@ -1,0 +1,364 @@
+---
+title: "Vignette raremeta"
+author: "Karl Westphal"
+date: "`r Sys.Date()`"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+\begin{center}
+\begin{huge}
+Vignette \textbf{raremeta}\\ \vspace*{1cm}
+\end{huge}
+\textbf{Abstract}\\
+This article gives an introduction to the \texttt{R}-software package \textbf{raremeta}. 
+We aim to motivate and explain the use of the package in the context of conducting meta-analysis of binary data of rare events. 
+Special interest is put into variants of a common way to incorporate studies with no events: \textit{Continuity Corrections}.
+\end{center}
+
+
+\section*{Introduction}
+
+In the following vignette, we aim to give the reader a starting point to work with the \textbf{raremeta} package for \texttt{R}. 
+For a quick dive into the workflow, we begin with some examples interlaced with the corresponding \texttt{R}-code.
+For anybody familiar with the mathematical modeling and methodological techniques used when conducting meta analysis and their implementation in \texttt{R} this might be sufficient.
+For anybody new to either the statistical concepts or similar programs, there is a more in-depth description following the examples. 
+To do so, the reader will be given an overview of the main workflow for model fitting using \textbf{raremeta}.
+After this, there will be a dedicated section introducing continuity corrections on a theoretical and practical level. 
+Some more information will be in an appendix.
+
+\section*{raremeta in Action}
+We begin by setting up \textbf{raremeta} and examine the dataset \texttt{dat.nissen2007}
+```{r, eval = FALSE}
+install.packages("raremeta")
+```
+```{r}
+library(raremeta)
+dat <- dat.nissen2007
+head(dat,3)
+```
+We see that the dataset \texttt{dat} contains event counts for two different events, \texttt{cv} (cardiovascular death) and \texttt{mi} (myocardial infarction) under the treatment \texttt{Rosiglitazone}.
+Suppose we are interested in analyzing the effect of the treatment on \texttt{cv} - cardiovascular death.
+We use the function \texttt{rareDescribe} to prepare the dataset.
+```{r}
+dat <- rareDescribe(ai=cvRosiglitazone,ci=cvControl,n1i=nRosiglitazone,
+                    n2i=nControl,data=dat) 
+```
+Now, \texttt{dat} is an object of type \texttt{rareData}, which we can use as an argument for the \texttt{rareIV} function to model fit. 
+Non specified arguments have a default, which can also be checked in the next section.
+Let us go through some examples of doing so.
+We begin by fitting a random effects model specifying the effect size to be the logarithm of the odds ratio, the heterogeneity estimator \texttt{"DL"} - \textit{DerSimonian-Laird}, and the continuity correction to add $0.5$ to all cells of all studies if there is a single-zero study and to none of the cells if there is no single-zero study (double-zero studies got droped by default).
+```{r}
+Fit1 <- rareIV(x=dat,measure="logOR",method="DL",cc="constant",ccto="if0all")
+summary(Fit1)
+```
+
+Next, we fit a fixed effects model specifying the effect size to be the risk difference and the contiuity correction to add $0.1$ to all studies, without dropping double-zero studies.
+```{r, eval=FALSE}
+Fit2 <- rareIV(x=dat,measure="RD",method="FE",cc="constant",
+              ccval=0.1 ,ccto="all",drop00=FALSE)
+summary(Fit2)
+```
+
+For a exhaustive account of the possible inputs, continue reading or look into the corresponding documentation.
+\section*{Calculation: An Overview of the raremeta-Workflow}
+Let us go through the process of calculating effect sizes using the software package \textbf{raremeta} in \texttt{R}.
+We will introduce a common workflow: Preparing event-count-data using \texttt{rareDescribe} to calculate estimations of effect sizes using \texttt{rareIV}. 
+```{r, eval = FALSE}
+install.packages("raremeta")
+```
+```{r}
+library(raremeta)
+```
+Suppose \texttt{dat} is a dataframe containing $k$ units of event-counts, i.e. for the $i$'th study
+\begin{center}
+\begin{tabular}{c|cc|c}
+$i$'th study & event & no-event \\ 
+\hline 
+treatment & $a_i$ & $b_i$ & $n_{1i}$\\ 
+control & $c_i$ & $d_i$ & $n_{2i}$\\ 
+\end{tabular} 
+\end{center} 
+in form of a table, i.e. $k$ rows (one for each study) and columns reporting the event-counts of the individual studies.
+\begin{center}
+\begin{tabular}{c|cccccc}
+\texttt{dat} & \texttt{ai} & \texttt{bi} & \texttt{ci} & \texttt{di} & \texttt{n1i} & \texttt{n2i} \\ 
+\hline
+Study $1$& $a_1$ & $b_1$ & $c_1$ & $d_1$ & $n_{11}$& $n_{21}$\\ 
+
+Study $2$ & $a_2$ & $b_2$ & $c_2$ & $d_2$ & $n_{12}$& $n_{22}$ \\ 
+
+\vdots & \vdots & \vdots & \vdots & \vdots & \vdots & \vdots\\ 
+
+Study $k$ & $a_k$ & $b_k$ & $c_k$ & $d_k$ & $n_{1k}$& $n_{2k}$ \\ 
+\end{tabular} 
+\end{center}
+Let us look at \texttt{rareDescribe} and its parameters:
+```{r, eval=FALSE}
+rareDescribe(ai,bi,ci,di,n1i,n2i,data)
+```
+The meaning of its parameters becomes clear from the table above. 
+The columns of \texttt{dat} are named in the same fashion as the parameters, i.e. \texttt{dat\$ai} is a vector of length $k$ reporting the number of events in the treatment-group etc.
+If we then use \texttt{rareDescribe} on the dataframe \texttt{dat} an object of the class \texttt{rareData} is returned.
+```{r, eval=FALSE}
+dat <- rareDescribe(ai,bi,ci,di,n1i,n2i,data=dat)
+```
+Just as before,  \texttt{dat} includes the event-counts of the $k$ studies, now expanded by information about the number of double-zero studies, means and medians of event-counts and much more.
+Most importantly, \texttt{dat} is now in the right format to put into \texttt{rareIV} to calculate effect sizes. 
+Again, let us look at \texttt{rareIV} and its parameters:
+```{r, eval=FALSE}
+rareIV(x,measure,method,cc,ccval = 0.5,tccval,cccval,ccsum=1,ccto = "only0",drop00=TRUE,
+       weighted=TRUE,level = 95,test="z",digits=4,verbose=FALSE,control)
+```
+The parameter \texttt{x} stands for an object of type \texttt{rareData}. 
+Through \texttt{measure} we decide which effect size shall be estimated.
+Possible inputs are \texttt{logOR, logRR, RD} standing for the logarithm of the Odds-Ratio, the logarithm of the Relative-Risk and the Risk-Difference, respectively.
+By \texttt{method} we indicate the mathematical modeling, deciding between a fixed-effects and a random effects model and also decide the heterogeneity-estimator to be used.
+The arguments \texttt{cc} up to \texttt{ccto} specify the type of continuity correction to be applied.
+There is a dedicated section explaining the meaning and usage.
+The standard method of adding $0.5$ to all cells of all single- and double-zero studies is achieved by setting \texttt{cc="constant"}.
+The logical \texttt{drop00} indicates whether studies with no events in both the treatment-group and the control-group should be left out from the analysis.
+The argument \texttt{weighted} specifies whether estimations for effect sizes shall come by weighted averages (i.e. normed inverse variances) or unweighted averages (i.e. arithmetical means).
+The confidence interval is specified through \texttt{level} and through \texttt{test} we specify how test statistics and confidence intervals for the fixed effects should be computed. 
+By \texttt{digits} we specify the number of decimal places to which the printed result should be rounded.\
+
+Let us now feed our dataset \texttt{dat} (now of type \texttt{rareData}) into this function. 
+We choose to stick to the defaults as much as possible, specifying the effect size to be \texttt{logOR}, a fixed effects model and constant continuity correction. 
+
+```{r, eval=FALSE}
+Fit <- rareIV(x = dat,measure="logOR",method="FE",cc="constant")
+```
+
+The returned object \texttt{Fit} includes estimations of the parameters of interest, for example the effect size, $p$-value, $z$-value, confidence intervals and much more.
+We can display its information by way of the \texttt{summary()} function or simply through the command \texttt{head()}.
+
+
+\section*{Continuity Corrections}
+\subsection*{Theoretical Introduction}
+When confronted with data expressed in terms of a $2 \times 2$-table many standard methods of estimating effect sizes may fail. 
+
+
+
+\begin{center}
+\begin{tabular}{c|cc}
+& event & no-event \\ 
+\hline 
+treatment & $a_i$ & $b_i$ \\ 
+control & $c_i$ & $d_i$ \\ 
+\end{tabular} 
+\end{center}
+
+Let us, for example, consider the standard method of estimating the logarithm of the standard estimator of the relative-risk $RR_i$ of the two groups in the $i$-th study:
+\[
+\text{log}(\hat{RR_i}) := \text{log} \frac{a_i /(a_i + b_i)}{c_i /(c_i + d_i)}.
+\] 
+If either $a_i$, the number of events in the treatment group in study $i$, or $c_i$, the number of events in the control group in study $i$, is equal to zero, one is faced with an undefined term. 
+Continuity corrections present a way of handling this problem.
+To apply the continuity correction we add specified values to the cells of the specified study. 
+There are various methods to do so.
+Three of them will be discussed below. 
+As an example consider the following study:
+
+\begin{center}
+\begin{tabular}{c|cc}
+& event & no-event \\ 
+\hline 
+treatment & $0$ & $n_T$ \\ 
+control & $0$ & $n_C$\\ 
+\end{tabular} 
+\end{center}
+a \textit{double-zero study} with $n_T$ and $n_C$ being the size of the treatment group and the control group, respectively. 
+The standard method of continuity correction is adding $0.5$ to each cell of the study. 
+If this method is applied, we end up with: 
+\begin{center}
+\begin{tabular}{c|cc}
+& event & no-event \\ 
+\hline 
+treatment & $0.5$ & $n_T+0.5$ \\ 
+control & $0.5$ & $n_C+0.5$\\ 
+\end{tabular} 
+\end{center}
+Now, many methods of estimating effect sizes are available again.
+
+Continuity corrections can be applied in various ways. 
+Two main questions arise:\
+
+\textit{Which studies should the continuity correction be applied to?}\
+Assume we are conducting meta-analysis in the presence of studies where no event is observed in either the treatment or the control group.
+Besides the two obvious ways of applying the continuity correction to all or none of the studies it is standard to apply the continuity correction to only those studies with no event in either the control or the treatment group.\
+
+\textit{Which method of continuity correction do I apply to the specified studies?}\
+
+1. Constant Continuity Correction\
+
+We add a constant value to each cell of the specified studies. 
+If we decide to add value $x_i$ in the $i$-th study, this amounts to 
+\begin{center}
+\begin{tabular}{c|cc}
+& event & no-event \\ 
+\hline 
+treatment & $a_i + x_i$ & $b_i + x_i$ \\ 
+control & $c_i + x_i$ & $d_i + x_i$. \\ 
+\end{tabular} 
+\end{center}
+The default is adding $0.5$ to each cell of each specified study but it is also possible to add different values to different studies.
+The important characteristic of this approach is that the added value does not depend on the size or outcome of the studies.
+The possibility to do so is reflected in the next two approaches.\ 
+
+2. Treatment Arm Continuity Correction\
+
+In the specified studies, we add a value dependent on the size of the control group to the cells of the treatment group and vice versa.
+The value is calculated as the reciprocal of the total size of the other group.
+For the $i$-th study this amounts to:
+\begin{center}
+\begin{tabular}{c|cc}
+& event & no-event \\ 
+\hline 
+treatment & $a_i + \frac{1}{c_i + d_i}$ & $b_i + \frac{1}{c_i + d_i}$ \\ 
+control & $c_i + \frac{1}{a_i + b_i}$ & $d_i + \frac{1}{a_i + b_i}$. \\ 
+\end{tabular} 
+\end{center}
+
+
+3. Empirical Continuity Correction\
+
+In the specified studies, we add a value dependent on the respective group sizes and an estimation of the effect size only considering the non-zero studies.
+Again, let us consider the $i$'th study
+\begin{center}
+\begin{tabular}{c|cc}
+& event & no-event \\ 
+\hline 
+treatment & $a_i$ & $b_i$ \\ 
+control & $c_i$ & $d_i$.\\ 
+\end{tabular} 
+\end{center}
+Suppose we are interested in estimating the Odds Ratio.
+Let $n_T$ be the size of the treatment group, $n_C$ be the size of the control group of the $i$'th study.
+Let $\hat{\Omega}_{OR}$ be the standard estimation of the pooled Odds Ratio calculated only considering the non-zero studies.
+We choose the continuity corrections $k_T$ for the treatment group and $k_C$ for the control group in such a way that 
+\begin{align*}
+\frac{k_T(n_C + k_C)}{k_C(n_T + k_T)} = \hat{\Omega}_{OR}.
+\end{align*}
+This ensures that the estimated Odds Ratio which is obtained for a double-zero study after the continuity correction is applied amounts to $\hat{\Omega}_{OR}$.\\
+Applying the continuity correction to the $i$-th study makes us end up with:
+\begin{center}
+\begin{tabular}{c|cc}
+& event & no-event \\ 
+\hline 
+treatment & $a_i + k_T$ & $b_i + k_T$ \\ 
+control & $c_i + k_C$ & $d_i + k_C$. \\ 
+\end{tabular}
+\end{center}
+To receive unique solutions for $k_T$ and $k_C$ we use the following restriction:
+\[
+k_T + k_C = 1,
+\]
+which, for example, holds true for the standard constant continuity correction of $k_T = k_C = 0.5$.
+Now, with $R  :=  \frac{n_C}{n_T}$, the group ratio imbalance, and the approximation 
+\[
+\frac{k_T(n_C + k_C)}{k_C(n_T + k_T)} \approx \frac{Rk_T}{k_C}
+\]
+which is true for large enough groups,
+we now see that it holds that:
+\[
+k_C \approx \frac{R}{R + \hat{\Omega}_{OR}} \text{  and  } k_T \approx \frac{\hat{\Omega}_{OR}}{R + \hat{\Omega}_{OR}}.
+\]
+\subsection*{Continuity Corrections in \textbf{raremeta}}
+We have seen different ways of continuity correcting studies.
+Let us go through the syntax of \textbf{raremeta} to learn how to apply them.
+It all comes down to specifying parameters the parameters from \texttt{cc} up to \texttt{ccto} in
+```{r, eval=FALSE}
+rareIV(x,measure,method,cc,ccval = 0.5,tccval,cccval,ccsum=1,ccto = "only0",drop00=TRUE,
+    weighted=TRUE,level = 95,test="z",digits=4,verbose=FALSE,control).
+``` 
+The first parameter, \texttt{cc}, decides which of the three introduced methods of continuity correction should be applied. 
+Possible inputs are \texttt{none}, which stands for the option to not apply any continuity correction and \texttt{"constant", "tacc"} and \texttt{"empirical"} which stand for the constant continuity correction, the treatment arm continuity correction and the empirical continuity correction, respectively.
+The argument \texttt{"ccto"} specifies the studies, continuity correction shall be applied to. 
+Possible inputs are \texttt{"only0", "all", "if0all"}.
+While \texttt{"only0" and "all"} stand for applying continuity correction to those studies with no event in either the treatment- or the control group and all studies (regardless the existence of single-zero or double-zero studies), respectively, \texttt{"if0all"} leads to the application of continuity corrections to all studies if there is either a single-zero study or a double-zero study or none of the studies if there are neither single-zero studies nor double-zero studies.
+If one opts for \texttt{cc  = "constant"}, it must be specified, which value should be applied to the relevant cells.
+This happens either through \texttt{"ccval"} or the two arguments \texttt{"tccval"} and \texttt{"cccval"}.
+While specifying \texttt{"ccval"} is used when continuity corrections in the control group and the treatment group shall be the same, the arguments \texttt{"tccval"} and \texttt{"cccval"} enable the user to input continuity corrections for the treatment group and the control group, respectively.
+In both cases, if a single value is put in, all corresponding cells of the specified studies will be continuity corrected with this value. 
+If the input comes in form of vectors, whose length is equal to the number of studies, then the corresponding cells of the $i$'th study will be continuity corrected through the $i$'th entry of the vector.
+Obviously, this enables the user simulate her own way of continuity correcting studies.
+If one opts for \texttt{cc = "tacc"} or \texttt{cc = "empirical"}, it must be specified, to which value the values $k_T$ and $k_C$ from the theoretical introduction above should add up to. 
+This happens through the argument \texttt{ccsum}.\
+
+If one, for example, wants to apply the treatment arm continuity correction where $k_T + k_C = 0.1$ to all studies of the \texttt{rareData}-object \texttt{dat}, one may input
+```{r, eval=FALSE}
+rareIV(x = dat,measure="logOR",method="FE",cc="tacc",ccsum=0.1,ccto="all").
+``` 
+To apply the constant continuity correction with specified values (potentially vectors of length > $1$) $t$ for the treatment group and $c$ for the control group to all single- and double-zero studies, one may input
+```{r, eval=FALSE}
+rareIV(x= dat,measure="logOR",method="FE",cc="constant",
+       tccval=t,cccval=c,ccto="only0",drop00=FALSE).
+```
+ 
+ 
+ 
+ 
+
+\newpage
+\section*{Appendix}
+
+\subsection*{Appendix A: Motivating the Empirical Continuity Correction}
+In this section we want to shed light on a certain aspect of continuity corrections by answering the following question:
+\begin{center}
+\textbf{What is the estimated effect size for a double-zero study after the continuity correction is applied?}\\
+\end{center}
+
+Suppose we are interested in the Odds Ratio. Let $n_T$ and $n_C$ refer to the size of the treatment group and the control group, respectively.
+
+\begin{center}
+\begin{tabular}{c|cc}
+ & event & no-event \\ 
+\hline 
+treatment & $0$ & $n_T$ \\ 
+control & $0$ & $n_C$ \\ 
+\end{tabular} 
+\end{center}
+
+Let $k_T$ and $k_C$ be the continuity corrections applied to the treatment group and the control group respectively. After the continuity correction is applied we end up with: 
+
+\begin{center}
+\begin{tabular}{c|cc}
+ & event & no-event \\ 
+\hline 
+treatment & $k_T$ & $n_T + k_T$ \\ 
+control & $k_C$ & $n_C + k_C$ .\\ 
+\end{tabular} 
+\end{center}
+
+Let $(\lnot)E$ stand for (no-)event, $T$ for the treatment group and $C$ for the control group.
+If we now estimate the Odds Ratio via plug in, using estimations of the risk in the two study arms: 
+\[
+\widehat{\mathbb{P}(E | T)} = \frac{k_T}{n_T+2k_T} \text{  and  } \widehat{\mathbb{P}(E | C)} = \frac{k_C}{n_C+2k_C},
+\]
+we end up with:
+\begin{align*}
+\hat{OR} &  :=  \frac{\widehat{\mathbb{P}(E | T)}/(1-\widehat{\mathbb{P}(E | T)})}{\widehat{\mathbb{P}(E | C)}/(1-\widehat{\mathbb{P}(E | C)})}\\
+&= \frac{\frac{k_T}{n_T +2k_T}/(1-\frac{k_T}{n_T+2k_T})}{\frac{k_C}{n_C +2k_C}/(1-\frac{k_C}{n_C+2k_C})}\\
+& = \frac{\frac{k_T}{n_T +2k_T}/ \frac{n_T+k_T}{n_T+2k_T}}{\frac{k_C}{n_C +2k_C}/\frac{n_C+k_C}{n_C+2k_C}}\\
+&=\frac{k_T/(n_T+k_T)}{k_C/(n_C+k_C)}\\
+&=\frac{k_T(n_C+k_C)}{k_C(n_T+k_T)}
+\end{align*}
+
+Now, with the group ratio imbalance $R  :=  \frac{n_C}{n_T}$, we can easily describe what the three approaches amount to. 
+For the constant continuity correction with $k_T = k_C = \alpha$ sufficiently small (e.g. $0.5$) we approximately get 
+\[
+\hat{OR} = \frac{\alpha (n_T \ R + \alpha)}{\alpha(n_T + \alpha)} \approx \frac{\alpha\ n_T \ R}{\alpha\ n_T} = R.
+\]
+For the reciprocal continuity correction with $k_T = 1/n_C$ and $k_C = 1/n_T$ get 
+\begin{align*}
+\hat{OR} &= \frac{1/n_C (n_C - 1/n_T)}{1/n_T(n_T - 1/n_C)} = 1
+\end{align*}
+and, by definition, for the empirical continuity correction for the prior $\hat{\Omega}$ this amounts to
+\[
+\hat{OR} = \hat{\Omega}_{OR}.
+\]
+In summary, the constant continuity correction pulls the estimated Odds Ratio towards the group ratio imbalance, the reciprocal continuity correction towards no effect and the empirical continuity correction towards the estimated pooled Odds Ratio using only the non-zero studies.
+
