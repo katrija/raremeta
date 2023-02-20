@@ -1,10 +1,10 @@
+##Mantel-Haenszel estimator for OR in the FE model
+#
 #Input is data of type rareDate obtained by use of the rareDescribe() function
-#how to handle "test" argument?
+#Confidence intervals and significance tests are conducted using
+#Wald-type tests and CIs [true?]
 
-
-rareMH <- function(x, measure, level = 95,
-                   #test = "z",
-                   digits = 4){
+rareMH <- function(x, measure, level = 95,  digits = 4){
 
   # check if x is an object of class rareData
   if(!class(x) == "rareData"){
@@ -21,25 +21,6 @@ rareMH <- function(x, measure, level = 95,
     stop("'measure' must be either 'logOR', 'logRR', or 'RD'.")
   }
 
-  # extract counts and sample sizes
-  ai  <- x$ai
-  bi  <- x$bi
-  ci  <- x$ci
-  di  <- x$di
-  n1i <- x$n1i
-  n2i <- x$n2i
-  ni  <- n1i + n2i
-
-  ## check if test argument is valid
-  #if(!is.element(test, c("z", "knha", "hksj"))){
-  #  stop("'test' must be either 'z', 'knha', or 'hksj'")
-  #}
-
-  ## convert test to metafor notation if needed
-  #if(test == "hksj"){
-  #  test = "knha"
-  #}
-
   # check if digits argument is valid
   if(length(digits) != 1 | digits%%1 != 0 | digits < 0){
     stop("'digits' must be an integer of length 1.")
@@ -50,10 +31,14 @@ rareMH <- function(x, measure, level = 95,
     stop("level must be a scalar between 0 and 100.")
   }
 
-  # convert measure to the metafor notation
-  metafor_measure <- sub("log", "", measure)
-
-  mf <- match.call() #What does this do?
+  # extract counts and sample sizes
+  ai  <- x$ai
+  bi  <- x$bi
+  ci  <- x$ci
+  di  <- x$di
+  n1i <- x$n1i
+  n2i <- x$n2i
+  ni  <- n1i + n2i
 
   #calculating effect sizes
   if(measure == "logOR"){
@@ -65,9 +50,9 @@ rareMH <- function(x, measure, level = 95,
     B <- sum(Bi)
     D <- sum(Di)
 
-
     if(B == 0 || D == 0){
-      stop("The data does not allow for application of this method.")
+      stop("The data does not allow for the application of this method.
+           See e.g. ?rareDescribe() for possible continuity corrections.")
     }
 
     else{
@@ -87,7 +72,8 @@ rareMH <- function(x, measure, level = 95,
     B <- sum(ci*n1i/ni)
 
     if(A == 0 || B == 0){
-      stop("The data does not allow for application of this method.")
+      stop("The data does not allow for application of this method.
+           See e.g. ?rareDescribe() for possible continuity corrections.")
     }
 
     else{
@@ -100,11 +86,9 @@ rareMH <- function(x, measure, level = 95,
     }
   }
 
-
-  #Estimator also normal for RD?
   if(measure == "RD"){
 
-    beta   <- sum((1/ni) * sum(ai*n2i - ci*n1i))/sum(n1i*n2i/ni)
+    beta   <- sum(ai*(n2i/ni) - ci*(n1i/ni))/sum(n1i*(n2i/ni))
     se     <- sqrt(sum((ai*bi*n2i^3 + ci*di*n1i^3)/(n1i*n2i*ni^2))/
                        (sum(n1i*n2i/ni)^2))
     zval   <- beta / se
@@ -113,9 +97,65 @@ rareMH <- function(x, measure, level = 95,
     ci.ub  <- beta - qnorm((100-level)/200) * se
   }
 
-res <- list(b=beta, beta=beta, se=se, zval=zval, pval=pval, ci.lb=ci.lb,
-            ci.ub=ci.ub, b.exp=exp(beta), beta.exp=exp(beta),
-            ci.lb.exp = exp(ci.lb), ci.ub.exp = exp(ci.ub))
+  res <- list(
+    # model information
+    model = "rareMH",
+    b = beta,
+    beta = beta,
+    se = se,
+    vb = NA, #change print method to allow for dropping vb
+    zval = zval,
+    pval = pval,
+    ci.lb = ci.lb,
+    ci.ub = ci.ub
+    #b.exp = exp(beta),
+    #beta.exp = exp(beta),
+    #ci.lb.exp = exp(ci.lb),
+    #ci.ub.exp = exp(ci.ub)
+  )
 
-return(res)
+  #res <- raremeta(res)
+  return(res)
 }
+
+
+
+##QUESTIONS
+
+#(1)
+#Do we incorporate different tests than Wald-type tests?
+#Do we even call it Wald-type testing if we do not consider ML-estimates
+#(The estimator is normal anyway but out of different(?) reasons)
+
+#code we might need if we decide to incorporate different types of tests:
+##check if test argument is valid
+#if(!is.element(test, c("z", "knha", "hksj"))){
+#  stop("'test' must be either 'z', 'knha', or 'hksj'")
+#}
+
+## convert test to metafor notation if needed
+#if(test == "hksj"){
+#  test = "knha"
+#}
+
+#(2)
+#Parts of the rareIV code maybe needed here as well
+
+# convert measure to the metafor notation
+#metafor_measure <- sub("log", "", measure)
+#mf <- match.call() #What does this do?
+
+#time.start <- proc.time()
+#time.end <- proc.time()
+#res$time <- unname(time.end - time.start)[3]
+
+#(3)
+#references to the original papers
+
+#(4)
+#How to structure the output? Incorporate our 'print()'-method 'raremeta'?
+#Add rounding by 'digits' argument
+
+
+
+
