@@ -151,10 +151,18 @@ rareMH <- function(x, measure, level = 95,  digits = 4){
 
 #(3)
 #references to the original papers
+#OR: Robins et. al 1986 (p. 312)
+#RR and RD: Greenland et. al 1985 (p. 63)
 
 #(4)
 #How to structure the output? Incorporate our 'print()'-method 'raremeta'?
 #Add rounding by 'digits' argument
+#Add exponentiated version of the output?
+
+#(5)
+#Add information about the Cochran-Mantel-Haenszel test statistic?
+
+
 
 
 
