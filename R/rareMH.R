@@ -7,7 +7,7 @@
 rareMH <- function(x, measure, level = 95,  digits = 4){
 
   # check if x is an object of class rareData
-  if(!class(x) == "rareData"){
+  if(!inherits(x,"rareData")){
     stop("x must be an object of class 'rareData'. See ?rareDescribe for more details.")
   }
 
@@ -100,6 +100,7 @@ rareMH <- function(x, measure, level = 95,  digits = 4){
   res <- list(
     # model information
     model = "rareMH",
+    measure = measure,
     b = beta,
     beta = beta,
     se = se,
@@ -107,14 +108,15 @@ rareMH <- function(x, measure, level = 95,  digits = 4){
     zval = zval,
     pval = pval,
     ci.lb = ci.lb,
-    ci.ub = ci.ub
+    ci.ub = ci.ub,
+    digits = digits
     #b.exp = exp(beta),
     #beta.exp = exp(beta),
     #ci.lb.exp = exp(ci.lb),
     #ci.ub.exp = exp(ci.ub)
   )
 
-  #res <- raremeta(res)
+  res <- raremeta(res)
   return(res)
 }
 
