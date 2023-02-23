@@ -115,7 +115,7 @@ rareES <- function(x, measure, cc, ccval = 0.5, tccval, cccval, ccsum = 1,
                    method = "FE", ...){
 
   # check if x is an object of class rareData
-  if(!class(x) == "rareData"){
+  if(!inherits(x,"rareData")){
     stop("x must be an object of class 'rareData'. See ?rareDescribe for more details.")
   }
 

@@ -217,7 +217,7 @@ rareIV <- function(x, measure, method, cc, ccval = 0.5, tccval, cccval, ccsum = 
                    ...){
 
   # check if x is an object of class rareData
-  if(!class(x) == "rareData"){
+  if(!inherits(x,"rareData")){
     stop("x must be an object of class 'rareData'. See ?rareDescribe for more details.")
   }
 

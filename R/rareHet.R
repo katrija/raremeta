@@ -129,7 +129,7 @@ rareHet <- function(x, measure = "logOR", method = "FE",
       wi <- 1 / vi
       betaFE <- sum(wi*yi)/sum(wi)
       stat <- sum(wi * (yi - betaFE)^2)
-      pval <- stats::pchisq(Qval, k - 1, lower.tail = FALSE)
+      pval <- stats::pchisq(stat, k - 1, lower.tail = FALSE)
     }
 
     if (type == "modified") {
@@ -143,7 +143,7 @@ rareHet <- function(x, measure = "logOR", method = "FE",
       wi_mod <- 1 / (vi_mod+tau2)
 
       stat <- sum(wi_mod*(yi-beta)^2)
-      pval <-stats::pchisq(Qval, k - 1, lower.tail = FALSE)
+      pval <-stats::pchisq(stat, k - 1, lower.tail = FALSE)
     }
 
     if(type == "jackson1"){
@@ -200,7 +200,7 @@ rareHet <- function(x, measure = "logOR", method = "FE",
 
       nn <- sum(ni-2)/k
       stat <- k-1 + sqrt((nn-4)/(nn-1))*((nn-2)/nn*QFE-(k-1))
-      pval <-stats::pchisq(Qval, k - 1, lower.tail = FALSE)
+      pval <-stats::pchisq(stat, k - 1, lower.tail = FALSE)
     }
 
     if(type == "bhaumik"){
@@ -213,7 +213,7 @@ rareHet <- function(x, measure = "logOR", method = "FE",
       wi <- 1/(vi+tau2)
       QRE <- sum(wi*(yi-beta)^2)
       stat <- (k-1)*(log(QRE)-log(k-1))/sqrt(Var.lnQ)
-      pval <- pnorm(stat, lower.tail = F) # double-check
+      pval <- stats::pnorm(stat, lower.tail = F) # double-check
     }
 
 
