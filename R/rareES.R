@@ -119,193 +119,18 @@ rareES <- function(x, measure, cc, ccval = 0.5, tccval, cccval, ccsum = 1,
     stop("x must be an object of class 'rareData'. See ?rareDescribe for more details.")
   }
 
-  # check if measure argument is specified
-  if(missing(measure)){
-    stop("'measure' argument must be specified.")
-  }
-
-  # check if measure argument is valid
-  if(!is.element(measure, c("logOR", "logRR", "RD"))){
-    stop("'measure' must be either 'logOR', 'logRR', or 'RD'.")
-  }
+  # apply continuity correction if needed
+  x <- rareCC(x, cc = cc, ccval = ccval, tccval = tccval, cccval = cccval,
+              ccsum = ccsum, ccto = ccto, drop00 = drop00, measure = measure,
+              method = method)
 
   # extract counts and sample sizes
-  ai <- x$ai
-  bi <- x$bi
-  ci <- x$ci
-  di <- x$di
-  n1i <- x$n1i
-  n2i <- x$n2i
-
-  # check if cc is specified (in case there are zero-studies)
-  if(any(c(ai,bi,ci,di) == 0) & missing(cc)){
-    stop("Some studies have zero events. \n
-         You must specify the 'cc' argument to determine how they are handled.\n
-         In case you want to exclude all zero-studies, set 'cc' equal to 'none'.")
-  }
-
-  if(!is.logical(drop00)){
-    stop("'drop00' must be a logical")
-  }
-
-  # check if cc argument is valid
-  if(!is.element(cc, c("none", "constant", "tacc", "empirical"))){
-    stop("'cc' must be either 'none', 'constant', 'tacc', or 'empirical'")
-  }
-
-
-  # if cc argument exists, check that ccto argument is valid
-  if(!missing(cc)){
-    if(!is.element(ccto, c("only0", "all", "if0all"))){
-      stop("'ccto' must be either 'only0', 'all', or 'if0all'")
-    }
-  }
-
-  # check if ccval argument is valid
-  if(cc == "constant"){
-
-    if(drop00 == FALSE & !is.element(length(ccval), c(1,x$k))){
-      stop("'ccval' must have length 1 or length equal to the number of studies.")
-    }
-
-    if(drop00 == TRUE & !is.element(length(ccval), c(1,x$k,x$k-x$kdz))){
-      stop("'ccval' must have length 1 or length equal to the number of studies (in- or excluding double-zero studies).")
-    }
-
-    # check if ccval is non-negative
-    if(any(ccval < 0)){
-      stop("'ccval' must be non-negative.")
-    }
-
-    if(!missing(tccval) | !missing(cccval)){
-
-      if((!missing(tccval) & missing(cccval))|(!missing(cccval) & missing(tccval))){
-        stop("Please specify both 'tccval' and 'cccval'.")
-      }
-
-      if(!equalLength(tccval, cccval)){
-        stop("'tccval' and 'cccval' must have equal length.")
-      }
-
-      if(drop00 == FALSE & !is.element(length(tccval), c(1,x$k))){
-        stop("'tccval' must have length 1 or length equal to the number of studies.")
-      }
-
-      if(drop00 == TRUE & !is.element(length(tccval), c(1,x$k,x$k-x$kdz))){
-        stop("'tccval' must have length 1 or length equal to the number of studies (in- or excluding double-zero studies).")
-      }
-
-      if(any(c(tccval, cccval) < 0)){
-        stop("All values in 'tccval' and 'cccval' must be non-negative.")
-      }
-    }
-  }
-
-  # tacc currently not supported for RD
-  if(cc == "tacc" & measure == "RD"){
-    stop("continuity correction of type 'tacc' is currently not supported for measure 'RD'.")
-  }
-
-  # empirical cc currently not supported for RD
-  if(cc == "empirical" & measure == "RD"){
-    stop("continuity correction of type 'empirical' is currently not supported for measure 'RD'.")
-  }
-
-  # check that there are non-zero studies when the empirical cc shall be applied
-  if(cc == "empirical" & all(ai == 0 | bi == 0 | ci == 0 | di == 0)){
-    stop("continuity correction of type 'empirical' can only be applied if there is at least one non-zero study.")
-  }
-
-  # check ccsum argument:
-  if(!is.numeric(ccsum) | length(ccsum) > 1 | ccsum < 0){
-    stop("ccsum must be a scalar larger than 0.")
-  }
-
-  # convert measure to the metafor notation
-  metafor_measure <- sub("log", "", measure)
-
-  # check whether tccval and cccval are specified; if not, set them to ccval:
-  if(missing(tccval)){
-    tccval <- ccval
-    cccval <- ccval
-  }
-
-  remove <- rep(FALSE, length(ai))
-
-  # remove double-zero studies if desired:
-  if(drop00 == TRUE){
-    remove <- (ai == 0 & ci == 0) | (bi == 0 & di == 0)
-    ai <- ai[!remove]
-    bi <- bi[!remove]
-    ci <- ci[!remove]
-    di <- di[!remove]
-    n1i <- n1i[!remove]
-    n2i <- n2i[!remove]
-
-    if(length(tccval) > length(ai)){
-      tccval <- tccval[!remove]
-      cccval <- cccval[!remove]
-    }
-  }
-
-  ccstudies <- rep(FALSE, length(ai))
-
-  # specify studies to be continuity corrected:
-  if(ccto == "only0"){
-    ccstudies <- (ai == 0 | ci == 0 | bi == 0 | di == 0)
-  }
-
-  if(ccto == "all" | (ccto == "if0all" & any(ai == 0 | ci == 0 | bi == 0 | di == 0) )){
-    ccstudies <- rep(TRUE, length(ai))
-  }
-
-  tcc <- rep(0,length(ai))
-  ccc <- rep(0,length(ci))
-
-  if(cc == "constant"){
-
-    if(length(tccval) == 1){
-      tcc[ccstudies] <- tccval
-      ccc[ccstudies] <- cccval
-    }else{
-      tcc <- tccval
-      ccc <- cccval
-    }
-
-  }
-
-  # continuity corrections for logOR and logRR:
-
-  if(cc == "tacc" & is.element(measure, c("logOR", "logRR"))){
-    rinv <- n2i[ccstudies]/n1i[ccstudies]
-
-    tcc[ccstudies] <- ccsum*1/(rinv+1)
-    ccc[ccstudies] <- ccsum*rinv/(rinv+1)
-  }
-
-  if(cc == "empirical" & is.element(measure, c("logOR", "logRR"))){
-    rinv <- n2i[ccstudies]/n1i[ccstudies]
-    nozero <- which((ai != 0) & (bi != 0) & (ci != 0) & (di != 0))
-    fit_nozero <- metafor::rma(ai = ai[nozero], bi = bi[nozero],
-                               ci = ci[nozero], di = di[nozero],
-                               measure = metafor_measure, method = method)
-    prior <- exp(as.numeric(fit_nozero$beta))
-
-    tcc[ccstudies] <- ccsum*prior/(rinv+prior)
-    ccc[ccstudies] <- ccsum*rinv/(rinv+prior)
-
-  }
-
-  ai.cc <- ai; bi.cc <- bi; ci.cc <- ci; di.cc <- di
-
-  # apply continuity correction:
-  ai.cc <- ai+tcc
-  bi.cc <- bi+tcc
-  ci.cc <- ci+ccc
-  di.cc <- di+ccc
-
-  n1i.cc <- ai.cc+bi.cc
-  n2i.cc <- ci.cc+di.cc
+  ai.cc   <- x[,"ai.cc"]
+  bi.cc   <- x[,"bi.cc"]
+  ci.cc   <- x[,"ci.cc"]
+  di.cc   <- x[,"di.cc"]
+  n1i.cc  <- x[,"n1i.cc"]
+  n2i.cc  <- x[,"n2i.cc"]
 
   # calculate effect sizes and sampling variances:
   if(measure == "logOR"){
@@ -323,17 +148,17 @@ rareES <- function(x, measure, cc, ccval = 0.5, tccval, cccval, ccsum = 1,
     vi <- (ai.cc*(n1i.cc-ai.cc))/(n1i.cc^3)+(ci.cc*(n2i.cc-ci.cc))/(n2i.cc^3)
   }
 
-  out <- cbind(ai.cc, bi.cc, ci.cc, di.cc, n1i.cc, n2i.cc, yi, vi)
-  attr(out, "measure") <- measure
-  attr(out, "cc") <- cc
-  attr(out, "ccto") <- ccto
-  attr(out, "ccstudies") <- ccstudies
-  attr(out, "ccc") <- ccc
-  attr(out, "tcc") <- tcc
-  attr(out, "drop00") <- drop00
-  attr(out, "remove") <- remove
+  out <- cbind(x, yi, vi)
+  #attr(out, "measure") <- measure
+  #attr(out, "cc") <- cc
+  #attr(out, "ccto") <- ccto
+  #attr(out, "ccstudies") <- ccstudies
+  #attr(out, "ccc") <- ccc
+  #attr(out, "tcc") <- tcc
+  #attr(out, "drop00") <- drop00
+  #attr(out, "remove") <- remove
 
-  names(out) <- c("ai.cc", "bi.cc", "ci.cc", "di.cc", "n1i.cc", "n2i.cc", "yi", "vi")
+  colnames(out) <- c("ai.cc", "bi.cc", "ci.cc", "di.cc", "n1i.cc", "n2i.cc", "yi", "vi")
 
   return(out)
 }
