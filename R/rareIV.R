@@ -43,7 +43,7 @@
 #' @param weighted logical specifying whether weighted (default) or unweighted estimation of the pooled
 #' effect size should be used.
 #' @param weights numeric specifying user-defined weights to be used when fitting the model.
-#' @param level numeric between 0 and 95 specifying the confidence interval level (the default is 95)
+#' @param level numeric between 0 and 100 specifying the confidence interval level (the default is 95)
 #' @param test character string specifying how test statistics and confidence intervals for the
 #' fixed effects should be computed (either `"z"`, for Wald-type tests and CIs, or `"hksj"`, for
 #' tests and CIs based on the method by Knapp and Hartung (2003) and Sidik and Jonkman (2002).

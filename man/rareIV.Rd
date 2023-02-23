@@ -77,7 +77,7 @@ effect size should be used.}
 
 \item{weights}{numeric specifying user-defined weights to be used when fitting the model.}
 
-\item{level}{numeric between 0 and 95 specifying the confidence interval level (the default is 95)}
+\item{level}{numeric between 0 and 100 specifying the confidence interval level (the default is 95)}
 
 \item{test}{character string specifying how test statistics and confidence intervals for the
 fixed effects should be computed (either \code{"z"}, for Wald-type tests and CIs, or \code{"hksj"}, for
