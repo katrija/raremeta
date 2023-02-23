@@ -102,7 +102,7 @@ an object of class "raremeta". The object is a list containing the following ele
 \item \code{beta}: estimated coefficients of the model.
 \item \code{se}: standard errors of the  coefficients.
 \item \code{zval}: test statistics of the coefficients.
-\item \code{zval}: p-values corresponding to the test statistics.
+\item \code{pval}: p-values corresponding to the test statistics.
 \item \code{ci.lb}: lower bound of the confidence intervals for the coefficients.
 \item \code{ci.ub}: upper bound of the confidence intervals for the coefficients.
 \item \code{vb}: variance-covariance matrix of the estimated coefficients.

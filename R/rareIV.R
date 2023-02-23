@@ -150,7 +150,7 @@
 #' * `beta`: estimated coefficients of the model.
 #' * `se`: standard errors of the  coefficients.
 #' * `zval`: test statistics of the coefficients.
-#' * `zval`: p-values corresponding to the test statistics.
+#' * `pval`: p-values corresponding to the test statistics.
 #' * `ci.lb`: lower bound of the confidence intervals for the coefficients.
 #' * `ci.ub`: upper bound of the confidence intervals for the coefficients.
 #' * `vb`: variance-covariance matrix of the estimated coefficients.
