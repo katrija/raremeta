@@ -20,7 +20,7 @@ validate_raremeta <- function(x) {
   elements <- names(x)
 
   if (any(!(c(
-    "beta", "ci.lb", "ci.ub", "se", "vb", "p", "measure"
+    "beta", "ci.lb", "ci.ub", "se", "measure"
   ) %in% elements))) {
     stop("some list elements are missing.")
   }
