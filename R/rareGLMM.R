@@ -125,12 +125,12 @@ rareGLMM <- function(x, measure, intercept = "fixed", slope = "random", conditio
 
     if(intercept == "random" & slope == "random" & conditional == FALSE){
       fit <- lme4::glmer(cbind(y,n-y)~1+group+(1+group||id), data = dataLong,
-                         family = binomial(link = "logit"))
+                         family = stats::binomial(link = "logit"))
     }
 
-    if(intercept == "random" & slope == "random" & conditional == FALSE){
+    if(intercept == "fixed" & slope == "random" & conditional == FALSE){
       fit <- lme4::glmer(cbind(y,n-y)~1+id+group+(0+group|id), data = dataLong,
-                         family = binomial(link = "logit"))
+                         family = stats::binomial(link = "logit"))
     }
 
 
@@ -140,18 +140,19 @@ rareGLMM <- function(x, measure, intercept = "fixed", slope = "random", conditio
 
     if(intercept == "random" & slope == "random" & conditional == FALSE){
       fit <- lme4::glmer(y~1+group+offset(log(n))+(1+group||id), data = dataLong,
-                         family = poisson(link = "log"))
+                         family = stats::poisson(link = "log"))
     }
 
-    if(intercept == "random" & slope == "random" & conditional == FALSE){
+    if(intercept == "fixed" & slope == "random" & conditional == FALSE){
       fit <- lme4::glmer(y~1+id+group+offset(log(n))+(0+group|id), data = dataLong,
-                         family = poisson(link = "log"))
+                         family = stats::poisson(link = "log"))
     }
 
   }
 
+
   beta <- lme4::fixef(fit)
-  vb <- as.matrix(vcov(fit))
+  vb <- as.matrix(stats::vcov(fit))
   sigma2 <- lme4::VarCorr(fit)
   tau2 <- sigma2[[length(sigma2)]][1]
 
@@ -170,7 +171,7 @@ rareGLMM <- function(x, measure, intercept = "fixed", slope = "random", conditio
   X <- stats::model.matrix(fit)
   p <- ifelse(all(X[1,]==1), ncol(X)-1, ncol(X))
 
-  AICc <- -2*logLik(fit)+2*(p+1)*max(2*nrow(dataLong), p+3)/(max(nrow(dataLong), 3)-p)
+  AICc <- -2*stats::logLik(fit)+2*(p+1)*max(2*nrow(dataLong), p+3)/(max(nrow(dataLong), 3)-p)
   fit.stats <- rbind(stats::logLik(fit), stats::deviance(fit), stats::AIC(fit), stats::BIC(fit), AICc)
   rownames(fit.stats) <- c("ll", "dev", "AIC", "BIC", "AICc")
   colnames(fit.stats) <- c("ML")
