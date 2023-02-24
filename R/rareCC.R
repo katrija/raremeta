@@ -212,10 +212,20 @@ rareCC <- function(x, cc = "constant", ccval = 0.5, tccval, cccval, ccsum = 1,
   n1i.cc <- ai.cc+bi.cc
   n2i.cc <- ci.cc+di.cc
 
-  res <- cbind(ai.cc, bi.cc, ci.cc, di.cc,n1i.cc, n2i.cc)
-  colnames(res) <- c("ai.cc","bi.cc","ci.cc","di.cc","n1i.cc","n2i.cc")
+  out <- cbind(ai.cc, bi.cc, ci.cc, di.cc,n1i.cc, n2i.cc)
+  colnames(out) <- c("ai.cc","bi.cc","ci.cc","di.cc","n1i.cc","n2i.cc")
 
-  return(res)
+  #adding attributes(?)
+  #attr(out, "measure") <- measure
+  #attr(out, "cc") <- cc
+  #attr(out, "ccto") <- ccto
+  #attr(out, "drop00") <- drop00
+  #attr(out, "ccstudies") <- ccstudies
+  #attr(out, "ccc") <- ccc
+  #attr(out, "tcc") <- tcc
+  #attr(out, "remove") <- remove
+
+  return(out)
 
 }
 
