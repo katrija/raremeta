@@ -1,10 +1,52 @@
-##Mantel-Haenszel estimator for OR in the FE model
-#
-#Input is data of type rareDate obtained by use of the rareDescribe() function
-#Confidence intervals and significance tests are conducted using
-#Wald-type tests and CIs [true?]
-
+#' Conduct a meta-analysis using Mantel-Haenszel type estimators
+#'
+#' Function to conduct a meta-analysis of the Odds Ratio, Relative Risk and
+#' Risk Difference calculated from event counts in form of 2x2 contingency
+#' tables using Mantel-Haenszel type estimators.
+#'
+#' @param x an object of class `"raredata"`
+#' @param measure measure character string specifying the effect size or outcome measure to be used
+#' (either `"logOR"` for the log odds ratio, `"logRR"` for the log relative risk,
+#' or `"RD"` for the risk difference).
+#' @param level level numeric between 0 and 100 specifying the confidence interval level (the default is 95)
+#' @param digits integer specifying the number of decimal places to which the printed results
+#' should be rounded (if unspecified, the default is 4).
+#'
+#' @details
+#' # Details
+#' ## Data input
+#' The main input of the `rareIV()` function is a so-called `rareData` object. A `rareData` object
+#' can be produced from a data frame by applying the `rareDescribe()` function to it. The `rareDescribe()`
+#' function pre-processes the data frame and stores the information required by the `rareIV()` function
+#' in a list. See `?rareDescribe` for more details.
+#'
+#' ## Effect size measures
+#' The function includes meta-analytic methods for log odds ratios, log risk ratios, and risk differences.
+#' The effect size measure can be specified using the `measure` argument. The respective effect size,
+#' along with an estimate of its sampling variance, is then calculated for each study based on the
+#' entries of the study's 2x2 table:
+#'
+#' |                   | event | no event|
+#' |:------------------|------:|--------:|
+#' |group1 (treatment) | ai    | bi      |
+#' |group2 (control)   | ci    | di      |
+#'
+#' ## Mantel-Haenszel type estimators
+#' Mantel-Haenszel type estimators distiguish themselfs through changing the order
+#' of division and summation in the naive estimator of the corresponding effect size.
+#' For precice defininitions of the implemented effect sizes see e.g. [???]
+#' The variance estimation is due to Greenland & Robins. See e.g. [???]
+#'
+#' @return an object of class "raremeta". The object is a list containing the following elements:
+#'
+#' @references
+#'
+#' @export
+#'
+#' @examples
 rareMH <- function(x, measure, level = 95,  digits = 4){
+
+  ## argument checking
 
   # check if x is an object of class rareData
   if(!inherits(x,"rareData")){
@@ -50,20 +92,22 @@ rareMH <- function(x, measure, level = 95,  digits = 4){
     B <- sum(Bi)
     D <- sum(Di)
 
+    quant <- stats::qnorm((100-level)/200)
+
     if(B == 0 || D == 0){
       stop("The data does not allow for the application of this method.
-           See e.g. ?rareDescribe() for possible continuity corrections.")
+           See e.g. ?rareCC() for possible continuity corrections.")
     }
 
-    else{
+
     beta   <- log(B/D)
     se     <- sqrt(1/2 * (sum(Ai*Bi)/B^2 + sum(Ai*Di + Ci*Bi)/(B*D)
                     + sum(Ci*Di)/D^2))
     zval   <- beta / se
     pval   <- 2*pnorm(abs(zval), lower.tail=FALSE)
-    ci.lb  <- beta + qnorm((100-level)/200) * se
-    ci.ub  <- beta - qnorm((100-level)/200) * se
-    }
+    ci.lb  <- beta + quant * se
+    ci.ub  <- beta - quant * se
+
   }
 
   if(measure == "logRR"){
@@ -73,17 +117,17 @@ rareMH <- function(x, measure, level = 95,  digits = 4){
 
     if(A == 0 || B == 0){
       stop("The data does not allow for application of this method.
-           See e.g. ?rareDescribe() for possible continuity corrections.")
+           See e.g. ?rareCC() for possible continuity corrections.")
     }
 
-    else{
+
       beta   <- log(A/B)
       se     <- sqrt(sum(n1i*n2i*(ai+ci)/ni^2 - ai*ci/ni)/(A*B))
       zval   <- beta / se
       pval   <- 2*pnorm(abs(zval), lower.tail=FALSE)
-      ci.lb  <- beta + qnorm((100-level)/200) * se
-      ci.ub  <- beta - qnorm((100-level)/200) * se
-    }
+      ci.lb  <- beta + quant * se
+      ci.ub  <- beta - quant * se
+
   }
 
   if(measure == "RD"){
@@ -91,10 +135,16 @@ rareMH <- function(x, measure, level = 95,  digits = 4){
     beta   <- sum(ai*(n2i/ni) - ci*(n1i/ni))/sum(n1i*(n2i/ni))
     se     <- sqrt(sum((ai*bi*n2i^3 + ci*di*n1i^3)/(n1i*n2i*ni^2))/
                        (sum(n1i*n2i/ni)^2))
+    #se     <- sqrt((beta * (sum(ci*(n1i/ni)^2 - ai*(n2i/ni)^2 + (n1i/ni)*(n2i/ni)*(n2i-n1i)/2))
+    # + sum(ai*(n2i-ci)/ni + ci*(n1i-ai)/ni)/2) / sum(n1i*(n2i/ni))^2)
+    # alternative estimator from Sato (1989?)
+    # equation from 'A new and improved confidence interval for the Mantel–Haenszel risk difference'
+    # by B Klingenberg
+
     zval   <- beta / se
     pval   <- 2*pnorm(abs(zval), lower.tail=FALSE)
-    ci.lb  <- beta + qnorm((100-level)/200) * se
-    ci.ub  <- beta - qnorm((100-level)/200) * se
+    ci.lb  <- beta + quant * se
+    ci.ub  <- beta - quant * se
   }
 
   res <- list(
