@@ -1,23 +1,24 @@
 #' Conduct a meta-analysis using Mantel-Haenszel type estimators
 #'
-#' Function to conduct a meta-analysis of the Odds Ratio, Relative Risk and
-#' Risk Difference calculated from event counts in form of 2x2 contingency
+#' Function to conduct a meta-analysis.
+#' Effect sizes are the odds ratio, relative risk and
+#' risk difference estimated from event counts in form of 2x2 contingency
 #' tables using Mantel-Haenszel type estimators.
 #'
 #' @param x an object of class `"raredata"`
 #' @param measure measure character string specifying the effect size or outcome measure to be used
 #' (either `"logOR"` for the log odds ratio, `"logRR"` for the log relative risk,
 #' or `"RD"` for the risk difference).
-#' @param level level numeric between 0 and 100 specifying the confidence interval level (the default is 95)
+#' @param level level numeric between 0 and 100 specifying the confidence interval level (the default is 95).
 #' @param digits integer specifying the number of decimal places to which the printed results
 #' should be rounded (if unspecified, the default is 4).
 #'
 #' @details
 #' # Details
 #' ## Data input
-#' The main input of the `rareIV()` function is a so-called `rareData` object. A `rareData` object
+#' The main input of the `rareMH()` function is a so-called `rareData` object. A `rareData` object
 #' can be produced from a data frame by applying the `rareDescribe()` function to it. The `rareDescribe()`
-#' function pre-processes the data frame and stores the information required by the `rareIV()` function
+#' function pre-processes the data frame and stores the information required by the `rareMH()` function
 #' in a list. See `?rareDescribe` for more details.
 #'
 #' ## Effect size measures
@@ -33,13 +34,41 @@
 #'
 #' ## Mantel-Haenszel type estimators
 #' Mantel-Haenszel type estimators distiguish themselfs through changing the order
-#' of division and summation in the naive estimator of the corresponding effect size.
-#' For precice defininitions of the implemented effect sizes see e.g. [???]
-#' The variance estimation is due to Greenland & Robins. See e.g. [???]
+#' of division and summation in the plug-in estimator of the corresponding effect size, i.e.
+#' the estimator received via plug in, estimating the probability of an event
+#' in the treatment group by ai/(ai+bi) and the probability of an event
+#' in the control group by ci/(ci+di).
+#' The variance estimation is due to Greenland et. al (1985) and
+#' Robins et. al (1986).
+#' For a summary of the implemented estimators see e.g. sections 9.2-9.4 of Jewell
+#' (2013).
 #'
-#' @return an object of class "raremeta". The object is a list containing the following elements:
+#' @return an object of class "raremeta".
+#' The object is a list containing the following elements:
+#' * `beta`, `b`: estimated effect size.
+#' * `se`: standard error of the  estimator.
+#' * `zval`: test statistics of the coefficients.
+#' * `pval`: p-values corresponding to the test statistics.
+#' * `ci.lb`: lower bound of the confidence intervals for the coefficients.
+#' * `ci.ub`: upper bound of the confidence intervals for the coefficients.
+#' * `k`: number of studies included in the analysis.
+#' * `kdz`,`ksz`: number of double-zero and single-zero studies.
+#' * `k1sz`, `k2sz`: number of single-zero studies where the zero is in group 1 or group 2.
+#' * `ai`, `bi`, `ci`, `di`: original entries of the 2x2 tables for all studies.
+#' * `ni`, `n1i`, `n2i`: original total and group sample sizes.
+#' * ...
 #'
 #' @references
+#' Greenland, S., & Robins, J. M. (1985).
+#' Estimation of a common effect parameter from sparse follow-up data.
+#' Biometrics, 55-68.
+#'
+#' Robins, J., Breslow, N., & Greenland, S. (1986).
+#' Estimators of the Mantel-Haenszel variance consistent in both sparse data
+#' and large-strata limiting models.
+#' Biometrics, 311-323.
+#'
+#' Jewell, N. P. (2003). Statistics for epidemiology. chapman and hall/CRC.
 #'
 #' @export
 #'
@@ -150,69 +179,48 @@ rareMH <- function(x, measure, level = 95,  digits = 4){
   res <- list(
     # model information
     model = "rareMH",
-    measure = measure,
     b = beta,
     beta = beta,
     se = se,
-    vb = NA, #change print method to allow for dropping vb
     zval = zval,
     pval = pval,
     ci.lb = ci.lb,
     ci.ub = ci.ub,
-    digits = digits
+    digits = digits,
     #b.exp = exp(beta),
     #beta.exp = exp(beta),
     #ci.lb.exp = exp(ci.lb),
     #ci.ub.exp = exp(ci.ub)
+    k = x$k,
+    kdz = x$kdz,
+    ksz = x$ksz,
+    k1sz = x$k1sz,
+    k2sz = x$k2sz,
+    ai = ai,
+    bi = bi,
+    ci = ci,
+    di = di,
+    ni = n1i+n2i,
+    n1i = n1i,
+    n2i = n2i,
+    # arguments:
+    measure = measure,
+    level = level,
+    digits = digits,
+    # package version and call:
+    version = utils::packageVersion("raremeta"),
+    call = mf
   )
 
   res <- raremeta(res)
   return(res)
 }
 
-
-
-##QUESTIONS
-
-#(1)
-#Do we incorporate different tests than Wald-type tests?
-#Do we even call it Wald-type testing if we do not consider ML-estimates
-#(The estimator is normal anyway but out of different(?) reasons)
-
-#code we might need if we decide to incorporate different types of tests:
-##check if test argument is valid
-#if(!is.element(test, c("z", "knha", "hksj"))){
-#  stop("'test' must be either 'z', 'knha', or 'hksj'")
-#}
-
-## convert test to metafor notation if needed
-#if(test == "hksj"){
-#  test = "knha"
-#}
-
-#(2)
-#Parts of the rareIV code maybe needed here as well
-
-# convert measure to the metafor notation
-#metafor_measure <- sub("log", "", measure)
-#mf <- match.call() #What does this do?
-
-#time.start <- proc.time()
-#time.end <- proc.time()
-#res$time <- unname(time.end - time.start)[3]
-
-#(3)
+#Variance Estimators
 #references to the original papers
 #OR: Robins et. al 1986 (p. 312)
 #RR and RD: Greenland et. al 1985 (p. 63)
 
-#(4)
-#How to structure the output? Incorporate our 'print()'-method 'raremeta'?
-#Add rounding by 'digits' argument
-#Add exponentiated version of the output?
-
-#(5)
-#Add information about the Cochran-Mantel-Haenszel test statistic?
 
 
 
