@@ -13,7 +13,7 @@ rareMH(x, measure, level = 95, digits = 4)
 (either \code{"logOR"} for the log odds ratio, \code{"logRR"} for the log relative risk,
 or \code{"RD"} for the risk difference).}
 
-\item{level}{level numeric between 0 and 100 specifying the confidence interval level (the default is 95)}
+\item{level}{level numeric between 0 and 100 specifying the confidence interval level (the default is 95).}
 
 \item{digits}{integer specifying the number of decimal places to which the printed results
 should be rounded (if unspecified, the default is 4).}
@@ -23,7 +23,7 @@ an object of class "raremeta".
 The object is a list containing the following elements:
 \itemize{
 \item \code{beta}, \code{b}: estimated effect size.
-\item \code{se}: standard errors of the  estimator.
+\item \code{se}: standard error of the  estimator.
 \item \code{zval}: test statistics of the coefficients.
 \item \code{pval}: p-values corresponding to the test statistics.
 \item \code{ci.lb}: lower bound of the confidence intervals for the coefficients.
@@ -88,5 +88,5 @@ Estimators of the Mantel-Haenszel variance consistent in both sparse data
 and large-strata limiting models.
 Biometrics, 311-323.
 
-Jewell, N. P. (2003). Statistics for epidemiology. chapman and hall/CRC.
+Jewell, N. P. (2003). Statistics for epidemiology. Chapman and Hall/CRC.
 }
