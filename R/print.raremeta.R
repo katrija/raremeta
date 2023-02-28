@@ -115,18 +115,51 @@ print.raremeta <- function(x, digits, ...){
 
     if(x$slope == "fixed" & x$intercept == "fixed"){
       cat("Fixed-effects meta-analysis using the Generalised Linear Model (GLM):", "\n")
+
+      cat("\nNumber of studies:", x$k, "\n")
+      cat("\nDouble-zero studies were", drop00, "the analysis.", "\n")
     }
 
     if(x$slope == "fixed" & x$intercept == "random"){
       cat("Fixed-effects meta-analysis using the Generalised Linear Mixed Model (GLMM):", "\n")
+
+      cat("\nNumber of studies:", x$k, "\n")
+      cat("\nDouble-zero studies were", drop00, "the analysis.", "\n")
+
+      cat("\nHeterogeneity: \n")
+
+      cat("\n",
+          "sigma^2 (estimated variance of the intercepts):        ", round(x$sigma2[[1]][1], digits), "\n",
+          "sigma (estimated standard deviation of the intercepts):", round(sqrt(x$sigma2[[1]][1]), digits), "\n"
+      )
+
     }
 
     if(x$slope == "random"){
       cat("Random-effects meta-analysis using the Generalised Linear Mixed Model (GLMM):", "\n")
-    }
 
-    cat("\nNumber of studies:", x$k, "\n")
-    cat("\nDouble-zero studies were", drop00, "the analysis.", "\n")
+      cat("\nNumber of studies:", x$k, "\n")
+      cat("\nDouble-zero studies were", drop00, "the analysis.", "\n")
+
+      cat("\nHeterogeneity: \n")
+
+      if(x$intercept == "random"){
+        cat("\n",
+            "sigma^2 (estimated variance of the intercepts):        ", round(x$sigma2[[1]][1], digits), "\n",
+            "sigma (estimated standard deviation of the intercepts):", round(sqrt(x$sigma2[[1]][1]), digits), "\n"
+        )
+      }
+
+      cat("\n",
+          "tau^2 (estimated variance of the effect sizes):        ", round(x$tau2, digits), "\n",
+          "tau (estimated standard deviation of the effect sizes):", round(sqrt(x$tau2), digits), "\n")
+
+      if(x$cor){
+        cat("\n",
+            "Random-effects correlation: ", round(x$sigma2[[1]][2]/sqrt(x$sigma2[[1]][1]*x$sigma2[[1]][4]), digits), "\n")
+      }
+
+    }
 
     # Model results:
     signif <- stats::symnum(x$pval, corr=FALSE, na=FALSE,
