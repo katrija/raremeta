@@ -18,7 +18,7 @@ print.raremeta <- function(x, digits, ...){
     digits <- x$digits
   }
 
-
+  # rareIV ---------------------------------------------------------------------
   if(x$model == "rareIV"){
 
     cc <- ifelse(x$cc != "tacc", x$cc, "treatment-arm")
@@ -74,7 +74,7 @@ print.raremeta <- function(x, digits, ...){
     cat("\nSignif. codes: ", "'***': < .001 '**': < .01 '*': < .05 '.': < .1" )
   }
 
-
+  # rareMH ---------------------------------------------------------------------
   if(x$model == "rareMH"){
 
     #cc <- ifelse(x$cc != "tacc", x$cc, "treatment-arm")
@@ -106,6 +106,52 @@ print.raremeta <- function(x, digits, ...){
 
     cat("---")
     cat("\nSignif. codes: ", "'***': < .001 '**': < .01 '*': < .05 '.': < .1" )
+  }
+
+  # rareGLMM -------------------------------------------------------------------
+  if(x$model == "rareGLMM"){
+
+    drop00 <- ifelse(x$drop00 == TRUE, "excluded from", "included in")
+
+    if(x$slope == "fixed" & x$intercept == "fixed"){
+      cat("Fixed-effects meta-analysis using the Generalised Linear Model (GLM):", "\n")
+    }
+
+    if(x$slope == "fixed" & x$intercept == "random"){
+      cat("Fixed-effects meta-analysis using the Generalised Linear Mixed Model (GLMM):", "\n")
+    }
+
+    if(x$slope == "random"){
+      cat("Random-effects meta-analysis using the Generalised Linear Mixed Model (GLMM):", "\n")
+    }
+
+    cat("\nNumber of studies:", x$k, "\n")
+    cat("\nDouble-zero studies were", drop00, "the analysis.", "\n")
+
+    # Model results:
+    signif <- stats::symnum(x$pval, corr=FALSE, na=FALSE,
+                            cutpoints=c(0, 0.001, 0.01, 0.05, 0.1, 1), symbols = c("***", "**", "*", ".", " "))
+
+    res.table <- data.frame(round(as.numeric(x$beta), digits), round(x$se, digits),
+                            round(x$zval, digits), ifelse(x$pval < 0.001, "< .001", round(x$pval, 3)),
+                            round(x$ci.lb, digits), round(x$ci.ub, digits))
+    names(res.table) <- c("estimate", "se", "zval", "pval",  "ci.lb", "ci.ub")
+    rownames(res.table) <- names(x$beta)
+
+    groupInd <- which(rownames(res.table) == "group")
+    rownames(res.table)[groupInd] <- as.character(x$measure)
+
+    res.table <- cbind(res.table, signif)
+    colnames(res.table)[ncol(res.table)] <- ""
+
+    cat("\nModel results: \n")
+    cat("\n")
+    print(res.table, row.names = TRUE)
+    cat("\n")
+
+    cat("---")
+    cat("\nSignif. codes: ", "'***': < .001 '**': < .01 '*': < .05 '.': < .1" )
+
   }
 
 
