@@ -10,6 +10,8 @@ rareGLMM(
   intercept = "fixed",
   slope = "random",
   conditional = FALSE,
+  cor = FALSE,
+  coding = 1/2,
   drop00 = FALSE,
   level = 95,
   test = "z",
@@ -36,6 +38,14 @@ random effects model.}
 \item{conditional}{logical specifying whether to estimate a conditional generalized linear mixed model.
 Default is \code{FALSE}. Conditional models are not implemented yet and specifying \code{conditional = TRUE} will
 yield an error.}
+
+\item{cor}{logical specifying whether random effects should be modeled as correlated or uncorrelated.
+Default is \code{cor = FALSE}. This argument is only relevant if \code{intercept = "random"} and \code{slope = "random"}.}
+
+\item{coding}{numeric specifying the coding scheme used for the random effects structure. Values between 0
+and 1 can be specified. Default is \code{coding = -1/2}. The default option implies equal variances in the two groups.
+Values closer to 0 imply a larger variance in the control group (group 2), while values closer to 1 imply a larger
+variance in the treatment group (group 1).}
 
 \item{drop00}{logical indicating whether double-zero studies (i.e., studies with no events or
 only events in both groups) should be excluded when calculating the outcome measufit for the
