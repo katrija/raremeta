@@ -148,7 +148,7 @@ rareES <- function(x, measure, cc, ccval = 0.5, tccval, cccval, ccsum = 1,
     vi <- (ai.cc*(n1i.cc-ai.cc))/(n1i.cc^3)+(ci.cc*(n2i.cc-ci.cc))/(n2i.cc^3)
   }
 
-  #out <- cbind(x, yi, vi)
+  out <- cbind(x, yi, vi)
 
   #adding attributes
   #attr(out, "measure") <- measure
