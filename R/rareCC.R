@@ -98,11 +98,9 @@ rareCC <- function(x, cc = "constant", ccval = 0.5, tccval, cccval, ccsum = 1,
          the 'measure' argument must be specified.")
   }
 
-  if(cc == "empirical" && !is.element(measure, c("logOR", "logRR", "RD")))
-  print("wtf")
   # check if measure argument is valid (if needed)
-  if(cc == "empirical" && !is.element(measure, c("logOR", "logRR", "RD"))){
-    stop("To apply the empirical continuity correction, 'measure' must be either 'logOR', 'logRR', or 'RD'.")
+  if(cc == "empirical" && !is.element(measure, c("logOR", "logRR"))){
+    stop("To apply the empirical continuity correction, 'measure' must be either 'logOR' or 'logRR'.")
   }
 
   # check if method argument is valid (if needed)
