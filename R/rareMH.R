@@ -9,7 +9,7 @@
 #' @param measure measure character string specifying the effect size or outcome measure to be used
 #' (either `"logOR"` for the log odds ratio, `"logRR"` for the log relative risk,
 #' or `"RD"` for the risk difference).
-#' @param level level numeric between 0 and 100 specifying the confidence interval level (the default is 95).
+#' @param level numeric between 0 and 100 specifying the confidence interval level (the default is 95).
 #' @param digits integer specifying the number of decimal places to which the printed results
 #' should be rounded (if unspecified, the default is 4).
 #'
@@ -93,12 +93,12 @@ rareMH <- function(x, measure, level = 95,  digits = 4){
   }
 
   # check if digits argument is valid
-  if(length(digits) != 1 | digits%%1 != 0 | digits < 0){
+  if(length(digits) != 1 || digits%%1 != 0 || digits < 0){
     stop("'digits' must be an integer of length 1.")
   }
 
   # check if level argument is valid:
-  if(!is.numeric(level) | length(level) > 1 | level < 0 | level > 100){
+  if(!is.numeric(level) || length(level) > 1 || level < 0 || level > 100){
     stop("level must be a scalar between 0 and 100.")
   }
 
@@ -164,10 +164,10 @@ rareMH <- function(x, measure, level = 95,  digits = 4){
   if(measure == "RD"){
 
     beta   <- sum(ai*(n2i/ni) - ci*(n1i/ni))/sum(n1i*(n2i/ni))
-    se     <- sqrt(sum((ai*bi*n2i^3 + ci*di*n1i^3)/(n1i*n2i*ni^2))/
-                       (sum(n1i*n2i/ni)^2))
-    #se     <- sqrt((beta * (sum(ci*(n1i/ni)^2 - ai*(n2i/ni)^2 + (n1i/ni)*(n2i/ni)*(n2i-n1i)/2))
-    # + sum(ai*(n2i-ci)/ni + ci*(n1i-ai)/ni)/2) / sum(n1i*(n2i/ni))^2)
+    #se     <- sqrt(sum((ai*bi*n2i^3 + ci*di*n1i^3)/(n1i*n2i*ni^2))/
+    #                   (sum(n1i*n2i/ni)^2))
+    se     <- sqrt((beta * (sum(ci*(n1i/ni)^2 - ai*(n2i/ni)^2 + (n1i/ni)*(n2i/ni)*(n2i-n1i)/2))
+     + sum(ai*(n2i-ci)/ni + ci*(n1i-ai)/ni)/2) / sum(n1i*(n2i/ni))^2)
     # alternative estimator from Sato (1989?)
     # equation from 'A new and improved confidence interval for the Mantel–Haenszel risk difference'
     # by B Klingenberg
