@@ -68,7 +68,7 @@
 #' and large-strata limiting models.
 #' Biometrics, 311-323.
 #'
-#' Jewell, N. P. (2003). Statistics for epidemiology. chapman and hall/CRC.
+#' Jewell, N. P. (2003). Statistics for epidemiology. Chapman and Hall/CRC.
 #'
 #' @export
 #'
@@ -102,6 +102,8 @@ rareMH <- function(x, measure, level = 95,  digits = 4){
     stop("level must be a scalar between 0 and 100.")
   }
 
+  mf <- match.call()
+
   # extract counts and sample sizes
   ai  <- x$ai
   bi  <- x$bi
@@ -110,6 +112,8 @@ rareMH <- function(x, measure, level = 95,  digits = 4){
   n1i <- x$n1i
   n2i <- x$n2i
   ni  <- n1i + n2i
+
+  quant <- stats::qnorm((100-level)/200)
 
   #calculating effect sizes
   if(measure == "logOR"){
@@ -120,8 +124,6 @@ rareMH <- function(x, measure, level = 95,  digits = 4){
 
     B <- sum(Bi)
     D <- sum(Di)
-
-    quant <- stats::qnorm((100-level)/200)
 
     if(B == 0 || D == 0){
       stop("The data does not allow for the application of this method.
