@@ -1,3 +1,4 @@
+##Tests for the raremeta function rareMH()
 # usual data set:
 data <- data.frame(
   ai = c(0, 3, 2, 0),
@@ -71,7 +72,7 @@ test_that("rareMH returns errors and warning messages", {
   # testing the data input
   expect_error(
     rareMH(x = data, measure = "logOR"),
-    "x must be an object of class 'rareData'. See ?rareDescribe for more details."
+    "x must be an object of class 'rareData'."
     )
 
   #testing the measure input
@@ -134,7 +135,88 @@ test_that("rareMH returns errors and warning messages", {
 })
 
 test_that("comparing output of rareMH to output of metafor::rma.mh",{
-  expect_equal(rareMH(x,"logOR"))
+
+  #log(OR) with defaults (level=95, digits=4)
+  rare    <- rareMH(x, measure = "logOR")
+  fit_rma <- rma.mh(ai=ai, bi=bi, ci=ci, di=di, data=data, measure="OR", drop00 = FALSE)
+
+  expect_equal(rare$b, fit_rma$b, ignore_attr = TRUE)
+  expect_equal(rare$beta, fit_rma$beta, ignore_attr = TRUE)
+  expect_equal(rare$se, fit_rma$se, ignore_attr = TRUE)
+  expect_equal(rare$zval, fit_rma$zval, ignore_attr = TRUE)
+  expect_equal(rare$pval, fit_rma$pval, ignore_attr = TRUE)
+  expect_equal(rare$ci.lb, fit_rma$ci.lb, ignore_attr = TRUE)
+  expect_equal(rare$ci.ub, fit_rma$ci.ub, ignore_attr = TRUE)
+  expect_equal(rare$k, fit_rma$k, ignore_attr = TRUE)
+
+  #log(OR) with level=50, digits = 5
+  rare    <- rareMH(x, measure = "logOR", level = 50, digits = 5)
+  fit_rma <- rma.mh(ai=ai, bi=bi, ci=ci, di=di, data=data, measure="OR",
+                    level = 50, digits = 5, drop00 = FALSE)
+
+  expect_equal(rare$b, fit_rma$b, ignore_attr = TRUE)
+  expect_equal(rare$beta, fit_rma$beta, ignore_attr = TRUE)
+  expect_equal(rare$se, fit_rma$se, ignore_attr = TRUE)
+  expect_equal(rare$zval, fit_rma$zval, ignore_attr = TRUE)
+  expect_equal(rare$pval, fit_rma$pval, ignore_attr = TRUE)
+  expect_equal(rare$ci.lb, fit_rma$ci.lb, ignore_attr = TRUE)
+  expect_equal(rare$ci.ub, fit_rma$ci.ub, ignore_attr = TRUE)
+  expect_equal(rare$k, fit_rma$k, ignore_attr = TRUE)
+
+  #log(RR) with defaults (level=95, digits=4)
+  rare    <- rareMH(x, measure = "logRR")
+  fit_rma <- rma.mh(ai=ai, bi=bi, ci=ci, di=di, data=data, measure="RR", drop00 = FALSE)
+
+  expect_equal(rare$b, fit_rma$b, ignore_attr = TRUE)
+  expect_equal(rare$beta, fit_rma$beta, ignore_attr = TRUE)
+  expect_equal(rare$se, fit_rma$se, ignore_attr = TRUE)
+  expect_equal(rare$zval, fit_rma$zval, ignore_attr = TRUE)
+  expect_equal(rare$pval, fit_rma$pval, ignore_attr = TRUE)
+  expect_equal(rare$ci.lb, fit_rma$ci.lb, ignore_attr = TRUE)
+  expect_equal(rare$ci.ub, fit_rma$ci.ub, ignore_attr = TRUE)
+  expect_equal(rare$k, fit_rma$k, ignore_attr = TRUE)
+
+  #log(OR) with level=50, digits = 5
+  rare    <- rareMH(x, measure = "logRR", level = 50, digits = 5)
+  fit_rma <- rma.mh(ai=ai, bi=bi, ci=ci, di=di, data=data, measure="RR",
+                    level = 50, digits = 5, drop00 = FALSE)
+
+  expect_equal(rare$b, fit_rma$b, ignore_attr = TRUE)
+  expect_equal(rare$beta, fit_rma$beta, ignore_attr = TRUE)
+  expect_equal(rare$se, fit_rma$se, ignore_attr = TRUE)
+  expect_equal(rare$zval, fit_rma$zval, ignore_attr = TRUE)
+  expect_equal(rare$pval, fit_rma$pval, ignore_attr = TRUE)
+  expect_equal(rare$ci.lb, fit_rma$ci.lb, ignore_attr = TRUE)
+  expect_equal(rare$ci.ub, fit_rma$ci.ub, ignore_attr = TRUE)
+  expect_equal(rare$k, fit_rma$k, ignore_attr = TRUE)
+
+  #RD with defaults (level=95, digits=4)
+  rare    <- rareMH(x, measure = "RD")
+  fit_rma     <- rma.mh(ai=ai, bi=bi, ci=ci, di=di, data=data, measure="RD", drop00 = FALSE)
+
+  expect_equal(rare$b, fit_rma$b, ignore_attr = TRUE)
+  expect_equal(rare$beta, fit_rma$beta, ignore_attr = TRUE)
+  expect_equal(rare$se, fit_rma$se, ignore_attr = TRUE)
+  expect_equal(rare$zval, fit_rma$zval, ignore_attr = TRUE)
+  expect_equal(rare$pval, fit_rma$pval, ignore_attr = TRUE)
+  expect_equal(rare$ci.lb, fit_rma$ci.lb, ignore_attr = TRUE)
+  expect_equal(rare$ci.ub, fit_rma$ci.ub, ignore_attr = TRUE)
+  expect_equal(rare$k, fit_rma$k, ignore_attr = TRUE)
+
+  #log(OR) with level=50, digits = 5
+  rare    <- rareMH(x, measure = "RD", level = 50, digits = 5)
+  fit_rma <- rma.mh(ai=ai, bi=bi, ci=ci, di=di, data=data, measure="RD",
+                        level = 50, digits = 5, drop00 = FALSE)
+
+  expect_equal(rare$b, fit_rma$b, ignore_attr = TRUE)
+  expect_equal(rare$beta, fit_rma$beta, ignore_attr = TRUE)
+  expect_equal(rare$se, fit_rma$se, ignore_attr = TRUE)
+  expect_equal(rare$zval, fit_rma$zval, ignore_attr = TRUE)
+  expect_equal(rare$pval, fit_rma$pval, ignore_attr = TRUE)
+  expect_equal(rare$ci.lb, fit_rma$ci.lb, ignore_attr = TRUE)
+  expect_equal(rare$ci.ub, fit_rma$ci.ub, ignore_attr = TRUE)
+  expect_equal(rare$k, fit_rma$k, ignore_attr = TRUE)
+
 
 
 
