@@ -135,7 +135,7 @@ rareMH <- function(x, measure, level = 95,  digits = 4){
     se     <- sqrt(1/2 * (sum(Ai*Bi)/B^2 + sum(Ai*Di + Ci*Bi)/(B*D)
                     + sum(Ci*Di)/D^2))
     zval   <- beta / se
-    pval   <- 2*pnorm(abs(zval), lower.tail=FALSE)
+    pval   <- 2*stats::pnorm(abs(zval), lower.tail=FALSE)
     ci.lb  <- beta + quant * se
     ci.ub  <- beta - quant * se
 
@@ -155,7 +155,7 @@ rareMH <- function(x, measure, level = 95,  digits = 4){
       beta   <- log(A/B)
       se     <- sqrt(sum(n1i*n2i*(ai+ci)/ni^2 - ai*ci/ni)/(A*B))
       zval   <- beta / se
-      pval   <- 2*pnorm(abs(zval), lower.tail=FALSE)
+      pval   <- 2*stats::pnorm(abs(zval), lower.tail=FALSE)
       ci.lb  <- beta + quant * se
       ci.ub  <- beta - quant * se
 
@@ -173,7 +173,7 @@ rareMH <- function(x, measure, level = 95,  digits = 4){
     # by B Klingenberg
 
     zval   <- beta / se
-    pval   <- 2*pnorm(abs(zval), lower.tail=FALSE)
+    pval   <- 2*stats::pnorm(abs(zval), lower.tail=FALSE)
     ci.lb  <- beta + quant * se
     ci.ub  <- beta - quant * se
   }
