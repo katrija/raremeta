@@ -13,7 +13,7 @@ rareMH(x, measure, level = 95, digits = 4)
 (either \code{"logOR"} for the log odds ratio, \code{"logRR"} for the log relative risk,
 or \code{"RD"} for the risk difference).}
 
-\item{level}{level numeric between 0 and 100 specifying the confidence interval level (the default is 95).}
+\item{level}{numeric between 0 and 100 specifying the confidence interval level (the default is 95).}
 
 \item{digits}{integer specifying the number of decimal places to which the printed results
 should be rounded (if unspecified, the default is 4).}

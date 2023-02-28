@@ -12,6 +12,12 @@
 #' @param conditional logical specifying whether to estimate a conditional generalized linear mixed model.
 #' Default is `FALSE`. Conditional models are not implemented yet and specifying `conditional = TRUE` will
 #' yield an error.
+#' @param cor logical specifying whether random effects should be modeled as correlated or uncorrelated.
+#' Default is `cor = FALSE`. This argument is only relevant if `intercept = "random"` and `slope = "random"`.
+#' @param coding numeric specifying the coding scheme used for the random effects structure. Values between 0
+#' and 1 can be specified. Default is `coding = -1/2`. The default option implies equal variances in the two groups.
+#' Values closer to 0 imply a larger variance in the control group (group 2), while values closer to 1 imply a larger
+#' variance in the treatment group (group 1).
 #' @param drop00 logical indicating whether double-zero studies (i.e., studies with no events or
 #' only events in both groups) should be excluded when calculating the outcome measufit for the
 #' individual studies.
@@ -25,6 +31,7 @@
 #' @param control optional list of control values for the iterative algorithms. If unspecified, default
 #' values are defined inside the functions.
 #' @param ... additional arguments.
+#'
 #' @return an object of class "raremeta". The object is a list containing the following elements:
 #' * `model`: name of the model used for conducting the meta-analysis.
 #' * `beta`: estimated coefficients of the model.
@@ -47,7 +54,9 @@
 #' * ...
 #' @export
 #'
-rareGLMM <- function(x, measure, intercept = "fixed", slope = "random", conditional = FALSE,
+rareGLMM <- function(x, measure,
+                     intercept = "fixed", slope = "random", conditional = FALSE,
+                     cor = FALSE, coding = 1/2,
                      drop00 = FALSE,
                      level = 95,
                      test="z", digits = 4, verbose=FALSE, control,
@@ -66,6 +75,22 @@ rareGLMM <- function(x, measure, intercept = "fixed", slope = "random", conditio
   # check if measure argument is valid
   if(!is.element(measure, c("logOR", "logRR"))){
     stop("'measure' must be either 'logOR' or 'logRR'.")
+  }
+
+  if(!is.element(slope, c("fixed", "random"))){
+    stop("'slope' must be either 'fixed' or 'random'.")
+  }
+
+  if(!is.element(intercept, c("fixed", "random"))){
+    stop("'intercept' must be either 'fixed' or 'random'.")
+  }
+
+  if(!is.element(conditional, c(TRUE, FALSE))){
+    stop("'conditional' must be either TRUE or FALSE.")
+  }
+
+  if(intercept == "random" & slope == "random" & !is.element(cor, c(TRUE, FALSE))){
+    stop("'cor' must be either TRUE or FALSE.")
   }
 
   # extract counts and sample sizes
@@ -118,19 +143,40 @@ rareGLMM <- function(x, measure, intercept = "fixed", slope = "random", conditio
     group = c(rep(1,length(ai)), rep(0, length(ci)))
   )
 
-  dataLong$group2 = ifelse(dataLong$group == 1, 0.5, -0.5)
+  codingRE <- 1-coding
+  dataLong$groupRE <- ifelse(dataLong$group == 1, 1-codingRE, -codingRE)
 
 
   if(measure == "logOR"){
 
     if(intercept == "random" & slope == "random" & conditional == FALSE){
-      fit <- lme4::glmer(cbind(y,n-y)~1+group+(1+group||id), data = dataLong,
+
+      if(cor == FALSE){
+        m <- cbind(y,n-y)~1+group+(1+groupRE||id)
+      }else{
+        m <- cbind(y,n-y)~1+group+(1+groupRE|id)
+      }
+
+      fit <- lme4::glmer(m, data = dataLong,
                          family = stats::binomial(link = "logit"))
     }
 
     if(intercept == "fixed" & slope == "random" & conditional == FALSE){
-      fit <- lme4::glmer(cbind(y,n-y)~1+id+group+(0+group|id), data = dataLong,
+      m <- cbind(y,n-y)~1+id+group+(0+groupRE|id)
+      fit <- lme4::glmer(m, data = dataLong,
                          family = stats::binomial(link = "logit"))
+    }
+
+    if(intercept == "random" & slope == "fixed" & conditional == FALSE){
+      m <- cbind(y,n-y)~1+group+(1|id)
+      fit <- lme4::glmer(m, data = dataLong,
+                         family = stats::binomial(link = "logit"))
+    }
+
+    if(intercept == "fixed" & slope == "fixed" & conditional == FALSE){
+      m <- cbind(y,n-y)~1+id+group
+      fit <- stats::glm(m, data = dataLong,
+                        family = stats::binomial(link = "logit"))
     }
 
 
@@ -139,22 +185,59 @@ rareGLMM <- function(x, measure, intercept = "fixed", slope = "random", conditio
   if(measure == "logRR"){
 
     if(intercept == "random" & slope == "random" & conditional == FALSE){
-      fit <- lme4::glmer(y~1+group+offset(log(n))+(1+group||id), data = dataLong,
+
+      if(cor == FALSE){
+        m <- y~1+group+offset(log(n))+(1+groupRE||id)
+      }else{
+        m <- y~1+group+offset(log(n))+(1+groupRE|id)
+      }
+
+      fit <- lme4::glmer(m, data = dataLong,
                          family = stats::poisson(link = "log"))
     }
 
     if(intercept == "fixed" & slope == "random" & conditional == FALSE){
-      fit <- lme4::glmer(y~1+id+group+offset(log(n))+(0+group|id), data = dataLong,
+      m <- y~1+id+group+offset(log(n))+(0+groupRE|id)
+      fit <- lme4::glmer(m, data = dataLong,
                          family = stats::poisson(link = "log"))
+    }
+
+    if(intercept == "random" & slope == "fixed" & conditional == FALSE){
+      m <- y~1+group+offset(log(n))+(1|id)
+      fit <- lme4::glmer(m, data = dataLong,
+                         family = stats::poisson(link = "log"))
+    }
+
+    if(intercept == "fixed" & slope == "fixed" & conditional == FALSE){
+      m <- y~1+id+group+offset(log(n))
+      fit <- stats::glm(m, data = dataLong,
+                        family = stats::poisson(link = "log"))
     }
 
   }
 
+  # Output generation ----------------------------------------------------------
 
-  beta <- lme4::fixef(fit)
-  vb <- as.matrix(stats::vcov(fit))
-  sigma2 <- lme4::VarCorr(fit)
-  tau2 <- sigma2[[length(sigma2)]][1]
+  if(inherits(fit, "glmerMod")){
+    beta <- lme4::fixef(fit)
+    vb <- as.matrix(stats::vcov(fit))
+    sigma2 <- lme4::VarCorr(fit)
+    tau2 <- sigma2[[length(sigma2)]][1]
+
+    singular <- lme4::isSingular(fit)
+    conv <- ifelse(fit@optinfo$conv$opt == 0, TRUE, FALSE)
+  }
+
+  if(inherits(fit, "glm")){
+    beta <- fit$coefficients
+    vb <- as.matrix(stats::vcov(fit))
+    sigma2 <- NA
+    tau2 <- 0
+
+    conv <- fit$converged
+    singular <- NA
+  }
+
 
   se <- sqrt(diag(vb))
 
@@ -175,9 +258,6 @@ rareGLMM <- function(x, measure, intercept = "fixed", slope = "random", conditio
   fit.stats <- rbind(stats::logLik(fit), stats::deviance(fit), stats::AIC(fit), stats::BIC(fit), AICc)
   rownames(fit.stats) <- c("ll", "dev", "AIC", "BIC", "AICc")
   colnames(fit.stats) <- c("ML")
-
-  singular <- lme4::isSingular(fit)
-  conv <- fit@optinfo$conv$opt
 
   # make results list
   # UNDER CONSTRUCTION
