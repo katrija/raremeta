@@ -166,8 +166,124 @@ test_that("rareCC runs with valid inputs",{
 
 })
 
-#test_that("rareMH returns errors and warning messages", {
+test_that("rareMH returns errors and warning messages", {
 
-#  expect_error()
+  expect_error(
+    rareCC(x, cc="something"),
+    "'cc' must be either 'none', 'constant', 'tacc', or 'empirical'."
+  )
 
-#  })
+  expect_error(
+    rareCC(x, cc= 0.5),
+    "'cc' must be either 'none', 'constant', 'tacc', or 'empirical'."
+  )
+
+  expect_error(
+    rareCC(x, drop00 = "yes"),
+    "'drop00' must be a logical."
+  )
+
+  expect_error(
+    rareCC(x, cc= "constant", ccto = "someofthem"),
+    "'ccto' must be either 'only0', 'all', or 'if0all'."
+  )
+
+  #ccval, cccval, tccval
+
+  expect_error(
+    rareCC(x, cc="constant", drop00 = FALSE, ccval = c(1,2,3)),
+    "'ccval' must have length 1 or length equal to the number of studies."
+  )
+
+  expect_error(
+    rareCC(x, cc="constant", drop00 = TRUE, ccval = c(1,2)),
+    "'ccval' must have length 1 or length equal to the number of studies (in- or excluding double-zero studies)."
+    )
+
+  expect_error(
+    rareCC(x, cc="constant", ccval = -1),
+    "'ccval' must be non-negative."
+  )
+
+  expect_error(
+    rareCC(x, cc="constant", ccval = c(1,1,-1,1)),
+    "'ccval' must be non-negative."
+  )
+
+  expect_error(
+    rareCC(x, cc = "constant", tccval = 0.5),
+    "Please specify both 'tccval' and 'cccval'."
+  )
+
+  expect_error(
+    rareCC(x, cc = "constant", cccval = 0.5),
+    "Please specify both 'tccval' and 'cccval'."
+  )
+
+  expect_error(
+    rareCC(x, cc = "constant", cccval = c(1,1,1,1), tccval = c(1,1,1)),
+    "'tccval' and 'cccval' must have equal length."
+  )
+
+  expect_error(
+    rareCC(x, cc = "constant", drop00 = FALSE, cccval = c(1,1,1), tccval = c(1,1,1)),
+    "'tccval' must have length 1 or length equal to the number of studies."
+  )
+
+  expect_error(
+    rareCC(x, cc = "constant", drop00 = TRUE, cccval = c(1,1), tccval = c(1,1)),
+    "'tccval' must have length 1 or length equal to the number of studies (in- or excluding double-zero studies)."
+  )
+
+  expect_error(
+    rareCC(x, cc = "constant", drop00 = FALSE, cccval = c(1,1,1,-1), tccval = c(1,1,1,1)),
+    "All values in 'tccval' and 'cccval' must be non-negative."
+  )
+
+  expect_error(
+    rareCC(x, cc = "constant", drop00 = FALSE, cccval = c(1,1,1,1), tccval = c(1,1,1,-1)),
+    "All values in 'tccval' and 'cccval' must be non-negative."
+  )
+
+  # 'empirical' and 'tacc not yet supported for RD
+  exptec_error(
+    rareCC(x, cc = "tacc", measure = "RD"),
+    "continuity correction of type 'tacc' is currently not supported for measure 'RD'."
+  )
+
+  exptec_error(
+    rareCC(x, cc = "empirical", measure = "RD"),
+    "continuity correction of type 'empirical' is currently not supported for measure 'RD'."
+  )
+
+  expect_error(
+    rareCC(x, cc = "empirical"),
+    "To apply the the empirical continuity correction, the 'measure' argument must be specified."
+  )
+
+  expect_error(
+    rareCC(x, cc = "empirical", measure = "Lebesgue"),
+    "To apply the empirical continuity correction, 'measure' must be either 'logOR' or 'logRR'."
+  )
+
+  expect_error(
+    rareCC(x, cc = "empirical", measure = "logOR", method = "scientific")
+  )
+
+  expect_error(
+    rareCC(x, cc = "tacc", measure = "logOR", ccsum = -1),
+    "ccsum must be a scalar larger than 0."
+  )
+
+  expect_error(
+    rareCC(x, cc = "tacc", measure = "logOR", ccsum = c(1,1)),
+    "ccsum must be a scalar larger than 0."
+  )
+
+  expect_error(
+    rareCC(x, cc = "tacc", measure = "logOR", ccsum = "one and a half"),
+    "ccsum must be a scalar larger than 0."
+  )
+
+
+  })

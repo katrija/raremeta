@@ -28,17 +28,17 @@ rareCC <- function(x, cc = "constant", ccval = 0.5, tccval, cccval, ccsum = 1,
 
   # check if cc argument is valid
   if(!is.element(cc, c("none", "constant", "tacc", "empirical"))){
-    stop("'cc' must be either 'none', 'constant', 'tacc', or 'empirical'")
+    stop("'cc' must be either 'none', 'constant', 'tacc', or 'empirical'.")
   }
 
   # check if drop00 argument is valid
   if(!is.logical(drop00)){
-    stop("'drop00' must be a logical")
+    stop("'drop00' must be a logical.")
   }
 
   # check if ccto argument is valid (if cc shall be applied)
   if(cc != "none" &&  !is.element(ccto, c("only0", "all", "if0all"))){
-    stop("'ccto' must be either 'only0', 'all', or 'if0all'")
+    stop("'ccto' must be either 'only0', 'all', or 'if0all'.")
   }
 
   # check ccval, tccval, cccval arguments (if cc == "constant")
@@ -49,8 +49,7 @@ rareCC <- function(x, cc = "constant", ccval = 0.5, tccval, cccval, ccsum = 1,
     }
 
     if(drop00 == TRUE && !is.element(length(ccval), c(1,x$k,x$k-x$kdz))){
-      stop("'ccval' must have length 1 or length equal to the number of studies
-           (in- or excluding double-zero studies).")
+      stop("'ccval' must have length 1 or length equal to the number of studies (in- or excluding double-zero studies).")
     }
 
     if(any(ccval < 0)){
@@ -94,8 +93,7 @@ rareCC <- function(x, cc = "constant", ccval = 0.5, tccval, cccval, ccsum = 1,
 
   # check if measure argument is specified (if needed)
   if(cc == "empirical" && missing(measure)){
-    stop("To apply the the empirical continuity correction,
-         the 'measure' argument must be specified.")
+    stop("To apply the the empirical continuity correction, the 'measure' argument must be specified.")
   }
 
   # check if measure argument is valid (if needed)
@@ -113,8 +111,7 @@ rareCC <- function(x, cc = "constant", ccval = 0.5, tccval, cccval, ccsum = 1,
 
   # check if there are non-zero studies when the empirical cc shall be applied
   if(cc == "empirical" && all(ai == 0 | bi == 0 | ci == 0 | di == 0)){
-    stop("Continuity correction of type 'empirical' can only be applied
-         if there is at least one non-zero study.")
+    stop("Continuity correction of type 'empirical' can only be applied if there is at least one non-zero study.")
   }
 
   # check ccsum argument:
