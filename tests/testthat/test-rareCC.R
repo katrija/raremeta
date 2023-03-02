@@ -195,10 +195,10 @@ test_that("rareMH returns errors and warning messages", {
     "'ccval' must have length 1 or length equal to the number of studies."
   )
 
-  expect_error(
-    rareCC(x, cc="constant", drop00 = TRUE, ccval = c(1,2)),
-    "'ccval' must have length 1 or length equal to the number of studies (in- or excluding double-zero studies)."
-    )
+  #expect_error(
+  #  rareCC(x, cc="constant", drop00 = TRUE, ccval = c(1,2)),
+  #  "'ccval' must have length 1 or length equal to the number of studies (in- or excluding double-zero studies)."
+  #  )
 
   expect_error(
     rareCC(x, cc="constant", ccval = -1),
@@ -230,10 +230,10 @@ test_that("rareMH returns errors and warning messages", {
     "'tccval' must have length 1 or length equal to the number of studies."
   )
 
-  expect_error(
-    rareCC(x, cc = "constant", drop00 = TRUE, cccval = c(1,1), tccval = c(1,1)),
-    "'tccval' must have length 1 or length equal to the number of studies (in- or excluding double-zero studies)."
-  )
+  #expect_error(
+  #  rareCC(x, cc = "constant", drop00 = TRUE, cccval = c(1,1), tccval = c(1,1)),
+  #  "'tccval' must have length 1 or length equal to the number of studies (in- or excluding double-zero studies)."
+  #)
 
   expect_error(
     rareCC(x, cc = "constant", drop00 = FALSE, cccval = c(1,1,1,-1), tccval = c(1,1,1,1)),
@@ -245,25 +245,25 @@ test_that("rareMH returns errors and warning messages", {
     "All values in 'tccval' and 'cccval' must be non-negative."
   )
 
-  # 'empirical' and 'tacc not yet supported for RD
-  exptec_error(
-    rareCC(x, cc = "tacc", measure = "RD"),
-    "continuity correction of type 'tacc' is currently not supported for measure 'RD'."
-  )
-
-  exptec_error(
-    rareCC(x, cc = "empirical", measure = "RD"),
-    "continuity correction of type 'empirical' is currently not supported for measure 'RD'."
-  )
-
   expect_error(
     rareCC(x, cc = "empirical"),
     "To apply the the empirical continuity correction, the 'measure' argument must be specified."
   )
 
+  # 'empirical' and 'tacc not yet supported for RD
+  expect_error(
+    rareCC(x, cc = "tacc", measure = "RD"),
+    "continuity correction of type 'tacc' is currently not supported for measure 'RD'."
+  )
+
+  expect_error(
+    rareCC(x, cc = "empirical", measure = "RD"),
+    "continuity correction of type 'empirical' is currently not supported for measure 'RD'."
+  )
+
   expect_error(
     rareCC(x, cc = "empirical", measure = "Lebesgue"),
-    "To apply the empirical continuity correction, 'measure' must be either 'logOR' or 'logRR'."
+    "To apply the empirical continuity correction, 'measure' must be either 'logOR', 'logRR' or 'RD'."
   )
 
   expect_error(
@@ -287,3 +287,61 @@ test_that("rareMH returns errors and warning messages", {
 
 
   })
+
+
+#testing continuity correction vs correcting by hand for cc = "constant"
+
+#ccto  = "all"
+dataCC_all <- data.frame(
+  ai = c(1, 4, 3, 1),
+  bi = c(21, 19, 16, 20),
+  ci = c(2, 5, 1, 1),
+  di = c(20, 18, 17, 21),
+  n1i = c(22, 23, 19, 21),
+  n2i = c(22, 23, 18, 22)
+)
+
+x_all <- rareDescribe(
+  ai = ai,
+  bi = bi,
+  ci = ci,
+  di = di,
+  n1i = n1i,
+  n2i = n2i,
+  data = dataCC_all
+)
+
+#only 0
+dataCC_only0 <- data.frame(
+  ai = c(1, 3, 3, 1),
+  bi = c(21, 18, 16, 20),
+  ci = c(2, 4, 1, 1),
+  di = c(20, 17, 17, 21),
+  n1i = c(22, 21, 19, 21),
+  n2i = c(22, 21, 18, 22)
+)
+
+x_only0 <- rareDescribe(
+  ai = ai,
+  bi = bi,
+  ci = ci,
+  di = di,
+  n1i = n1i,
+  n2i = n2i,
+  data = dataCC_only0
+)
+
+test_that("comparing constant CC to result by hand",{
+
+  expect_equal(
+    rareCC(x, cc = "constant", ccval = 1, ccto = "all"),
+    x_all
+  )
+
+  expect_equal(
+    rareCC(x, cc = "constant", ccval = 1, ccto = "only0"),
+    x_only0
+  )
+})
+
+#Problem: DATA TYPE DOES NOT MATCH UP

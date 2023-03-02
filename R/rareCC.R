@@ -58,7 +58,7 @@ rareCC <- function(x, cc = "constant", ccval = 0.5, tccval, cccval, ccsum = 1,
 
     if(!missing(tccval) || !missing(cccval)){
 
-      if((!missing(tccval) && missing(cccval)) || (missing(tccval) && !missing(tccval))){
+      if((!missing(tccval) && missing(cccval)) || (missing(tccval) && !missing(cccval))){
         stop("Please specify both 'tccval' and 'cccval'.")
       }
 
@@ -70,9 +70,9 @@ rareCC <- function(x, cc = "constant", ccval = 0.5, tccval, cccval, ccsum = 1,
         stop("'tccval' must have length 1 or length equal to the number of studies.")
       }
 
-      if(drop00 == TRUE && !is.element(length(tccval), c(1,x$k,x$k-x$kdz))){
-        stop("'tccval' must have length 1 or length equal to the number of studies (in- or excluding double-zero studies).")
-      }
+      #if(drop00 == TRUE && !is.element(length(tccval), c(1,x$k,x$k-x$kdz))){
+      #  stop("'tccval' must have length 1 or length equal to the number of studies (in- or excluding double-zero studies).")
+      #}
 
       if(any(c(tccval, cccval) < 0)){
         stop("All values in 'tccval' and 'cccval' must be non-negative.")
@@ -80,6 +80,24 @@ rareCC <- function(x, cc = "constant", ccval = 0.5, tccval, cccval, ccsum = 1,
     }
   }
 
+
+  # check if measure argument is specified (if needed)
+  if(cc == "empirical" && missing(measure)){
+    stop("To apply the the empirical continuity correction, the 'measure' argument must be specified.")
+  }
+
+  # check if measure argument is valid (if needed)
+  if(cc == "empirical" && !is.element(measure, c("logOR", "logRR", "RD"))){
+    stop("To apply the empirical continuity correction, 'measure' must be either 'logOR', 'logRR' or 'RD'.")
+  }
+
+  # check if method argument is valid (if needed)
+  if(cc == "empirical"
+     && !is.element(method, c("FE", "EE", "DL", "HE", "HS", "HSk", "SJ", "ML",
+                               "REML", "EB", "PM", "GENQ", "PMM", "GENQM"))){
+    stop("'method' argument must be one of the following: 'FE','EE','DL','HE','HS',
+         'HSK','SJ','ML','REML','EB','PM','GENQ','PMM','GENQM'.")
+  }
 
   # tacc currently not supported for RD
   if(cc == "tacc" && measure == "RD"){
@@ -89,24 +107,6 @@ rareCC <- function(x, cc = "constant", ccval = 0.5, tccval, cccval, ccsum = 1,
   # empirical cc currently not supported for RD
   if(cc == "empirical" && measure == "RD"){
     stop("continuity correction of type 'empirical' is currently not supported for measure 'RD'.")
-  }
-
-  # check if measure argument is specified (if needed)
-  if(cc == "empirical" && missing(measure)){
-    stop("To apply the the empirical continuity correction, the 'measure' argument must be specified.")
-  }
-
-  # check if measure argument is valid (if needed)
-  if(cc == "empirical" && !is.element(measure, c("logOR", "logRR"))){
-    stop("To apply the empirical continuity correction, 'measure' must be either 'logOR' or 'logRR'.")
-  }
-
-  # check if method argument is valid (if needed)
-  if(cc == "empirical"
-     && !is.element(method, c("FE", "EE", "DL", "HE", "HS", "HSk", "SJ", "ML",
-                               "REML", "EB", "PM", "GENQ", "PMM", "GENQM"))){
-    stop("'method' argument must be one of the following: 'FE','EE','DL','HE','HS',
-         'HSK','SJ','ML','REML','EB','PM','GENQ','PMM','GENQM'.")
   }
 
   # check if there are non-zero studies when the empirical cc shall be applied
