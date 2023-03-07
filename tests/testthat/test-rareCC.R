@@ -334,14 +334,13 @@ x_only0 <- rareDescribe(
 test_that("comparing constant CC to result by hand",{
 
   expect_equal(
-    rareCC(x, cc = "constant", ccval = 1, ccto = "all"),
-    x_all
+    rareCC(x, cc = "constant", ccval = 1, ccto = "all", drop00 = FALSE),
+    rareCC(x_all, cc = "none", drop00 = FALSE)
   )
 
   expect_equal(
-    rareCC(x, cc = "constant", ccval = 1, ccto = "only0"),
-    x_only0
+    rareCC(x, cc = "constant", ccval = 1, ccto = "only0", drop00 = FALSE),
+    rareCC(x_only0, cc = "none", drop00 = FALSE)
   )
 })
 
-#Problem: DATA TYPE DOES NOT MATCH UP
