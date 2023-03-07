@@ -255,14 +255,14 @@ test_that("results from rareIV equal results from metafor package", {
   # add to "only0"
   # drop00 = FALSE
   rare <- rareIV(x, measure = "logOR", method = "FE", cc = "constant", ccval = 0.5, ccto = "only0", drop00 = FALSE, level = 95)
-  rma <- metafor::rma(ai = ai, bi = bi, ci = ci, di = di, n1i = n1i, n2i = n2i, data = data, measure = "OR", method = "FE", add = 0.5, to = "only0", drop00 = FALSE, level = 95)
-  expect_equal(rare$beta, rma$beta)
-  expect_equal(rare$tau2, rma$tau2)
-  expect_equal(rare$se.tau2, rma$se.tau2)
-  expect_equal(rare$se, rma$se)
-  expect_equal(rare$pval, rma$pval)
-  expect_equal(rare$ci.lb, rma$ci.lb)
-  expect_equal(rare$ci.ub, rma$ci.ub)
+  fit <- metafor::rma(ai = ai, bi = bi, ci = ci, di = di, n1i = n1i, n2i = n2i, data = data, measure = "OR", method = "FE", add = 0.5, to = "only0", drop00 = FALSE, level = 95)
+  expect_equal(rare$beta, fit$beta)
+  expect_equal(rare$tau2, fit$tau2)
+  expect_equal(rare$se.tau2, fit$se.tau2)
+  expect_equal(rare$se, fit$se)
+  expect_equal(rare$pval, fit$pval)
+  expect_equal(rare$ci.lb, fit$ci.lb)
+  expect_equal(rare$ci.ub, fit$ci.ub)
 
   # cc = constant, add 0.5
   # for method = FE
@@ -270,14 +270,14 @@ test_that("results from rareIV equal results from metafor package", {
   # add to "only0"
   # drop00 = TRUE
   rare <- rareIV(x, measure = "logOR", method = "FE", cc = "constant", ccval = 0.5, ccto = "only0", drop00 = TRUE, level = 95)
-  rma <- suppressWarnings(metafor::rma(ai = ai, bi = bi, ci = ci, di = di, n1i = n1i, n2i = n2i, data = data, measure = "OR", method = "FE", add = 0.5, to = "only0", drop00 = TRUE, level = 95))
-  expect_equal(rare$beta, rma$beta)
-  expect_equal(rare$tau2, rma$tau2)
-  expect_equal(rare$se.tau2, rma$se.tau2)
-  expect_equal(rare$se, rma$se)
-  expect_equal(rare$pval, rma$pval)
-  expect_equal(rare$ci.lb, rma$ci.lb)
-  expect_equal(rare$ci.ub, rma$ci.ub)
+  fit <- suppressWarnings(metafor::rma(ai = ai, bi = bi, ci = ci, di = di, n1i = n1i, n2i = n2i, data = data, measure = "OR", method = "FE", add = 0.5, to = "only0", drop00 = TRUE, level = 95))
+  expect_equal(rare$beta, fit$beta)
+  expect_equal(rare$tau2, fit$tau2)
+  expect_equal(rare$se.tau2, fit$se.tau2)
+  expect_equal(rare$se, fit$se)
+  expect_equal(rare$pval, fit$pval)
+  expect_equal(rare$ci.lb, fit$ci.lb)
+  expect_equal(rare$ci.ub, fit$ci.ub)
 
   # cc = constant, add 0.5
   # for method = FE
@@ -285,14 +285,14 @@ test_that("results from rareIV equal results from metafor package", {
   # add to "all"
   # drop00 = FALSE
   rare <- rareIV(x, measure = "logOR", method = "FE", cc = "constant", ccval = 0.5, ccto = "all", drop00 = FALSE, level = 95)
-  rma <- metafor::rma(ai = ai, bi = bi, ci = ci, di = di, n1i = n1i, n2i = n2i, data = data, measure = "OR", method = "FE", add = 0.5, to = "all", drop00 = FALSE, level = 95)
-  expect_equal(rare$beta, rma$beta)
-  expect_equal(rare$tau2, rma$tau2)
-  expect_equal(rare$se.tau2, rma$se.tau2)
-  expect_equal(rare$se, rma$se)
-  expect_equal(rare$pval, rma$pval)
-  expect_equal(rare$ci.lb, rma$ci.lb)
-  expect_equal(rare$ci.ub, rma$ci.ub)
+  fit <- metafor::rma(ai = ai, bi = bi, ci = ci, di = di, n1i = n1i, n2i = n2i, data = data, measure = "OR", method = "FE", add = 0.5, to = "all", drop00 = FALSE, level = 95)
+  expect_equal(rare$beta, fit$beta)
+  expect_equal(rare$tau2, fit$tau2)
+  expect_equal(rare$se.tau2, fit$se.tau2)
+  expect_equal(rare$se, fit$se)
+  expect_equal(rare$pval, fit$pval)
+  expect_equal(rare$ci.lb, fit$ci.lb)
+  expect_equal(rare$ci.ub, fit$ci.ub)
   # warning message: NAs omitted from model fitting for metafor::rma
 
   # cc = constant, add 0.5
@@ -301,14 +301,14 @@ test_that("results from rareIV equal results from metafor package", {
   # add to "all"
   # drop00 = TRUE
   rare <- rareIV(x, measure = "logOR", method = "FE", cc = "constant", ccval = 0.5, ccto = "all", drop00 = TRUE, level = 95)
-  rma <- suppressWarnings(metafor::rma(ai = ai, bi = bi, ci = ci, di = di, n1i = n1i, n2i = n2i, data = data, measure = "OR", method = "FE", add = 0.5, to = "all", drop00 = TRUE, level = 95))
-  expect_equal(rare$beta, rma$beta)
-  expect_equal(rare$tau2, rma$tau2)
-  expect_equal(rare$se.tau2, rma$se.tau2)
-  expect_equal(rare$se, rma$se)
-  expect_equal(rare$pval, rma$pval)
-  expect_equal(rare$ci.lb, rma$ci.lb)
-  expect_equal(rare$ci.ub, rma$ci.ub)
+  fit <- suppressWarnings(metafor::rma(ai = ai, bi = bi, ci = ci, di = di, n1i = n1i, n2i = n2i, data = data, measure = "OR", method = "FE", add = 0.5, to = "all", drop00 = TRUE, level = 95))
+  expect_equal(rare$beta, fit$beta)
+  expect_equal(rare$tau2, fit$tau2)
+  expect_equal(rare$se.tau2, fit$se.tau2)
+  expect_equal(rare$se, fit$se)
+  expect_equal(rare$pval, fit$pval)
+  expect_equal(rare$ci.lb, fit$ci.lb)
+  expect_equal(rare$ci.ub, fit$ci.ub)
   # warning message: NAs omitted from model fitting for metafor::rma
 
   # cc = constant, add 0.5
@@ -317,14 +317,14 @@ test_that("results from rareIV equal results from metafor package", {
   # add to "if0all"
   # drop00 = FALSE
   rare <- rareIV(x, measure = "logOR", method = "FE", cc = "constant", ccval = 0.5, ccto = "if0all", drop00 = FALSE, level = 95)
-  rma <- metafor::rma(ai = ai, bi = bi, ci = ci, di = di, n1i = n1i, n2i = n2i, data = data, measure = "OR", method = "FE", add = 0.5, to = "if0all", drop00 = FALSE, level = 95)
-  expect_equal(rare$beta, rma$beta)
-  expect_equal(rare$tau2, rma$tau2)
-  expect_equal(rare$se.tau2, rma$se.tau2)
-  expect_equal(rare$se, rma$se)
-  expect_equal(rare$pval, rma$pval)
-  expect_equal(rare$ci.lb, rma$ci.lb)
-  expect_equal(rare$ci.ub, rma$ci.ub)
+  fit <- metafor::rma(ai = ai, bi = bi, ci = ci, di = di, n1i = n1i, n2i = n2i, data = data, measure = "OR", method = "FE", add = 0.5, to = "if0all", drop00 = FALSE, level = 95)
+  expect_equal(rare$beta, fit$beta)
+  expect_equal(rare$tau2, fit$tau2)
+  expect_equal(rare$se.tau2, fit$se.tau2)
+  expect_equal(rare$se, fit$se)
+  expect_equal(rare$pval, fit$pval)
+  expect_equal(rare$ci.lb, fit$ci.lb)
+  expect_equal(rare$ci.ub, fit$ci.ub)
 
   # cc = constant, add 0.5
   # for method = FE
@@ -332,14 +332,14 @@ test_that("results from rareIV equal results from metafor package", {
   # add to "if0all"
   # drop00 = TRUE
   rare <- rareIV(x, measure = "logOR", method = "FE", cc = "constant", ccval = 0.5, ccto = "if0all", drop00 = TRUE, level = 95)
-  rma <- suppressWarnings(metafor::rma(ai = ai, bi = bi, ci = ci, di = di, n1i = n1i, n2i = n2i, data = data, measure = "OR", method = "FE", add = 0.5, to = "if0all", drop00 = TRUE, level = 95))
-  expect_equal(rare$beta, rma$beta)
-  expect_equal(rare$tau2, rma$tau2)
-  expect_equal(rare$se.tau2, rma$se.tau2)
-  expect_equal(rare$se, rma$se)
-  expect_equal(rare$pval, rma$pval)
-  expect_equal(rare$ci.lb, rma$ci.lb)
-  expect_equal(rare$ci.ub, rma$ci.ub)
+  fit <- suppressWarnings(metafor::rma(ai = ai, bi = bi, ci = ci, di = di, n1i = n1i, n2i = n2i, data = data, measure = "OR", method = "FE", add = 0.5, to = "if0all", drop00 = TRUE, level = 95))
+  expect_equal(rare$beta, fit$beta)
+  expect_equal(rare$tau2, fit$tau2)
+  expect_equal(rare$se.tau2, fit$se.tau2)
+  expect_equal(rare$se, fit$se)
+  expect_equal(rare$pval, fit$pval)
+  expect_equal(rare$ci.lb, fit$ci.lb)
+  expect_equal(rare$ci.ub, fit$ci.ub)
   # warning message: NAs omitted from model fitting for metafor::rma
 
 
@@ -352,14 +352,14 @@ test_that("results from rareIV equal results from metafor package", {
   # add to "only0"
   # drop00 = FALSE
   rare <- rareIV(x, measure = "logRR", method = "FE", cc = "constant", ccval = 0.5, ccto = "only0", drop00 = FALSE, level = 95)
-  rma <- metafor::rma(ai = ai, bi = bi, ci = ci, di = di, n1i = n1i, n2i = n2i, data = data, measure = "RR", method = "FE", add = 0.5, to = "only0", drop00 = FALSE, level = 95)
-  expect_equal(rare$beta, rma$beta)
-  expect_equal(rare$tau2, rma$tau2)
-  expect_equal(rare$se.tau2, rma$se.tau2)
-  expect_equal(rare$se, rma$se)
-  expect_equal(rare$pval, rma$pval)
-  expect_equal(rare$ci.lb, rma$ci.lb)
-  expect_equal(rare$ci.ub, rma$ci.ub)
+  fit <- metafor::rma(ai = ai, bi = bi, ci = ci, di = di, n1i = n1i, n2i = n2i, data = data, measure = "RR", method = "FE", add = 0.5, to = "only0", drop00 = FALSE, level = 95)
+  expect_equal(rare$beta, fit$beta)
+  expect_equal(rare$tau2, fit$tau2)
+  expect_equal(rare$se.tau2, fit$se.tau2)
+  expect_equal(rare$se, fit$se)
+  expect_equal(rare$pval, fit$pval)
+  expect_equal(rare$ci.lb, fit$ci.lb)
+  expect_equal(rare$ci.ub, fit$ci.ub)
 
   # cc = constant, add 0.5
   # for method = FE
@@ -367,14 +367,14 @@ test_that("results from rareIV equal results from metafor package", {
   # add to "only0"
   # drop00 = TRUE
   rare <- rareIV(x, measure = "logRR", method = "FE", cc = "constant", ccval = 0.5, ccto = "only0", drop00 = TRUE, level = 95)
-  rma <- suppressWarnings(metafor::rma(ai = ai, bi = bi, ci = ci, di = di, n1i = n1i, n2i = n2i, data = data, measure = "RR", method = "FE", add = 0.5, to = "only0", drop00 = TRUE, level = 95))
-  expect_equal(rare$beta, rma$beta)
-  expect_equal(rare$tau2, rma$tau2)
-  expect_equal(rare$se.tau2, rma$se.tau2)
-  expect_equal(rare$se, rma$se)
-  expect_equal(rare$pval, rma$pval)
-  expect_equal(rare$ci.lb, rma$ci.lb)
-  expect_equal(rare$ci.ub, rma$ci.ub)
+  fit <- suppressWarnings(metafor::rma(ai = ai, bi = bi, ci = ci, di = di, n1i = n1i, n2i = n2i, data = data, measure = "RR", method = "FE", add = 0.5, to = "only0", drop00 = TRUE, level = 95))
+  expect_equal(rare$beta, fit$beta)
+  expect_equal(rare$tau2, fit$tau2)
+  expect_equal(rare$se.tau2, fit$se.tau2)
+  expect_equal(rare$se, fit$se)
+  expect_equal(rare$pval, fit$pval)
+  expect_equal(rare$ci.lb, fit$ci.lb)
+  expect_equal(rare$ci.ub, fit$ci.ub)
   # warning message: NAs omitted from model fitting for metafor::rma
 
 
@@ -384,14 +384,14 @@ test_that("results from rareIV equal results from metafor package", {
   # add to "all"
   # drop00 = FALSE
   rare <- rareIV(x, measure = "logRR", method = "FE", cc = "constant", ccval = 0.5, ccto = "all", drop00 = FALSE, level = 95)
-  rma <- metafor::rma(ai = ai, bi = bi, ci = ci, di = di, n1i = n1i, n2i = n2i, data = data, measure = "RR", method = "FE", add = 0.5, to = "all", drop00 = FALSE, level = 95)
-  expect_equal(rare$beta, rma$beta)
-  expect_equal(rare$tau2, rma$tau2)
-  expect_equal(rare$se.tau2, rma$se.tau2)
-  expect_equal(rare$se, rma$se)
-  expect_equal(rare$pval, rma$pval)
-  expect_equal(rare$ci.lb, rma$ci.lb)
-  expect_equal(rare$ci.ub, rma$ci.ub)
+  fit <- metafor::rma(ai = ai, bi = bi, ci = ci, di = di, n1i = n1i, n2i = n2i, data = data, measure = "RR", method = "FE", add = 0.5, to = "all", drop00 = FALSE, level = 95)
+  expect_equal(rare$beta, fit$beta)
+  expect_equal(rare$tau2, fit$tau2)
+  expect_equal(rare$se.tau2, fit$se.tau2)
+  expect_equal(rare$se, fit$se)
+  expect_equal(rare$pval, fit$pval)
+  expect_equal(rare$ci.lb, fit$ci.lb)
+  expect_equal(rare$ci.ub, fit$ci.ub)
 
   # cc = constant, add 0.5
   # for method = FE
@@ -399,14 +399,14 @@ test_that("results from rareIV equal results from metafor package", {
   # add to "all"
   # drop00 = TRUE
   rare <- rareIV(x, measure = "logRR", method = "FE", cc = "constant", ccval = 0.5, ccto = "all", drop00 = TRUE, level = 95)
-  rma <- suppressWarnings(metafor::rma(ai = ai, bi = bi, ci = ci, di = di, n1i = n1i, n2i = n2i, data = data, measure = "RR", method = "FE", add = 0.5, to = "all", drop00 = TRUE, level = 95))
-  expect_equal(rare$beta, rma$beta)
-  expect_equal(rare$tau2, rma$tau2)
-  expect_equal(rare$se.tau2, rma$se.tau2)
-  expect_equal(rare$se, rma$se)
-  expect_equal(rare$pval, rma$pval)
-  expect_equal(rare$ci.lb, rma$ci.lb)
-  expect_equal(rare$ci.ub, rma$ci.ub)
+  fit <- suppressWarnings(metafor::rma(ai = ai, bi = bi, ci = ci, di = di, n1i = n1i, n2i = n2i, data = data, measure = "RR", method = "FE", add = 0.5, to = "all", drop00 = TRUE, level = 95))
+  expect_equal(rare$beta, fit$beta)
+  expect_equal(rare$tau2, fit$tau2)
+  expect_equal(rare$se.tau2, fit$se.tau2)
+  expect_equal(rare$se, fit$se)
+  expect_equal(rare$pval, fit$pval)
+  expect_equal(rare$ci.lb, fit$ci.lb)
+  expect_equal(rare$ci.ub, fit$ci.ub)
   # warning message: NAs omitted from model fitting for metafor::rma
 
 
@@ -416,14 +416,14 @@ test_that("results from rareIV equal results from metafor package", {
   # add to "if0all"
   # drop00 = FALSE
   rare <- rareIV(x, measure = "logRR", method = "FE", cc = "constant", ccval = 0.5, ccto = "if0all", drop00 = FALSE, level = 95)
-  rma <- metafor::rma(ai = ai, bi = bi, ci = ci, di = di, n1i = n1i, n2i = n2i, data = data, measure = "RR", method = "FE", add = 0.5, to = "if0all", drop00 = FALSE, level = 95)
-  expect_equal(rare$beta, rma$beta)
-  expect_equal(rare$tau2, rma$tau2)
-  expect_equal(rare$se.tau2, rma$se.tau2)
-  expect_equal(rare$se, rma$se)
-  expect_equal(rare$pval, rma$pval)
-  expect_equal(rare$ci.lb, rma$ci.lb)
-  expect_equal(rare$ci.ub, rma$ci.ub)
+  fit <- metafor::rma(ai = ai, bi = bi, ci = ci, di = di, n1i = n1i, n2i = n2i, data = data, measure = "RR", method = "FE", add = 0.5, to = "if0all", drop00 = FALSE, level = 95)
+  expect_equal(rare$beta, fit$beta)
+  expect_equal(rare$tau2, fit$tau2)
+  expect_equal(rare$se.tau2, fit$se.tau2)
+  expect_equal(rare$se, fit$se)
+  expect_equal(rare$pval, fit$pval)
+  expect_equal(rare$ci.lb, fit$ci.lb)
+  expect_equal(rare$ci.ub, fit$ci.ub)
 
   # cc = constant, add 0.5
   # for method = FE
@@ -431,14 +431,14 @@ test_that("results from rareIV equal results from metafor package", {
   # add to "if0all"
   # drop00 = TRUE
   rare <- rareIV(x, measure = "logRR", method = "FE", cc = "constant", ccval = 0.5, ccto = "if0all", drop00 = TRUE, level = 95)
-  rma <- suppressWarnings(metafor::rma(ai = ai, bi = bi, ci = ci, di = di, n1i = n1i, n2i = n2i, data = data, measure = "RR", method = "FE", add = 0.5, to = "if0all", drop00 = TRUE, level = 95))
-  expect_equal(rare$beta, rma$beta)
-  expect_equal(rare$tau2, rma$tau2)
-  expect_equal(rare$se.tau2, rma$se.tau2)
-  expect_equal(rare$se, rma$se)
-  expect_equal(rare$pval, rma$pval)
-  expect_equal(rare$ci.lb, rma$ci.lb)
-  expect_equal(rare$ci.ub, rma$ci.ub)
+  fit <- suppressWarnings(metafor::rma(ai = ai, bi = bi, ci = ci, di = di, n1i = n1i, n2i = n2i, data = data, measure = "RR", method = "FE", add = 0.5, to = "if0all", drop00 = TRUE, level = 95))
+  expect_equal(rare$beta, fit$beta)
+  expect_equal(rare$tau2, fit$tau2)
+  expect_equal(rare$se.tau2, fit$se.tau2)
+  expect_equal(rare$se, fit$se)
+  expect_equal(rare$pval, fit$pval)
+  expect_equal(rare$ci.lb, fit$ci.lb)
+  expect_equal(rare$ci.ub, fit$ci.ub)
   # warning message: NAs omitted from model fitting for metafor::rma
 
   #############################################################################
@@ -451,14 +451,14 @@ test_that("results from rareIV equal results from metafor package", {
   # add to "only0"
   # drop00 = FALSE
   rare <- rareIV(x, measure = "logOR", method = "DL", cc = "constant", ccval = 0.5, ccto = "only0", drop00 = FALSE, level = 95)
-  rma <- metafor::rma(ai = ai, bi = bi, ci = ci, di = di, n1i = n1i, n2i = n2i, data = data, measure = "OR", method = "DL", add = 0.5, to = "only0", drop00 = FALSE, level = 95)
-  expect_equal(rare$beta, rma$beta)
-  expect_equal(rare$tau2, rma$tau2)
-  expect_equal(rare$se.tau2, rma$se.tau2)
-  expect_equal(rare$se, rma$se)
-  expect_equal(rare$pval, rma$pval)
-  expect_equal(rare$ci.lb, rma$ci.lb)
-  expect_equal(rare$ci.ub, rma$ci.ub)
+  fit <- metafor::rma(ai = ai, bi = bi, ci = ci, di = di, n1i = n1i, n2i = n2i, data = data, measure = "OR", method = "DL", add = 0.5, to = "only0", drop00 = FALSE, level = 95)
+  expect_equal(rare$beta, fit$beta)
+  expect_equal(rare$tau2, fit$tau2)
+  expect_equal(rare$se.tau2, fit$se.tau2)
+  expect_equal(rare$se, fit$se)
+  expect_equal(rare$pval, fit$pval)
+  expect_equal(rare$ci.lb, fit$ci.lb)
+  expect_equal(rare$ci.ub, fit$ci.ub)
 
   # cc = constant, add 0.5
   # for method = DL
@@ -466,14 +466,14 @@ test_that("results from rareIV equal results from metafor package", {
   # add to "only0"
   # drop00 = TRUE
   rare <- rareIV(x, measure = "logOR", method = "DL", cc = "constant", ccval = 0.5, ccto = "only0", drop00 = TRUE, level = 95)
-  rma <- suppressWarnings(metafor::rma(ai = ai, bi = bi, ci = ci, di = di, n1i = n1i, n2i = n2i, data = data, measure = "OR", method = "DL", add = 0.5, to = "only0", drop00 = TRUE, level = 95))
-  expect_equal(rare$beta, rma$beta)
-  expect_equal(rare$tau2, rma$tau2)
-  expect_equal(rare$se.tau2, rma$se.tau2)
-  expect_equal(rare$se, rma$se)
-  expect_equal(rare$pval, rma$pval)
-  expect_equal(rare$ci.lb, rma$ci.lb)
-  expect_equal(rare$ci.ub, rma$ci.ub)
+  fit <- suppressWarnings(metafor::rma(ai = ai, bi = bi, ci = ci, di = di, n1i = n1i, n2i = n2i, data = data, measure = "OR", method = "DL", add = 0.5, to = "only0", drop00 = TRUE, level = 95))
+  expect_equal(rare$beta, fit$beta)
+  expect_equal(rare$tau2, fit$tau2)
+  expect_equal(rare$se.tau2, fit$se.tau2)
+  expect_equal(rare$se, fit$se)
+  expect_equal(rare$pval, fit$pval)
+  expect_equal(rare$ci.lb, fit$ci.lb)
+  expect_equal(rare$ci.ub, fit$ci.ub)
   # warning message: NAs omitted from model fitting for metafor::rma
 
 
@@ -483,14 +483,14 @@ test_that("results from rareIV equal results from metafor package", {
   # add to "all"
   # drop00 = FALSE
   rare <- rareIV(x, measure = "logOR", method = "DL", cc = "constant", ccval = 0.5, ccto = "all", drop00 = FALSE, level = 95)
-  rma <- metafor::rma(ai = ai, bi = bi, ci = ci, di = di, n1i = n1i, n2i = n2i, data = data, measure = "OR", method = "DL", add = 0.5, to = "all", drop00 = FALSE, level = 95)
-  expect_equal(rare$beta, rma$beta)
-  expect_equal(rare$tau2, rma$tau2)
-  expect_equal(rare$se.tau2, rma$se.tau2)
-  expect_equal(rare$se, rma$se)
-  expect_equal(rare$pval, rma$pval)
-  expect_equal(rare$ci.lb, rma$ci.lb)
-  expect_equal(rare$ci.ub, rma$ci.ub)
+  fit <- metafor::rma(ai = ai, bi = bi, ci = ci, di = di, n1i = n1i, n2i = n2i, data = data, measure = "OR", method = "DL", add = 0.5, to = "all", drop00 = FALSE, level = 95)
+  expect_equal(rare$beta, fit$beta)
+  expect_equal(rare$tau2, fit$tau2)
+  expect_equal(rare$se.tau2, fit$se.tau2)
+  expect_equal(rare$se, fit$se)
+  expect_equal(rare$pval, fit$pval)
+  expect_equal(rare$ci.lb, fit$ci.lb)
+  expect_equal(rare$ci.ub, fit$ci.ub)
 
   # cc = constant, add 0.5
   # for method = DL
@@ -498,14 +498,14 @@ test_that("results from rareIV equal results from metafor package", {
   # add to "all"
   # drop00 = TRUE
   rare <- rareIV(x, measure = "logOR", method = "DL", cc = "constant", ccval = 0.5, ccto = "all", drop00 = TRUE, level = 95)
-  rma <- suppressWarnings(metafor::rma(ai = ai, bi = bi, ci = ci, di = di, n1i = n1i, n2i = n2i, data = data, measure = "OR", method = "DL", add = 0.5, to = "all", drop00 = TRUE, level = 95))
-  expect_equal(rare$beta, rma$beta)
-  expect_equal(rare$tau2, rma$tau2)
-  expect_equal(rare$se.tau2, rma$se.tau2)
-  expect_equal(rare$se, rma$se)
-  expect_equal(rare$pval, rma$pval)
-  expect_equal(rare$ci.lb, rma$ci.lb)
-  expect_equal(rare$ci.ub, rma$ci.ub)
+  fit <- suppressWarnings(metafor::rma(ai = ai, bi = bi, ci = ci, di = di, n1i = n1i, n2i = n2i, data = data, measure = "OR", method = "DL", add = 0.5, to = "all", drop00 = TRUE, level = 95))
+  expect_equal(rare$beta, fit$beta)
+  expect_equal(rare$tau2, fit$tau2)
+  expect_equal(rare$se.tau2, fit$se.tau2)
+  expect_equal(rare$se, fit$se)
+  expect_equal(rare$pval, fit$pval)
+  expect_equal(rare$ci.lb, fit$ci.lb)
+  expect_equal(rare$ci.ub, fit$ci.ub)
   # warning message: NAs omitted from model fitting for metafor::rma
 
   # cc = constant, add 0.5
@@ -514,14 +514,14 @@ test_that("results from rareIV equal results from metafor package", {
   # add to "if0all"
   # drop00 = FALSE
   rare <- rareIV(x, measure = "logOR", method = "DL", cc = "constant", ccval = 0.5, ccto = "if0all", drop00 = FALSE, level = 95)
-  rma <- metafor::rma(ai = ai, bi = bi, ci = ci, di = di, n1i = n1i, n2i = n2i, data = data, measure = "OR", method = "DL", add = 0.5, to = "if0all", drop00 = FALSE, level = 95)
-  expect_equal(rare$beta, rma$beta)
-  expect_equal(rare$tau2, rma$tau2)
-  expect_equal(rare$se.tau2, rma$se.tau2)
-  expect_equal(rare$se, rma$se)
-  expect_equal(rare$pval, rma$pval)
-  expect_equal(rare$ci.lb, rma$ci.lb)
-  expect_equal(rare$ci.ub, rma$ci.ub)
+  fit <- metafor::rma(ai = ai, bi = bi, ci = ci, di = di, n1i = n1i, n2i = n2i, data = data, measure = "OR", method = "DL", add = 0.5, to = "if0all", drop00 = FALSE, level = 95)
+  expect_equal(rare$beta, fit$beta)
+  expect_equal(rare$tau2, fit$tau2)
+  expect_equal(rare$se.tau2, fit$se.tau2)
+  expect_equal(rare$se, fit$se)
+  expect_equal(rare$pval, fit$pval)
+  expect_equal(rare$ci.lb, fit$ci.lb)
+  expect_equal(rare$ci.ub, fit$ci.ub)
 
   # cc = constant, add 0.5
   # for method = DL
@@ -529,14 +529,14 @@ test_that("results from rareIV equal results from metafor package", {
   # add to "if0all"
   # drop00 = TRUE
   rare <- rareIV(x, measure = "logOR", method = "DL", cc = "constant", ccval = 0.5, ccto = "if0all", drop00 = TRUE, level = 95)
-  rma <- suppressWarnings(metafor::rma(ai = ai, bi = bi, ci = ci, di = di, n1i = n1i, n2i = n2i, data = data, measure = "OR", method = "DL", add = 0.5, to = "if0all", drop00 = TRUE, level = 95))
-  expect_equal(rare$beta, rma$beta)
-  expect_equal(rare$tau2, rma$tau2)
-  expect_equal(rare$se.tau2, rma$se.tau2)
-  expect_equal(rare$se, rma$se)
-  expect_equal(rare$pval, rma$pval)
-  expect_equal(rare$ci.lb, rma$ci.lb)
-  expect_equal(rare$ci.ub, rma$ci.ub)
+  fit <- suppressWarnings(metafor::rma(ai = ai, bi = bi, ci = ci, di = di, n1i = n1i, n2i = n2i, data = data, measure = "OR", method = "DL", add = 0.5, to = "if0all", drop00 = TRUE, level = 95))
+  expect_equal(rare$beta, fit$beta)
+  expect_equal(rare$tau2, fit$tau2)
+  expect_equal(rare$se.tau2, fit$se.tau2)
+  expect_equal(rare$se, fit$se)
+  expect_equal(rare$pval, fit$pval)
+  expect_equal(rare$ci.lb, fit$ci.lb)
+  expect_equal(rare$ci.ub, fit$ci.ub)
   # warning message: NAs omitted from model fitting for metafor::rma
 
   ##############################################################################
@@ -548,14 +548,14 @@ test_that("results from rareIV equal results from metafor package", {
   # add to "only0"
   # drop00 = FALSE
   rare <- rareIV(x, measure = "logRR", method = "DL", cc = "constant", ccval = 0.5, ccto = "only0", drop00 = FALSE, level = 95)
-  rma <- metafor::rma(ai = ai, bi = bi, ci = ci, di = di, n1i = n1i, n2i = n2i, data = data, measure = "RR", method = "DL", add = 0.5, to = "only0", drop00 = FALSE, level = 95)
-  expect_equal(rare$beta, rma$beta)
-  expect_equal(rare$tau2, rma$tau2)
-  expect_equal(rare$se.tau2, rma$se.tau2)
-  expect_equal(rare$se, rma$se)
-  expect_equal(rare$pval, rma$pval)
-  expect_equal(rare$ci.lb, rma$ci.lb)
-  expect_equal(rare$ci.ub, rma$ci.ub)
+  fit <- metafor::rma(ai = ai, bi = bi, ci = ci, di = di, n1i = n1i, n2i = n2i, data = data, measure = "RR", method = "DL", add = 0.5, to = "only0", drop00 = FALSE, level = 95)
+  expect_equal(rare$beta, fit$beta)
+  expect_equal(rare$tau2, fit$tau2)
+  expect_equal(rare$se.tau2, fit$se.tau2)
+  expect_equal(rare$se, fit$se)
+  expect_equal(rare$pval, fit$pval)
+  expect_equal(rare$ci.lb, fit$ci.lb)
+  expect_equal(rare$ci.ub, fit$ci.ub)
 
   # cc = constant, add 0.5
   # for method = DL
@@ -563,14 +563,14 @@ test_that("results from rareIV equal results from metafor package", {
   # add to "only0"
   # drop00 = TRUE
   rare <- rareIV(x, measure = "logRR", method = "DL", cc = "constant", ccval = 0.5, ccto = "only0", drop00 = TRUE, level = 95)
-  rma <- suppressWarnings(metafor::rma(ai = ai, bi = bi, ci = ci, di = di, n1i = n1i, n2i = n2i, data = data, measure = "RR", method = "DL", add = 0.5, to = "only0", drop00 = TRUE, level = 95))
-  expect_equal(rare$beta, rma$beta)
-  expect_equal(rare$tau2, rma$tau2)
-  expect_equal(rare$se.tau2, rma$se.tau2)
-  expect_equal(rare$se, rma$se)
-  expect_equal(rare$pval, rma$pval)
-  expect_equal(rare$ci.lb, rma$ci.lb)
-  expect_equal(rare$ci.ub, rma$ci.ub)
+  fit <- suppressWarnings(metafor::rma(ai = ai, bi = bi, ci = ci, di = di, n1i = n1i, n2i = n2i, data = data, measure = "RR", method = "DL", add = 0.5, to = "only0", drop00 = TRUE, level = 95))
+  expect_equal(rare$beta, fit$beta)
+  expect_equal(rare$tau2, fit$tau2)
+  expect_equal(rare$se.tau2, fit$se.tau2)
+  expect_equal(rare$se, fit$se)
+  expect_equal(rare$pval, fit$pval)
+  expect_equal(rare$ci.lb, fit$ci.lb)
+  expect_equal(rare$ci.ub, fit$ci.ub)
   # warning message: NAs omitted from model fitting for metafor::rma
 
 
@@ -580,14 +580,14 @@ test_that("results from rareIV equal results from metafor package", {
   # add to "all"
   # drop00 = FALSE
   rare <- rareIV(x, measure = "logRR", method = "DL", cc = "constant", ccval = 0.5, ccto = "all", drop00 = FALSE, level = 95)
-  rma <- suppressWarnings(metafor::rma(ai = ai, bi = bi, ci = ci, di = di, n1i = n1i, n2i = n2i, data = data, measure = "RR", method = "DL", add = 0.5, to = "all", drop00 = FALSE, level = 95))
-  expect_equal(rare$beta, rma$beta)
-  expect_equal(rare$tau2, rma$tau2)
-  expect_equal(rare$se.tau2, rma$se.tau2)
-  expect_equal(rare$se, rma$se)
-  expect_equal(rare$pval, rma$pval)
-  expect_equal(rare$ci.lb, rma$ci.lb)
-  expect_equal(rare$ci.ub, rma$ci.ub)
+  fit <- suppressWarnings(metafor::rma(ai = ai, bi = bi, ci = ci, di = di, n1i = n1i, n2i = n2i, data = data, measure = "RR", method = "DL", add = 0.5, to = "all", drop00 = FALSE, level = 95))
+  expect_equal(rare$beta, fit$beta)
+  expect_equal(rare$tau2, fit$tau2)
+  expect_equal(rare$se.tau2, fit$se.tau2)
+  expect_equal(rare$se, fit$se)
+  expect_equal(rare$pval, fit$pval)
+  expect_equal(rare$ci.lb, fit$ci.lb)
+  expect_equal(rare$ci.ub, fit$ci.ub)
 
   # cc = constant, add 0.5
   # for method = DL
@@ -595,14 +595,14 @@ test_that("results from rareIV equal results from metafor package", {
   # add to "all"
   # drop00 = TRUE
   rare <- rareIV(x, measure = "logRR", method = "DL", cc = "constant", ccval = 0.5, ccto = "all", drop00 = TRUE, level = 95)
-  rma <- suppressWarnings(metafor::rma(ai = ai, bi = bi, ci = ci, di = di, n1i = n1i, n2i = n2i, data = data, measure = "RR", method = "DL", add = 0.5, to = "all", drop00 = TRUE, level = 95))
-  expect_equal(rare$beta, rma$beta)
-  expect_equal(rare$tau2, rma$tau2)
-  expect_equal(rare$se.tau2, rma$se.tau2)
-  expect_equal(rare$se, rma$se)
-  expect_equal(rare$pval, rma$pval)
-  expect_equal(rare$ci.lb, rma$ci.lb)
-  expect_equal(rare$ci.ub, rma$ci.ub)
+  fit <- suppressWarnings(metafor::rma(ai = ai, bi = bi, ci = ci, di = di, n1i = n1i, n2i = n2i, data = data, measure = "RR", method = "DL", add = 0.5, to = "all", drop00 = TRUE, level = 95))
+  expect_equal(rare$beta, fit$beta)
+  expect_equal(rare$tau2, fit$tau2)
+  expect_equal(rare$se.tau2, fit$se.tau2)
+  expect_equal(rare$se, fit$se)
+  expect_equal(rare$pval, fit$pval)
+  expect_equal(rare$ci.lb, fit$ci.lb)
+  expect_equal(rare$ci.ub, fit$ci.ub)
   # warning message: NAs omitted from model fitting for metafor::rma
 
   # cc = constant, add 0.5
@@ -611,14 +611,14 @@ test_that("results from rareIV equal results from metafor package", {
   # add to "if0all"
   # drop00 = FALSE
   rare <- rareIV(x, measure = "logRR", method = "DL", cc = "constant", ccval = 0.5, ccto = "if0all", drop00 = FALSE, level = 95)
-  rma <- metafor::rma(ai = ai, bi = bi, ci = ci, di = di, n1i = n1i, n2i = n2i, data = data, measure = "RR", method = "DL", add = 0.5, to = "if0all", drop00 = FALSE, level = 95)
-  expect_equal(rare$beta, rma$beta)
-  expect_equal(rare$tau2, rma$tau2)
-  expect_equal(rare$se.tau2, rma$se.tau2)
-  expect_equal(rare$se, rma$se)
-  expect_equal(rare$pval, rma$pval)
-  expect_equal(rare$ci.lb, rma$ci.lb)
-  expect_equal(rare$ci.ub, rma$ci.ub)
+  fit <- metafor::rma(ai = ai, bi = bi, ci = ci, di = di, n1i = n1i, n2i = n2i, data = data, measure = "RR", method = "DL", add = 0.5, to = "if0all", drop00 = FALSE, level = 95)
+  expect_equal(rare$beta, fit$beta)
+  expect_equal(rare$tau2, fit$tau2)
+  expect_equal(rare$se.tau2, fit$se.tau2)
+  expect_equal(rare$se, fit$se)
+  expect_equal(rare$pval, fit$pval)
+  expect_equal(rare$ci.lb, fit$ci.lb)
+  expect_equal(rare$ci.ub, fit$ci.ub)
 
   # cc = constant, add 0.5
   # for method = DL
@@ -626,14 +626,14 @@ test_that("results from rareIV equal results from metafor package", {
   # add to "if0all"
   # drop00 = TRUE
   rare <- rareIV(x, measure = "logRR", method = "DL", cc = "constant", ccval = 0.5, ccto = "if0all", drop00 = TRUE, level = 95)
-  rma <- suppressWarnings(metafor::rma(ai = ai, bi = bi, ci = ci, di = di, n1i = n1i, n2i = n2i, data = data, measure = "RR", method = "DL", add = 0.5, to = "if0all", drop00 = TRUE, level = 95))
-  expect_equal(rare$beta, rma$beta)
-  expect_equal(rare$tau2, rma$tau2)
-  expect_equal(rare$se.tau2, rma$se.tau2)
-  expect_equal(rare$se, rma$se)
-  expect_equal(rare$pval, rma$pval)
-  expect_equal(rare$ci.lb, rma$ci.lb)
-  expect_equal(rare$ci.ub, rma$ci.ub)
+  fit <- suppressWarnings(metafor::rma(ai = ai, bi = bi, ci = ci, di = di, n1i = n1i, n2i = n2i, data = data, measure = "RR", method = "DL", add = 0.5, to = "if0all", drop00 = TRUE, level = 95))
+  expect_equal(rare$beta, fit$beta)
+  expect_equal(rare$tau2, fit$tau2)
+  expect_equal(rare$se.tau2, fit$se.tau2)
+  expect_equal(rare$se, fit$se)
+  expect_equal(rare$pval, fit$pval)
+  expect_equal(rare$ci.lb, fit$ci.lb)
+  expect_equal(rare$ci.ub, fit$ci.ub)
   # warning message: NAs omitted from model fitting for metafor::rma
 })
 
