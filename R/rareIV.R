@@ -441,8 +441,8 @@ rareIV <- function(x, measure, method, cc, ccval = 0.5, tccval, cccval, ccsum = 
     }
   }else{
     # what to do if method != "IPM"
-    metafor_method = method
-    tau2 = NULL
+    metafor_method <- method
+    tau2 <- NULL
   }
 
   # run metafor
@@ -507,7 +507,7 @@ rareIV <- function(x, measure, method, cc, ccval = 0.5, tccval, cccval, ccsum = 
     k1sz = x$k1sz,
     k2sz = x$k2sz,
     ids = 1:length(ai),
-    incl.studies = !attr(es, "remove"),
+    #incl.studies = !attr(es, "remove"),
     # effect sizes and sampling variances:
     yi = yi,
     vi = vi,
