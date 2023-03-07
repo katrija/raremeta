@@ -226,11 +226,21 @@ rareGLMM <- function(x, measure,
 
   # Output generation ----------------------------------------------------------
 
-  if (inherits(fit, "glmerMod")) {
+  if (inherits(fit, "glmerMod") & slope == "random") {
     beta <- lme4::fixef(fit)
     vb <- as.matrix(stats::vcov(fit))
     sigma2 <- lme4::VarCorr(fit)
     tau2 <- sigma2[[length(sigma2)]][1]
+
+    singular <- lme4::isSingular(fit)
+    conv <- ifelse(fit@optinfo$conv$opt == 0, TRUE, FALSE)
+  }
+
+  if (inherits(fit, "glmerMod") & slope == "fixed") {
+    beta <- lme4::fixef(fit)
+    vb <- as.matrix(stats::vcov(fit))
+    sigma2 <- lme4::VarCorr(fit)
+    tau2 <- 0
 
     singular <- lme4::isSingular(fit)
     conv <- ifelse(fit@optinfo$conv$opt == 0, TRUE, FALSE)
@@ -259,8 +269,9 @@ rareGLMM <- function(x, measure,
   X <- stats::model.matrix(fit)
   p <- ifelse(all(X[1, ] == 1), ncol(X) - 1, ncol(X))
 
-  AICc <- -2 * stats::logLik(fit) + 2 * (p + 1) * max(2 * nrow(dataLong), p + 3) / (max(nrow(dataLong), 3) - p)
-  fit.stats <- rbind(stats::logLik(fit), stats::deviance(fit), stats::AIC(fit), stats::BIC(fit), AICc)
+  ll <- stats::logLik(fit)
+  AICc <- -2 * ll + 2 * (p + 1) * max(2 * nrow(dataLong), p + 3) / (max(nrow(dataLong), 3) - p)
+  fit.stats <- rbind(ll, stats::deviance(fit), stats::AIC(fit), stats::BIC(fit), AICc)
   rownames(fit.stats) <- c("ll", "dev", "AIC", "BIC", "AICc")
   colnames(fit.stats) <- c("ML")
 
