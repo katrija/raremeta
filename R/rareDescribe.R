@@ -75,8 +75,8 @@ rareDescribe <- function(ai, bi, ci, di, n1i, n2i,
     stop("ai cannot be larger than n1i.")
   }
 
-  if (!is.null(bi) & !is.null(n2i) & any(bi > n2i, na.rm = TRUE)) {
-    stop("bi cannot be larger than n2i.")
+  if (!is.null(ci) & !is.null(n2i) & any(ci > n2i, na.rm = TRUE)) {
+    stop("ci cannot be larger than n2i.")
   }
 
   # in case bi and n1i (di and n2i) are given: check whether ai + bi = n1i (ci + di = n2i)
