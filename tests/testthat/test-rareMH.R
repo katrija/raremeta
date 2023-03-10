@@ -151,7 +151,7 @@ test_that("comparing output of rareMH to output of metafor::rma.mh",{
 
   #log(OR) with level=50, digits = 5
   rare    <- rareMH(x, measure = "logOR", level = 50, digits = 5)
-  fit_rma <- rma.mh(ai=ai, bi=bi, ci=ci, di=di, data=data, measure="OR",
+  fit_rma <- metafor::rma.mh(ai=ai, bi=bi, ci=ci, di=di, data=data, measure="OR",
                     level = 50, digits = 5, drop00 = FALSE)
 
   expect_equal(rare$b, fit_rma$b, ignore_attr = TRUE)
