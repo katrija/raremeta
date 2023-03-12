@@ -116,9 +116,9 @@ rareDescribe <- function(ai, bi, ci, di, n1i, n2i,
     }
   }
 
-  if (any(c(ai, bi, ci, di) %% 1 != 0, na.rm = TRUE)) {
-    warning("Some values in ai, bi, ci or di are not integers. Please check whether this is intended.")
-  }
+  #if (any(c(ai, bi, ci, di) %% 1 != 0, na.rm = TRUE)) {
+  #  warning("Some values in ai, bi, ci or di are not integers. Please check whether this is intended.")
+  #}
 
   # count all studies
   k <- length(ai)
