@@ -393,14 +393,14 @@ rareIV <- function(x, measure, method, cc, ccval = 0.5, tccval, cccval, ccsum = 
   es <- rareES(x, measure = measure, cc = cc, ccval = ccval, tccval = tccval, cccval = cccval,
                ccsum = ccsum, ccto = ccto, drop00 = drop00)
 
-  yi <- es[,"yi"]
-  vi <- es[,"vi"]
-  ai.cc <- es[,"ai.cc"]
-  bi.cc <- es[,"bi.cc"]
-  ci.cc <- es[,"ci.cc"]
-  di.cc <- es[,"di.cc"]
-  n1i.cc <- es[,"n1i.cc"]
-  n2i.cc <- es[,"n2i.cc"]
+  yi <- es$yi
+  vi <- es$vi
+  ai.cc <- es$ai.cc
+  bi.cc <- es$bi.cc
+  ci.cc <- es$ci.cc
+  di.cc <- es$di.cc
+  n1i.cc <- es$n1i.cc
+  n2i.cc <- es$n2i.cc
 
   # treat the case of method = "IPM" (improved Paule-Mandel)
   # calculate the IPM estimate and assign it to tau2
