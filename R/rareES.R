@@ -125,12 +125,12 @@ rareES <- function(x, measure, cc, ccval = 0.5, tccval, cccval, ccsum = 1,
               method = method)
 
   # extract counts and sample sizes
-  ai.cc   <- x[,"ai.cc"]
-  bi.cc   <- x[,"bi.cc"]
-  ci.cc   <- x[,"ci.cc"]
-  di.cc   <- x[,"di.cc"]
-  n1i.cc  <- x[,"n1i.cc"]
-  n2i.cc  <- x[,"n2i.cc"]
+  ai.cc   <- x$ai.cc
+  bi.cc   <- x$bi.cc
+  ci.cc   <- x$ci.cc
+  di.cc   <- x$di.cc
+  n1i.cc  <- x$n1i.cc
+  n2i.cc  <- x$n2i.cc
 
   # calculate effect sizes and sampling variances:
   if(measure == "logOR"){
@@ -148,23 +148,7 @@ rareES <- function(x, measure, cc, ccval = 0.5, tccval, cccval, ccsum = 1,
     vi <- (ai.cc*(n1i.cc-ai.cc))/(n1i.cc^3)+(ci.cc*(n2i.cc-ci.cc))/(n2i.cc^3)
   }
 
-  out <- cbind(x, yi, vi)
-
-  #adding attributes
-  #attr(out, "measure") <- measure
-  #attr(out, "cc") <- cc
-  #attr(out, "ccto") <- ccto
-  #attr(out, "drop00") <- drop00
-
-  ##The following attributes are local to the rareCC function
-  ##attr(out, "ccstudies") <- ccstudies
-  ##attr(out, "ccc") <- ccc
-  ##attr(out, "tcc") <- tcc
-  ##attr(out, "remove") <- remove
-
-  #colnames(out) <- c("ai.cc", "bi.cc", "ci.cc", "di.cc", "n1i.cc", "n2i.cc", "yi", "vi")
-
-
-  #Output
+  out <- append(x, list(yi = yi, vi = vi))
+  out <- rareData(out)
   return(out)
 }

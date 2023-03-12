@@ -167,6 +167,7 @@ rareCC <- function(x, cc = "constant", ccval = 0.5, tccval, cccval, ccsum = 1,
       ccc <- cccval
     }
 
+
   }
 
 
@@ -204,11 +205,29 @@ rareCC <- function(x, cc = "constant", ccval = 0.5, tccval, cccval, ccsum = 1,
   ci.cc <- ci+ccc
   di.cc <- di+ccc
 
-  n1i.cc <- ai.cc+bi.cc
-  n2i.cc <- ci.cc+di.cc
+  #adding description of continuity corrected data using rareDescribe()
+  data.cc <- data.frame(ai.cc = ai.cc, bi.cc = bi.cc, ci.cc = ci.cc, di.cc = di.cc)
+  x.cc <- rareDescribe(ai.cc, bi.cc, ci.cc, di.cc, data = data.cc)
 
-  out <- cbind(ai.cc, bi.cc, ci.cc, di.cc,n1i.cc, n2i.cc)
-  colnames(out) <- c("ai.cc","bi.cc","ci.cc","di.cc","n1i.cc","n2i.cc")
+  out <- append(list(ai.cc = x.cc$ai, bi.cc = x.cc$bi, ci.cc = x.cc$ci,
+                     di.cc = x.cc$di, n1i.cc = x.cc$n1i, n2i.cc = x.cc$n2i,
+                     ni.cc = x.cc$ni, nratioi.cc = x.cc$nratioi,
+                     nratio.cc = x.cc$nratio, k.cc = x.cc$k, kdz.cc = x.cc$kdz,
+                     ksz.cc = x.cc$ksz, k1sz.cc = x.cc$k1sz, k2sz.cc = x.cc$k2sz,
+                     n1.cc = x.cc$n1, n2.cc = x.cc$n2, n.cc = x.cc$n,
+                     cc = cc, ccto = ccto, drop00 = drop00, ccstudies = ccstudies,
+                     ccc = ccc, tcc = tcc, remove = remove), x)
+
+  #report measure and method argument when needed
+
+  if(cc == "tacc" || cc == "empirical"){
+    out <- append(out, list(method = method, measure = measure))
+  }
+
+
+
+  #out <- cbind(ai.cc, bi.cc, ci.cc, di.cc,n1i.cc, n2i.cc)
+  #colnames(out) <- c("ai.cc","bi.cc","ci.cc","di.cc","n1i.cc","n2i.cc")
 
   #adding attributes(?)
   #attr(out, "measure") <- measure
@@ -220,6 +239,7 @@ rareCC <- function(x, cc = "constant", ccval = 0.5, tccval, cccval, ccsum = 1,
   #attr(out, "tcc") <- tcc
   #attr(out, "remove") <- remove
 
+  out <- rareData(out)
   return(out)
 
 }
