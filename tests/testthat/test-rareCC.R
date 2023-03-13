@@ -289,7 +289,7 @@ test_that("rareMH returns errors and warning messages", {
   })
 
 
-#testing continuity correction vs correcting by hand for cc = "constant"
+#testing continuity correction vs correcting by hand for cc = "constant" with ccval = 1
 
 #ccto  = "all"
 dataCC_all <- data.frame(
@@ -333,14 +333,70 @@ x_only0 <- rareDescribe(
 
 test_that("comparing constant CC to result by hand",{
 
+  #ccto = "all"
+  x.rareCC  <- rareCC(x, cc = "constant", ccval = 1, ccto = "all", drop00 = FALSE)
+
   expect_equal(
-    rareCC(x, cc = "constant", ccval = 1, ccto = "all", drop00 = FALSE),
-    rareCC(x_all, cc = "none", drop00 = FALSE)
+    x.rareCC$ai.cc,
+    x_all$ai
   )
 
   expect_equal(
-    rareCC(x, cc = "constant", ccval = 1, ccto = "only0", drop00 = FALSE),
-    rareCC(x_only0, cc = "none", drop00 = FALSE)
+    x.rareCC$bi.cc,
+    x_all$bi
+  )
+
+  expect_equal(
+    x.rareCC$ci.cc,
+    x_all$ci
+  )
+
+  expect_equal(
+    x.rareCC$di.cc,
+    x_all$di
+  )
+
+  expect_equal(
+    x.rareCC$n1i.cc,
+    x_all$n1i
+  )
+
+  expect_equal(
+    x.rareCC$n2i.cc,
+    x_all$n2i
+  )
+
+  #ccto = "only0"
+  x.rareCC  <- rareCC(x, cc = "constant", ccval = 1, ccto = "only0", drop00 = FALSE)
+
+  expect_equal(
+    x.rareCC$ai.cc,
+    x_only0$ai
+  )
+
+  expect_equal(
+    x.rareCC$bi.cc,
+    x_only0$bi
+  )
+
+  expect_equal(
+    x.rareCC$ci.cc,
+    x_only0$ci
+  )
+
+  expect_equal(
+    x.rareCC$di.cc,
+    x_only0$di
+  )
+
+  expect_equal(
+    x.rareCC$n1i.cc,
+    x_only0$n1i
+  )
+
+  expect_equal(
+    x.rareCC$n2i.cc,
+    x_only0$n2i
   )
 })
 
