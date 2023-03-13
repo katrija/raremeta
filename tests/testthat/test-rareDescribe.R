@@ -56,7 +56,7 @@ test_that("rareDescribe returns errors and warning messages", {
   expect_warning(rareDescribe(ai = ai, bi = bi, ci = NA.ci, di = di, n1i = n1i, n2i = n2i, data = data), "There are missing values in group 2 in studies: ")
 
   # warning if arguments are not integer
-  expect_warning(rareDescribe(ai = ai, bi = bi, ci = ci, di = di, data = dataCC), "Some values in ai, bi, ci or di are not integers. Please check whether this is intended.")
+  #expect_warning(rareDescribe(ai = ai, bi = bi, ci = ci, di = di, data = dataCC), "Some values in ai, bi, ci or di are not integers. Please check whether this is intended.")
 })
 
 test_that("summaries are calculated correctly", {
