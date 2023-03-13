@@ -144,11 +144,11 @@ rareES <- function(x, measure, cc, ccval = 0.5, tccval, cccval, ccsum = 1,
   }
 
   if(measure == "RD"){
-    yi <- ai/n1i - ci/n2i
+    yi <- ai.cc/n1i.cc - ci.cc/n2i.cc
     vi <- (ai.cc*(n1i.cc-ai.cc))/(n1i.cc^3)+(ci.cc*(n2i.cc-ci.cc))/(n2i.cc^3)
   }
 
-  out <- append(x, list(yi = yi, vi = vi))
+  out <- append(list(yi = yi, vi = vi), x)
   out <- rareData(out)
   return(out)
 }
