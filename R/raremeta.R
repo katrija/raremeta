@@ -25,7 +25,7 @@ validate_raremeta <- function(x) {
     stop("some list elements are missing.")
   }
 
-  x
+  return(x)
 }
 
 #' Helper function to generate objects of class raremeta
