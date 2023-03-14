@@ -119,7 +119,9 @@ rareES <- function(x, measure, cc, ccval = 0.5, tccval, cccval, ccsum = 1,
     stop("x must be an object of class 'rareData'. See ?rareDescribe for more details.")
   }
 
-  # apply continuity correction if needed (argument checks are done in rareCC)
+  #other argument checks are done in 'rareCC()'
+
+  # apply continuity correction (put cc = "none" if not needed)
   x <- rareCC(x, cc = cc, ccval = ccval, tccval = tccval, cccval = cccval,
               ccsum = ccsum, ccto = ccto, drop00 = drop00, measure = measure)
 
@@ -147,14 +149,9 @@ rareES <- function(x, measure, cc, ccval = 0.5, tccval, cccval, ccsum = 1,
     vi <- (ai.cc*(n1i.cc-ai.cc))/(n1i.cc^3)+(ci.cc*(n2i.cc-ci.cc))/(n2i.cc^3)
   }
 
-  out <- append(list(yi = yi, vi = vi), x)
+  #complete the output
+  out <- append(list(yi = yi, vi = vi, measure = measure), x)
 
-  #add measure for cc = "constant"
-  #(for cc = "tacc" and cc = "empirical) this happens in rareCC()
-
-  if(cc == "constant"){
-    out <- append(out, list(measure = measure, method = method))
-  }
   out <- rareData(out)
   return(out)
 }
