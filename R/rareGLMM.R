@@ -154,7 +154,7 @@ rareGLMM <- function(x, measure,
         m <- cbind(y, n - y) ~ 1 + group + (1 + groupRE | id)
       }
 
-      fit <- lme4::glmer(m,
+      fitML <- lme4::glmer(m,
         data = dataLong,
         family = stats::binomial(link = "logit")
       )
@@ -162,7 +162,7 @@ rareGLMM <- function(x, measure,
 
     if (intercept == "fixed" & slope == "random" & conditional == FALSE) {
       m <- cbind(y, n - y) ~ -1 + id + group + (0 + groupRE | id)
-      fit <- lme4::glmer(m,
+      fitML <- lme4::glmer(m,
         data = dataLong,
         family = stats::binomial(link = "logit")
       )
@@ -170,7 +170,7 @@ rareGLMM <- function(x, measure,
 
     if (intercept == "random" & slope == "fixed" & conditional == FALSE) {
       m <- cbind(y, n - y) ~ 1 + group + (1 | id)
-      fit <- lme4::glmer(m,
+      fitML <- lme4::glmer(m,
         data = dataLong,
         family = stats::binomial(link = "logit")
       )
@@ -178,7 +178,7 @@ rareGLMM <- function(x, measure,
 
     if (intercept == "fixed" & slope == "fixed" & conditional == FALSE) {
       m <- cbind(y, n - y) ~ -1 + id + group
-      fit <- stats::glm(m,
+      fitML <- stats::glm(m,
         data = dataLong,
         family = stats::binomial(link = "logit")
       )
@@ -193,7 +193,7 @@ rareGLMM <- function(x, measure,
         m <- y ~ 1 + group + offset(log(n)) + (1 + groupRE | id)
       }
 
-      fit <- lme4::glmer(m,
+      fitML <- lme4::glmer(m,
         data = dataLong,
         family = stats::poisson(link = "log")
       )
@@ -201,7 +201,7 @@ rareGLMM <- function(x, measure,
 
     if (intercept == "fixed" & slope == "random" & conditional == FALSE) {
       m <- y~ -1 + id + group + offset(log(n)) + (0 + groupRE | id)
-      fit <- lme4::glmer(m,
+      fitML <- lme4::glmer(m,
         data = dataLong,
         family = stats::poisson(link = "log")
       )
@@ -209,7 +209,7 @@ rareGLMM <- function(x, measure,
 
     if (intercept == "random" & slope == "fixed" & conditional == FALSE) {
       m <- y~1 + group + offset(log(n)) + (1 | id)
-      fit <- lme4::glmer(m,
+      fitML <- lme4::glmer(m,
         data = dataLong,
         family = stats::poisson(link = "log")
       )
@@ -217,7 +217,7 @@ rareGLMM <- function(x, measure,
 
     if (intercept == "fixed" & slope == "fixed" & conditional == FALSE) {
       m <- y~ -1 + id + group + offset(log(n))
-      fit <- stats::glm(m,
+      fitML <- stats::glm(m,
         data = dataLong,
         family = stats::poisson(link = "log")
       )
@@ -226,33 +226,33 @@ rareGLMM <- function(x, measure,
 
   # Output generation ----------------------------------------------------------
 
-  if (inherits(fit, "glmerMod") & slope == "random") {
-    beta <- lme4::fixef(fit)
-    vb <- as.matrix(stats::vcov(fit))
-    sigma2 <- lme4::VarCorr(fit)
+  if (inherits(fitML, "glmerMod") & slope == "random") {
+    beta <- lme4::fixef(fitML)
+    vb <- as.matrix(stats::vcov(fitML))
+    sigma2 <- lme4::VarCorr(fitML)
     tau2 <- sigma2[[length(sigma2)]][1]
 
-    singular <- lme4::isSingular(fit)
-    conv <- ifelse(fit@optinfo$conv$opt == 0, TRUE, FALSE)
+    singular <- lme4::isSingular(fitML)
+    conv <- ifelse(fitML@optinfo$conv$opt == 0, TRUE, FALSE)
   }
 
-  if (inherits(fit, "glmerMod") & slope == "fixed") {
-    beta <- lme4::fixef(fit)
-    vb <- as.matrix(stats::vcov(fit))
-    sigma2 <- lme4::VarCorr(fit)
+  if (inherits(fitML, "glmerMod") & slope == "fixed") {
+    beta <- lme4::fixef(fitML)
+    vb <- as.matrix(stats::vcov(fitML))
+    sigma2 <- lme4::VarCorr(fitML)
     tau2 <- 0
 
-    singular <- lme4::isSingular(fit)
-    conv <- ifelse(fit@optinfo$conv$opt == 0, TRUE, FALSE)
+    singular <- lme4::isSingular(fitML)
+    conv <- ifelse(fitML@optinfo$conv$opt == 0, TRUE, FALSE)
   }
 
-  if (inherits(fit, "glm")) {
-    beta <- fit$coefficients
-    vb <- as.matrix(stats::vcov(fit))
+  if (inherits(fitML, "glm")) {
+    beta <- fitML$coefficients
+    vb <- as.matrix(stats::vcov(fitML))
     sigma2 <- NA
     tau2 <- 0
 
-    conv <- fit$converged
+    conv <- fitML$converged
     singular <- NA
   }
 
@@ -266,12 +266,12 @@ rareGLMM <- function(x, measure,
   ci.lb <- beta - zcrit * se
   ci.ub <- beta + zcrit * se
 
-  X <- stats::model.matrix(fit)
+  X <- stats::model.matrix(fitML)
   p <- ifelse(all(X[1, ] == 1), ncol(X) - 1, ncol(X))
 
-  ll <- stats::logLik(fit)
+  ll <- stats::logLik(fitML)
   AICc <- -2 * ll + 2 * (p + 1) * max(2 * nrow(dataLong), p + 3) / (max(nrow(dataLong), 3) - p)
-  fit.stats <- rbind(ll, stats::deviance(fit), stats::AIC(fit), stats::BIC(fit), AICc)
+  fit.stats <- rbind(ll, stats::deviance(fitML), stats::AIC(fitML), stats::BIC(fitML), AICc)
   rownames(fit.stats) <- c("ll", "dev", "AIC", "BIC", "AICc")
   colnames(fit.stats) <- c("ML")
 
