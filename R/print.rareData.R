@@ -45,11 +45,13 @@ print.rareData <- function(x, ...) {
 
 
   #print summary of continuity corrected data
-  if(all(c("ai.cc","bi.cc","ci.cc","di.cc") %in% names(x))){
+  #(commented out for now)
 
+  #if(all(c("ai.cc","bi.cc","ci.cc","di.cc") %in% names(x))){
+  if(FALSE){
     cat("\n")
 
-    cat("####################################")
+    cat("\n####################################\n")
 
     cat("\n")
 
@@ -93,7 +95,10 @@ print.rareData <- function(x, ...) {
   }
 
   #print estimated effect sizes
-  if(all(c("yi", "vi") %in% names(x))){
+  #(commented out for now)
+
+  #if(all(c("yi", "vi") %in% names(x))){
+  if(FALSE){
     cat("\n")
 
     cat("\n Estimated effect sizes \n")

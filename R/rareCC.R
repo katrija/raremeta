@@ -223,9 +223,8 @@ rareCC <- function(x, cc = "constant", ccval = 0.5, tccval, cccval, ccsum = 1,
                      ccc = ccc, tcc = tcc, remove = remove), x)
 
   #report measure and method argument when needed
-
   if(cc == "tacc" || cc == "empirical"){
-    out <- append(out, list(method = method, measure = measure))
+    out <- append(out, list(method.cc = method, measure.cc = measure))
   }
 
   out <- rareData(out)
