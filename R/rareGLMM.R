@@ -210,15 +210,23 @@ rareGLMM <- function(x, measure,
 
   # Fit ML model ---------------------------------------------------------------
   if (intercept == "fixed" & slope == "fixed") {
-    fitML <- stats::glm(m,
+    fitML <- try(
+      stats::glm(m,
       data = dataLong,
       family = fam
+      ), silent = TRUE
     )
   } else {
-    fitML <- lme4::glmer(m,
+    fitML <- try(
+      lme4::glmer(m,
       data = dataLong,
       family = fam
+      ), silent = TRUE
     )
+  }
+
+  if(inherits(fitML, "try-error")){
+    stop("Unable to fit model.")
   }
 
   llML <- stats::logLik(fitML)
@@ -226,24 +234,32 @@ rareGLMM <- function(x, measure,
   # Fit FE model ---------------------------------------------------------------
   LRT.Chisq <- LRT.df <- LRT.pval <- NA
 
-  if(slope == "random"){
-    if(intercept == "fixed"){
-      fitFE <- stats::glm(mFE,
-                          data = dataLong,
-                          family = fam
+  if (slope == "random") {
+    if (intercept == "fixed") {
+      fitFE <- try(
+        stats::glm(mFE,
+        data = dataLong,
+        family = fam
+        ), silent = TRUE
       )
-    }else{
-      fitFE <- lme4::glmer(mFE,
-                           data = dataLong,
-                           family = fam
+    } else {
+      fitFE <- try(
+        lme4::glmer(mFE,
+        data = dataLong,
+        family = fam
+        ), silent = TRUE
       )
     }
 
-    llFE <- stats::logLik(fitFE)
+    if(inherits(fitML, "try-error")){
+      warning("Unable to fit fixed-effects model.")
+    }else{
+      llFE <- stats::logLik(fitFE)
 
-    LRT.Chisq <- as.numeric(2*(llML-llFE))
-    LRT.df <- attributes(llML)$df - attributes(llFE)$df
-    LRT.pval <- stats::pchisq(LRT.Chisq, df = LRT.df, lower.tail = FALSE)
+      LRT.Chisq <- as.numeric(2 * (llML - llFE))
+      LRT.df <- attributes(llML)$df - attributes(llFE)$df
+      LRT.pval <- stats::pchisq(LRT.Chisq, df = LRT.df, lower.tail = FALSE)
+    }
   }
 
 
