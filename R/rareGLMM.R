@@ -145,43 +145,38 @@ rareGLMM <- function(x, measure,
   codingRE <- 1 - coding
   dataLong$groupRE <- ifelse(dataLong$group == 1, 1 - codingRE, -codingRE)
 
+  # Define family --------------------------------------------------------------
+  if (measure == "logOR") {
+    fam <- stats::binomial(link = "logit")
+  }
 
+  if (measure == "logRR") {
+    fam <- stats::poisson(link = "log")
+  }
+
+  # Define model formula -------------------------------------------------------
   if (measure == "logOR") {
     if (intercept == "random" & slope == "random" & conditional == FALSE) {
       if (cor == FALSE) {
         m <- cbind(y, n - y) ~ 1 + group + (1 + groupRE || id)
+        mFE <- cbind(y, n - y) ~ 1 + group + (1 | id)
       } else {
         m <- cbind(y, n - y) ~ 1 + group + (1 + groupRE | id)
+        mFE <- cbind(y, n - y) ~ 1 + group + (1 | id)
       }
-
-      fitML <- lme4::glmer(m,
-        data = dataLong,
-        family = stats::binomial(link = "logit")
-      )
     }
 
     if (intercept == "fixed" & slope == "random" & conditional == FALSE) {
       m <- cbind(y, n - y) ~ -1 + id + group + (0 + groupRE | id)
-      fitML <- lme4::glmer(m,
-        data = dataLong,
-        family = stats::binomial(link = "logit")
-      )
+      mFE <- cbind(y, n - y) ~ -1 + id + group
     }
 
     if (intercept == "random" & slope == "fixed" & conditional == FALSE) {
       m <- cbind(y, n - y) ~ 1 + group + (1 | id)
-      fitML <- lme4::glmer(m,
-        data = dataLong,
-        family = stats::binomial(link = "logit")
-      )
     }
 
     if (intercept == "fixed" & slope == "fixed" & conditional == FALSE) {
       m <- cbind(y, n - y) ~ -1 + id + group
-      fitML <- stats::glm(m,
-        data = dataLong,
-        family = stats::binomial(link = "logit")
-      )
     }
   }
 
@@ -189,40 +184,66 @@ rareGLMM <- function(x, measure,
     if (intercept == "random" & slope == "random" & conditional == FALSE) {
       if (cor == FALSE) {
         m <- y ~ 1 + group + offset(log(n)) + (1 + groupRE || id)
+        mFE <- y ~ 1 + group + offset(log(n)) + (1 || id)
       } else {
         m <- y ~ 1 + group + offset(log(n)) + (1 + groupRE | id)
+        mFE <- y ~ 1 + group + offset(log(n)) + (1 | id)
       }
-
-      fitML <- lme4::glmer(m,
-        data = dataLong,
-        family = stats::poisson(link = "log")
-      )
     }
 
     if (intercept == "fixed" & slope == "random" & conditional == FALSE) {
       m <- y~ -1 + id + group + offset(log(n)) + (0 + groupRE | id)
-      fitML <- lme4::glmer(m,
-        data = dataLong,
-        family = stats::poisson(link = "log")
-      )
+      mFE <- y~ -1 + id + group + offset(log(n))
     }
 
     if (intercept == "random" & slope == "fixed" & conditional == FALSE) {
       m <- y~1 + group + offset(log(n)) + (1 | id)
-      fitML <- lme4::glmer(m,
-        data = dataLong,
-        family = stats::poisson(link = "log")
-      )
     }
 
     if (intercept == "fixed" & slope == "fixed" & conditional == FALSE) {
       m <- y~ -1 + id + group + offset(log(n))
-      fitML <- stats::glm(m,
-        data = dataLong,
-        family = stats::poisson(link = "log")
-      )
     }
   }
+
+  # Fit ML model ---------------------------------------------------------------
+  if (intercept == "fixed" & slope == "fixed") {
+    fitML <- stats::glm(m,
+      data = dataLong,
+      family = fam
+    )
+  } else {
+    fitML <- lme4::glmer(m,
+      data = dataLong,
+      family = fam
+    )
+  }
+
+  llML <- stats::logLik(fitML)
+
+  # Fit FE model ---------------------------------------------------------------
+  LRT.Chisq <- LRT.df <- LRT.pval <- NA
+
+  if(slope == "random"){
+    if(intercept == "fixed"){
+      fitFE <- stats::glm(mFE,
+                          data = dataLong,
+                          family = fam
+      )
+    }else{
+      fitFE <- lme4::glmer(mFE,
+                           data = dataLong,
+                           family = fam
+      )
+    }
+
+    llFE <- stats::logLik(fitFE)
+
+    LRT.Chisq <- as.numeric(2*(llML-llFE))
+    LRT.df <- attributes(llML)$df - attributes(llFE)$df
+    LRT.pval <- stats::pchisq(LRT.Chisq, df = LRT.df, lower.tail = FALSE)
+  }
+
+
 
   # Output generation ----------------------------------------------------------
 
@@ -269,10 +290,9 @@ rareGLMM <- function(x, measure,
   X <- stats::model.matrix(fitML)
   p <- ifelse(all(X[1, ] == 1), ncol(X) - 1, ncol(X))
 
-  ll <- stats::logLik(fitML)
-  AICc <- -2 * ll + 2 * (p + 1) * max(2 * nrow(dataLong), p + 3) / (max(nrow(dataLong), 3) - p)
-  fit.stats <- rbind(ll, stats::deviance(fitML), stats::AIC(fitML), stats::BIC(fitML), AICc)
-  rownames(fit.stats) <- c("ll", "dev", "AIC", "BIC", "AICc")
+  AICc <- -2 * llML + 2 * (p + 1) * max(2 * nrow(dataLong), p + 3) / (max(nrow(dataLong), 3) - p)
+  fit.stats <- rbind(llML, stats::deviance(fitML), stats::AIC(fitML), stats::BIC(fitML), AICc)
+  rownames(fit.stats) <- c("llML", "dev", "AIC", "BIC", "AICc")
   colnames(fit.stats) <- c("ML")
 
   # make results list
@@ -290,6 +310,10 @@ rareGLMM <- function(x, measure,
     vb = vb,
     sigma2 = sigma2,
     tau2 = tau2,
+    # LRT:
+    LRT.Chisq = LRT.Chisq,
+    LRT.df = LRT.df,
+    LRT.pval = LRT.pval,
     # se.tau2 = fit$se.tau2,
     # I2 = fit$I2,
     # H2 = fit$H2,
@@ -306,7 +330,7 @@ rareGLMM <- function(x, measure,
     conv = conv,
     singular = singular,
     # study numbers:
-    k = nrow(dataLong)/2,
+    k = nrow(dataLong) / 2,
     k.all = x$k,
     kdz = x$kdz,
     ksz = x$ksz,
