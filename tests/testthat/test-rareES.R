@@ -31,11 +31,11 @@ test_that("compare to metafor::rma.uni() calculations",{
   x.escalc <- metafor::escalc(measure = "OR", ai=ai, bi=bi, ci=ci, di=di, data=data,
                               add = 0.5, to = "only0", drop00=FALSE)
 
-  expect_equal(round(x.rareES$yi, digits = 4),
-               as.numeric(round(x.escalc$yi, digits = 4)))
+  expect_equal(x.rareES$yi,
+               as.numeric(x.escalc$yi))
 
-  expect_equal(round(x.rareES$vi, digits = 4),
-               as.numeric(round(x.escalc$vi, digits = 4)))
+  expect_equal(x.rareES$vi,
+               as.numeric(x.escalc$vi))
 
   #relative risk
   x.rareES <- rareES(x, cc= "constant", ccval = 0.5, ccto = "only0", drop00 = FALSE,
@@ -43,11 +43,11 @@ test_that("compare to metafor::rma.uni() calculations",{
   x.escalc <- metafor::escalc(measure = "RR", ai=ai, bi=bi, ci=ci, di=di, data=data,
                               add = 0.5, to = "only0", drop00=FALSE)
 
-  expect_equal(round(x.rareES$yi, digits = 4),
-               as.numeric(round(x.escalc$yi, digits = 4)))
+  expect_equal(x.rareES$yi,
+               as.numeric(x.escalc$yi))
 
-  expect_equal(round(x.rareES$vi, digits = 4),
-               as.numeric(round(x.escalc$vi, digits = 4)))
+  expect_equal(x.rareES$vi,
+               as.numeric(x.escalc$vi))
 
   #risk difference
   x.rareES <- rareES(x, cc= "constant", ccval = 0.5, ccto = "only0", drop00 = FALSE,
@@ -55,9 +55,9 @@ test_that("compare to metafor::rma.uni() calculations",{
   x.escalc <- metafor::escalc(measure = "RD", ai=ai, bi=bi, ci=ci, di=di, data=data,
                               add = 0.5, to = "only0", drop00=FALSE)
 
-  expect_equal(round(x.rareES$yi, digits = 4),
-               as.numeric(round(x.escalc$yi, digits = 4)))
+  expect_equal(x.rareES$yi,
+               as.numeric(x.escalc$yi))
 
-  expect_equal(round(x.rareES$vi, digits = 4),
-               as.numeric(round(x.escalc$vi, digits = 4)))
+  expect_equal(x.rareES$vi,
+               as.numeric(x.escalc$vi))
 })
