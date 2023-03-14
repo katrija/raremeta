@@ -42,6 +42,9 @@
 #' * `ci.ub`: upper bound of the confidence intervals for the coefficients.
 #' * `vb`: variance-covariance matrix of the estimated coefficients.
 #' * `tau2`: estimated amount of (residual) heterogeneity. Always `0` when `method = "FE"`.
+#' * `LRT.Chisq`: Test statistic of the likelihood ratio test testing for homogeneity.
+#' * `LRT.df`: Degrees of freedom of the likelihood ratio test testing for homogeneity.
+#' * `LRT.pval`: p-value of the likelihood ratio test testing for homogeneity.
 #' * `fit.stats`: a list with log-likelihood, deviance, AIC, BIC, and AICc values under
 #' the unrestricted and restricted likelihood.
 #' * `p`: number of coefficients in the model (including the intercept).

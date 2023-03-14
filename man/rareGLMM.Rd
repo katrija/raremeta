@@ -79,6 +79,9 @@ an object of class "raremeta". The object is a list containing the following ele
 \item \code{ci.ub}: upper bound of the confidence intervals for the coefficients.
 \item \code{vb}: variance-covariance matrix of the estimated coefficients.
 \item \code{tau2}: estimated amount of (residual) heterogeneity. Always \code{0} when \code{method = "FE"}.
+\item \code{LRT.Chisq}: Test statistic of the likelihood ratio test testing for homogeneity.
+\item \code{LRT.df}: Degrees of freedom of the likelihood ratio test testing for homogeneity.
+\item \code{LRT.pval}: p-value of the likelihood ratio test testing for homogeneity.
 \item \code{fit.stats}: a list with log-likelihood, deviance, AIC, BIC, and AICc values under
 the unrestricted and restricted likelihood.
 \item \code{p}: number of coefficients in the model (including the intercept).
