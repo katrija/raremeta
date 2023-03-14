@@ -172,7 +172,6 @@ rareCC <- function(x, cc = "constant", ccval = 0.5, tccval, cccval, ccsum = 1,
 
 
   # continuity corrections for logOR and logRR:
-
   if(cc == "tacc" && is.element(measure, c("logOR", "logRR"))){
     rinv <- n2i[ccstudies]/n1i[ccstudies]
 
@@ -205,7 +204,7 @@ rareCC <- function(x, cc = "constant", ccval = 0.5, tccval, cccval, ccsum = 1,
   ci.cc <- ci+ccc
   di.cc <- di+ccc
 
-  #adding description of continuity corrected data using rareDescribe()
+  #adding description of continuity corrected data
   data.cc <- data.frame(ai.cc = ai.cc, bi.cc = bi.cc, ci.cc = ci.cc, di.cc = di.cc)
   x.cc <- rareDescribe(ai.cc, bi.cc, ci.cc, di.cc, data = data.cc)
 
@@ -222,7 +221,7 @@ rareCC <- function(x, cc = "constant", ccval = 0.5, tccval, cccval, ccsum = 1,
                      cc = cc, ccto = ccto, drop00 = drop00, ccstudies = ccstudies,
                      ccc = ccc, tcc = tcc, remove = remove), x)
 
-  #report measure and method argument when needed
+  #report measure and method argument used in 'tacc'- and 'empirical'- continuity correction
   if(cc == "tacc" || cc == "empirical"){
     out <- append(out, list(method.cc = method, measure.cc = measure))
   }
