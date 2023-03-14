@@ -42,4 +42,70 @@ print.rareData <- function(x, ...) {
 
   cat("\nNumber of studies in which the event is rare (0.01 < rel. freq. < 0.05):", x$krare, "out of", x$k, "studies.")
   cat("\nNumber of studies in which the event is very rare (rel. freq. < 0.01):  ", x$kveryrare, "out of", x$k, "studies.")
+
+
+  #print summary of continuity corrected data
+  if(all(c("ai.cc","bi.cc","ci.cc","di.cc") %in% names(x))){
+
+    cat("\n")
+
+    cat("####################################")
+
+    cat("\n")
+
+    cat("\nSummary of continuity corrected data \n" )
+
+    sampleSize <- round(as.matrix(rbind(x$n1.cc, x$n2.cc, x$n.cc)), 2)
+    sampleSize <- sampleSize[, c("mean", "min", "q25", "median", "q75", "max")]
+    row.names(sampleSize) <- c("group 1", "group 2", "total")
+
+    sampleRatio <- round(x$nratio, 2)
+    sampleRatio <- t(sampleRatio[c("mean", "min", "q25", "median", "q75", "max")])
+    row.names(sampleRatio) <- "group1:group2"
+
+    relFreq <- round(as.matrix(rbind(x$rf1.cc, x$rf2.cc, x$rf.cc)), 4)
+    relFreq <- relFreq[, c("mean", "min", "median", "max")]
+    row.names(relFreq) <- c("group 1", "group 2", "total")
+
+    cat("\nStudies: \n",
+        "Total number of studies:       ", x$k.cc, "\n",
+        "Number of double-zero studies: ", x$kdz.cc, "\n",
+        "Number of single-zero studies: ", x$ksz.cc, ", thereof ", x$k1sz.cc, " zeros in group 1 and ", x$k2sz.cc, " zeros in group 2.\n",
+        sep = ""
+    )
+    cat("\n")
+
+    cat("\nSample sizes: \n")
+    stats::printCoefmat(sampleSize)
+    cat("\n")
+
+    cat("\nSample size ratios: \n")
+    stats::printCoefmat(sampleRatio)
+    cat("\n")
+
+    cat("\nRelative frequencies of the event: \n")
+    stats::printCoefmat(relFreq)
+    cat("\n")
+
+    cat("\nNumber of studies in which the event is rare (0.01 < rel. freq. < 0.05):", x$krare.cc, "out of", x$k.cc, "studies.")
+    cat("\nNumber of studies in which the event is very rare (rel. freq. < 0.01):  ", x$kveryrare.cc, "out of", x$k.cc, "studies.")
+
+  }
+
+  #print estimated effect sizes
+  if(all(c("yi", "vi") %in% names(x))){
+    cat("\n")
+
+    cat("\n Estimated effect sizes \n")
+
+    cat("\n")
+
+    print(x$measure)
+    print(x$yi)
+
+    cat("\n")
+
+    cat("\n variance \n")
+    print(x$vi)
+  }
 }
