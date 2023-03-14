@@ -215,6 +215,10 @@ rareCC <- function(x, cc = "constant", ccval = 0.5, tccval, cccval, ccsum = 1,
                      nratio.cc = x.cc$nratio, k.cc = x.cc$k, kdz.cc = x.cc$kdz,
                      ksz.cc = x.cc$ksz, k1sz.cc = x.cc$k1sz, k2sz.cc = x.cc$k2sz,
                      n1.cc = x.cc$n1, n2.cc = x.cc$n2, n.cc = x.cc$n,
+                     rf1.cc = x.cc$rf1, rf2.cc = x.cc$rf2, rf.cc = x.cc$rf,
+                     krare.cc = x.cc$krare, kveryrare.cc = x.cc$kveryrare,
+                     k1rare.cc = x.cc$k1rare, k1veryrare.cc = x.cc$k1veryrare,
+                     k2rare.cc = x.cc$k2rare, k2veryrare.cc = x.cc$k2veryrare,
                      cc = cc, ccto = ccto, drop00 = drop00, ccstudies = ccstudies,
                      ccc = ccc, tcc = tcc, remove = remove), x)
 

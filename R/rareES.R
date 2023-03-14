@@ -121,8 +121,7 @@ rareES <- function(x, measure, cc, ccval = 0.5, tccval, cccval, ccsum = 1,
 
   # apply continuity correction if needed (argument checks are done in rareCC)
   x <- rareCC(x, cc = cc, ccval = ccval, tccval = tccval, cccval = cccval,
-              ccsum = ccsum, ccto = ccto, drop00 = drop00, measure = measure,
-              method = method)
+              ccsum = ccsum, ccto = ccto, drop00 = drop00, measure = measure)
 
   # extract counts and sample sizes
   ai.cc   <- x$ai.cc
@@ -149,6 +148,13 @@ rareES <- function(x, measure, cc, ccval = 0.5, tccval, cccval, ccsum = 1,
   }
 
   out <- append(list(yi = yi, vi = vi), x)
+
+  #add measure for cc = "constant"
+  #(for cc = "tacc" and cc = "empirical) this happens in rareCC()
+
+  if(cc == "constant"){
+    out <- append(out, list(measure = measure, method = method))
+  }
   out <- rareData(out)
   return(out)
 }
