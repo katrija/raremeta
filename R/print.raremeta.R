@@ -143,6 +143,11 @@ print.raremeta <- function(x, digits, ...){
 
       cat("\nHeterogeneity: \n")
 
+      # Heterogeneity:
+      LRTp <- ifelse(x$LRT.pval < .001, "< .001", round(x$LRT.pval, 3))
+      cat("\n", paste0("LRT(df = ", x$LRT.df, ") = ", round(x$LRT.Chisq, digits), ", p-val ", round(LRTp)), "\n")
+
+
       if(x$intercept == "random"){
         cat("\n",
             "sigma^2 (estimated variance of the intercepts):        ", round(x$sigma2[[1]][1], digits), "\n",
