@@ -145,7 +145,7 @@ print.raremeta <- function(x, digits, ...){
 
       # Heterogeneity:
       LRTp <- ifelse(x$LRT.pval < .001, "< .001", round(x$LRT.pval, 3))
-      cat("\n", paste0("LRT(df = ", x$LRT.df, ") = ", round(x$LRT.Chisq, digits), ", p-val ", round(LRTp)), "\n")
+      cat("\n", paste0("LRT(df = ", x$LRT.df, ") = ", round(x$LRT.Chisq, digits), ", p-val ", LRTp), "\n")
 
 
       if(x$intercept == "random"){
@@ -191,6 +191,60 @@ print.raremeta <- function(x, digits, ...){
     cat("\nSignif. codes: ", "'***': < .001 '**': < .01 '*': < .05 '.': < .1" )
 
   }
+
+  # rareBetabin -------------------------------------------------------------
+  if(x$model == "rareBetabin"){
+
+    drop00 <- ifelse(x$drop00 == TRUE, "excluded from", "included in")
+
+    cat("Random-effects meta-analysis using the Beta-binomial Model:", "\n")
+
+    cat("\nNumber of studies:", x$k, "\n")
+    cat("\nDouble-zero studies were", drop00, "the analysis.", "\n")
+
+      cat("\nHeterogeneity: \n")
+
+      # Heterogeneity:
+      LRTp <- ifelse(x$LRT.pval < .001, "< .001", round(x$LRT.pval, 3))
+      cat("\n", paste0("LRT(df = ", x$LRT.df, ") = ", round(x$LRT.Chisq, digits), ", p-val ", LRTp), "\n")
+
+      if(fit$common_rho == TRUE){
+        cat("\n",
+            "rho (estimated ICC): ", round(x$rho, digits), "\n"
+        )
+      }else{
+        cat("\n",
+            "rho (estimated ICC), group 1: ", round(x$rho[1], digits), "\n",
+            "rho (estimated ICC), group 2: ", round(x$rho[2], digits), "\n"
+        )
+      }
+
+    # Model results:
+    signif <- stats::symnum(x$pval, corr=FALSE, na=FALSE,
+                            cutpoints=c(0, 0.001, 0.01, 0.05, 0.1, 1), symbols = c("***", "**", "*", ".", " "))
+
+    res.table <- data.frame(round(as.numeric(x$beta), digits), round(x$se, digits),
+                            round(x$zval, digits), ifelse(x$pval < 0.001, "< .001", round(x$pval, 3)),
+                            round(x$ci.lb, digits), round(x$ci.ub, digits))
+    names(res.table) <- c("estimate", "se", "zval", "pval",  "ci.lb", "ci.ub")
+    rownames(res.table) <- c("Intercept", x$measure)
+
+    groupInd <- which(rownames(res.table) == "group")
+    rownames(res.table)[groupInd] <- as.character(x$measure)
+
+    res.table <- cbind(res.table, signif)
+    colnames(res.table)[ncol(res.table)] <- ""
+
+    cat("\nModel results: \n")
+    cat("\n")
+    print(res.table, row.names = TRUE)
+    cat("\n")
+
+    cat("---")
+    cat("\nSignif. codes: ", "'***': < .001 '**': < .01 '*': < .05 '.': < .1" )
+
+  }
+
 
 
 }
