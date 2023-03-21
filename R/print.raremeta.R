@@ -208,7 +208,7 @@ print.raremeta <- function(x, digits, ...){
       LRTp <- ifelse(x$LRT.pval < .001, "< .001", round(x$LRT.pval, 3))
       cat("\n", paste0("LRT(df = ", x$LRT.df, ") = ", round(x$LRT.Chisq, digits), ", p-val ", LRTp), "\n")
 
-      if(fit$common_rho == TRUE){
+      if(x$common_rho == TRUE){
         cat("\n",
             "rho (estimated ICC): ", round(x$rho, digits), "\n"
         )
