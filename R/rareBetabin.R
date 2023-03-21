@@ -93,14 +93,17 @@ rareBetabin <- function(x, measure,
 
   if(measure == "logOR"){
     fam <- stats::binomial(link = "logit")
+    mFE <- cbind(y, n-y) ~ 1 + group
   }
 
   if(measure == "logRR"){
     fam <- stats::binomial(link = "log")
+    mFE <- y ~ 1 + group
   }
 
   if(measure == "RD"){
     fam <- stats::binomial(link = "identity")
+    mFE <- y ~ 1 + group
   }
 
   invlink <- fam$linkinv
@@ -219,7 +222,7 @@ rareBetabin <- function(x, measure,
   rho <- as.numeric(expit(br))
 
   fitFE <- try(
-    lme4::glmer(mFE,
+    stats::glm(mFE,
       data = dataLong,
       family = fam
     ),
