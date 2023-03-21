@@ -1,5 +1,49 @@
-#implementing Peto's method for estimating log(OR) in FE context
-
+#' Conduct a meta-analysis using Peto's method
+#'
+#' Function to conduct a meta-analysis.
+#' Effect size is the log-odds-ratio estimated from event counts in form of
+#' 2x2 contingency tables using Peto's method (see Yusuf et al., 1985).
+#'
+#' @param x an object of class "raredata"
+#' @param level numeric nbetween 0 and 100 specifying the confidence interval
+#' level (the default is 95)
+#' @param digits integer specifying the number of decimal places to which the printed results
+#' should be rounded (if unspecified, the default is 4).
+#'
+#' @details
+#' # Details
+#' ## Data input
+#' The main input of the `rareMH()` function is a so-called `rareData` object. A `rareData` object
+#' can be produced from a data frame by applying the `rareDescribe()` function to it. The `rareDescribe()`
+#' function pre-processes the data frame and stores the information required by the `rareMH()` function
+#' in a list. See `?rareDescribe` for more details.
+#'
+#'
+#' @return an object of class "raremeta".
+#' The object is a list containing the following elements:
+#' * `beta`, `b`: estimated effect size.
+#' * `se`: standard error of the  estimator.
+#' * `zval`: test statistics of the coefficients.
+#' * `pval`: p-values corresponding to the test statistics.
+#' * `ci.lb`: lower bound of the confidence intervals for the coefficients.
+#' * `ci.ub`: upper bound of the confidence intervals for the coefficients.
+#' * `k`: number of studies included in the analysis.
+#' * `kdz`,`ksz`: number of double-zero and single-zero studies.
+#' * `k1sz`, `k2sz`: number of single-zero studies where the zero is in group 1 or group 2.
+#' * `ai`, `bi`, `ci`, `di`: original entries of the 2x2 tables for all studies.
+#' * `ni`, `n1i`, `n2i`: original total and group sample sizes.
+#' * ...
+#'
+#' @references
+#' Yusuf, S., Peto, R., Lewis, J., Collins, R., & Sleight, P. (1985).
+#' Beta blockade during and after myocardial infarction: an overview of
+#' the randomized trials.
+#' Progress in cardiovascular diseases, 27(5), 335-371.
+#'
+#' @export
+#'
+#' @examples
+#'
 rarePeto <- function(x, level = 95, digits = 4){
 
 
@@ -47,8 +91,8 @@ rarePeto <- function(x, level = 95, digits = 4){
   ci.ub <- beta - quant * se
 
 
-  res   <- append(x, list(beta = beta, b = beta, se = se, zval = zval,
-                          pval = pval, ci.lb = ci.lb, ci.ub = ci.ub))
+  res   <- append(list(beta = beta, b = beta, se = se, zval = zval,
+                       pval = pval, ci.lb = ci.lb, ci.ub = ci.ub), x)
 
 
   return(res)
