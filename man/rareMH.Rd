@@ -38,7 +38,7 @@ The object is a list containing the following elements:
 }
 \description{
 Function to conduct a meta-analysis.
-Effect sizes are the odds ratio, relative risk and
+Effect sizes are the log odds ratio, log relative risk and
 risk difference estimated from event counts in form of 2x2 contingency
 tables using Mantel-Haenszel type estimators.
 }
@@ -66,19 +66,25 @@ entries of the study's 2x2 table:\tabular{lrr}{
 
 \subsection{Mantel-Haenszel type estimators}{
 
-Mantel-Haenszel type estimators distiguish themselfs through changing the order
-of division and summation in the plug-in estimator of the corresponding effect size, i.e.
-the estimator received via plug in, estimating the probability of an event
-in the treatment group by ai/(ai+bi) and the probability of an event
-in the control group by ci/(ci+di).
-The variance estimation is due to Greenland et. al (1985) and
-Robins et. al (1986).
+A prominent class of estimators for the common effect size under the the equal-efects model
+was proposed by Mantel and Haenszel in 1959.
+Mantel-Haenszel type estimators are particularly useful in meta-analysis of rare
+events.
+As a quotient of sums rather than a sum of quotients,
+the Mantel-Haenszel estimator of the overall effect is oftentimes defined even though the standard
+estimator for the corresponding effect size for some individual studies may not be defined.
+The variance estimation is due to Greenland et al. (1985) and
+Robins et al. (1986).
 For a summary of the implemented estimators see e.g. sections 9.2-9.4 of Jewell
 (2013).
 }
 }
 
 \references{
+Mantel, N., & Haenszel, W. (1959).
+Statistical aspects of the analysis of data from retrospective studies of disease.
+Journal of the national cancer institute, 22(4), 719-748.
+
 Greenland, S., & Robins, J. M. (1985).
 Estimation of a common effect parameter from sparse follow-up data.
 Biometrics, 55-68.
