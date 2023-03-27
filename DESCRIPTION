@@ -18,7 +18,10 @@ Imports:
     CompQuadForm,
     lme4,
     metafor,
-    numDeriv
+    numDeriv,
+    mathjaxr
+Rdmacros:
+    mathjaxr
 Depends: 
     R (>= 2.10)
 LazyData: true
