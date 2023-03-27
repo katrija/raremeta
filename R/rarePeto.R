@@ -92,7 +92,8 @@ rarePeto <- function(x, level = 95, digits = 4){
 
 
   res   <- append(list(beta = beta, b = beta, se = se, zval = zval,
-                       pval = pval, ci.lb = ci.lb, ci.ub = ci.ub), x)
+                       pval = pval, ci.lb = ci.lb, ci.ub = ci.ub,
+                       model = "rarePeto"),x)
 
 
   return(res)
