@@ -1,10 +1,10 @@
 #' Conduct a meta-analysis using Peto's method
 #'
 #' Function to conduct a meta-analysis.
-#' Effect size is the log-odds-ratio estimated from event counts in form of
+#' Effect size is the log odds ratio estimated from event counts in form of
 #' 2x2 contingency tables using Peto's method (see Yusuf et al., 1985).
 #'
-#' @param x an object of class "raredata"
+#' @param x an object of class "raredata" (see `?rareDescribe` for more information)
 #' @param level numeric nbetween 0 and 100 specifying the confidence interval
 #' level (the default is 95)
 #' @param digits integer specifying the number of decimal places to which the printed results
@@ -17,6 +17,17 @@
 #' can be produced from a data frame by applying the `rareDescribe()` function to it. The `rareDescribe()`
 #' function pre-processes the data frame and stores the information required by the `rareMH()` function
 #' in a list. See `?rareDescribe` for more details.
+#'
+#' ## Effect size measure
+#' The function is a meta-analytic method for estimating log odds ratios.
+#' Data comes in form of event counts in form of 2x2 contingency tables.
+#'
+#' |                   | event | no event|
+#' |:------------------|------:|--------:|
+#' |group1 (treatment) | ai    | bi      |
+#' |group2 (control)   | ci    | di      |
+#'
+#'
 #'
 #'
 #' @return an object of class "raremeta".
@@ -76,6 +87,8 @@ rarePeto <- function(x, level = 95, digits = 4){
   ni  <- n1i + n2i
 
   # calculating log(OR) estimate via O-E statistic
+  measure <- "logOR"
+
   Ai    <- ai + ci
   Bi    <- bi + di
   Vi    <- (Ai * Bi * n1i * n2i) / (ni^2 *(ni - 1))
@@ -84,7 +97,7 @@ rarePeto <- function(x, level = 95, digits = 4){
   quant <- stats::qnorm((100-level)/200)
 
   beta  <- sum((ci-Ai*(n1i/ni)))/sumVi
-  se    <- sqrt(1/sumVi) #works only under the premise that the ORs are 1?
+  se    <- sqrt(1/sumVi)
   zval  <- beta / se
   pval  <- 2*stats::pnorm(abs(zval), lower.tail=FALSE)
   ci.lb <- beta + quant * se
@@ -93,8 +106,9 @@ rarePeto <- function(x, level = 95, digits = 4){
 
   res   <- append(list(beta = beta, b = beta, se = se, zval = zval,
                        pval = pval, ci.lb = ci.lb, ci.ub = ci.ub,
-                       model = "rarePeto"),x)
+                       model = "rarePeto", measure = measure,
+                       digits = digits),x)
 
-
+  res <- raremeta(res)
   return(res)
 }

@@ -109,6 +109,7 @@ rareMH <- function(x, measure, level = 95,  digits = 4){
     stop("level must be a scalar between 0 and 100.")
   }
 
+
   mf <- match.call()
 
   # extract counts and sample sizes
@@ -122,7 +123,7 @@ rareMH <- function(x, measure, level = 95,  digits = 4){
 
   quant <- stats::qnorm((100-level)/200)
 
-  #calculating effect sizes
+  #calculating estimated effect sizes
   if(measure == "logOR"){
     Ai <- (ai+di)/ni
     Bi <- (ai*di)/ni
