@@ -67,10 +67,17 @@ See Sweeting et al. (2004) for details.}
 \item{...}{additional arguments}
 }
 \value{
-a matrix with eight columns. The first six columns (\code{"ai.cc"}, \code{"bi.cc"}, \code{"ci.cc"}, \code{"di.cc"}, \code{"n1i.cc"}, \code{"n2i.cc"})
-contain the continuity corrected counts and sample sizes. The last two columns (\code{"yi"} and \code{"vi"}) contain
-the effect sizes and sampling variances, respectively. Information on how the effect sizes were obtained (in particular
-with regard to the use of continuity corrections) is stored in attributes.
+an object of class "raremeta". The object is a list containing the following elements:
+\itemize{
+\item \code{ai}, \code{bi}, \code{ci}, \code{di}: original entries of the 2x2 tables for all studies.
+\item \code{measure}: effect size estimand
+\item \code{yi}: estimated individuall effect sizes
+\item \code{vi}: estimated variance of the estimator
+\item \code{ai.cc}, \code{bi.cc}, \code{ci.cc}, \code{di.cc}: entries of the 2x2 tables for all studies after
+application of the specified continuity correction (the cell entries, the estimated
+effect sizes are calculated from)
+\item ...
+}
 }
 \description{
 Calculate effect sizes for meta-analyses of rare events.
@@ -120,14 +127,14 @@ the argument \code{ccsum} to a different value.
 It is possible to set the continuity correction to a user-defined value (or a vector of user-defined values) using the
 argument \code{ccval} (if the value). If the user wants to specify different values for the treatment and the control group,
 this is possible via the arguments \code{tccval} and \code{cccval}.
+}
+
 \subsection{Differences between effect size measures in the application of continuity corrections}{
 
 When either the log odds ratio or the log risk ratio is used as an effect size measure, both the effect sizes and
 their sampling variances are calculated based on the continuity-corrected 2x2 table.
 When the effect size measure is the risk difference, the continuity-corrected 2x2 table is only used in the
 calculation of the sampling variances.
-}
-
 }
 }
 

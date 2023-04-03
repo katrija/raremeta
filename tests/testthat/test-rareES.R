@@ -3,7 +3,7 @@
 #since the input is already tested by 'rareCC', we do only write tests
 #for computation of estimated effect sizes and estimated variances
 
-#Compare rareIV computation to metafor's rma
+#Compare rareIV computation to metafor's rma()
 
 data <- data.frame(
   ai = c(0, 3, 2, 0),

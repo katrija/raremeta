@@ -3,6 +3,7 @@
 S3method(print,rareData)
 S3method(print,raremeta)
 S3method(summary,raremeta)
+export(rareCC)
 export(rareDescribe)
 export(rareES)
 export(rareGLMM)

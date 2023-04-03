@@ -123,7 +123,7 @@ test_that("rareCC runs with valid inputs",{
   )
 
 
-  ##empirical continuity correction
+  ## empirical continuity correction
   expect_error(
     rareCC(x, cc = "empirical", measure = "logOR"),
     NA
@@ -166,6 +166,8 @@ test_that("rareCC runs with valid inputs",{
 
 })
 
+## test warning messages
+
 test_that("rareMH returns errors and warning messages", {
 
   expect_error(
@@ -174,7 +176,7 @@ test_that("rareMH returns errors and warning messages", {
   )
 
   expect_error(
-    rareCC(x, cc= 0.5),
+    rareCC(x, cc = 0.5),
     "'cc' must be either 'none', 'constant', 'tacc', or 'empirical'."
   )
 
@@ -198,7 +200,7 @@ test_that("rareMH returns errors and warning messages", {
   #expect_error(
   #  rareCC(x, cc="constant", drop00 = TRUE, ccval = c(1,2)),
   #  "'ccval' must have length 1 or length equal to the number of studies (in- or excluding double-zero studies)."
-  #  )
+  #)
 
   expect_error(
     rareCC(x, cc="constant", ccval = -1),

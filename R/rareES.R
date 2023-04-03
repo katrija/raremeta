@@ -78,7 +78,7 @@
 #' argument `ccval` (if the value). If the user wants to specify different values for the treatment and the control group,
 #' this is possible via the arguments `tccval` and `cccval`.
 #'
-#' ### Differences between effect size measures in the application of continuity corrections
+#' ## Differences between effect size measures in the application of continuity corrections
 #' When either the log odds ratio or the log risk ratio is used as an effect size measure, both the effect sizes and
 #' their sampling variances are calculated based on the continuity-corrected 2x2 table.
 #' When the effect size measure is the risk difference, the continuity-corrected 2x2 table is only used in the
@@ -91,10 +91,15 @@
 #' Sweeting, M. J., Sutton, A. J., & Lambert, P. C. (2004). What to add to nothing? Use and avoidance of
 #' continuity corrections in meta-analysis of sparse data. Statistics in Medicine, 23, 1351–1375. doi: 10.1002/sim.1761
 #'
-#' @return a matrix with eight columns. The first six columns (`"ai.cc"`, `"bi.cc"`, `"ci.cc"`, `"di.cc"`, `"n1i.cc"`, `"n2i.cc"`)
-#' contain the continuity corrected counts and sample sizes. The last two columns (`"yi"` and `"vi"`) contain
-#' the effect sizes and sampling variances, respectively. Information on how the effect sizes were obtained (in particular
-#' with regard to the use of continuity corrections) is stored in attributes.
+#' @return an object of class "raremeta". The object is a list containing the following elements:
+#' * `ai`, `bi`, `ci`, `di`: original entries of the 2x2 tables for all studies.
+#' * `measure`: effect size estimand
+#' * `yi`: estimated individuall effect sizes
+#' * `vi`: estimated variance of the estimator
+#' * `ai.cc`, `bi.cc`, `ci.cc`, `di.cc`: entries of the 2x2 tables for all studies after
+#' application of the specified continuity correction (the cell entries, the estimated
+#' effect sizes are calculated from)
+#' * ...
 #'
 #' @export
 #'
@@ -119,7 +124,7 @@ rareES <- function(x, measure, cc, ccval = 0.5, tccval, cccval, ccsum = 1,
     stop("x must be an object of class 'rareData'. See ?rareDescribe for more details.")
   }
 
-  #other argument checks are done in 'rareCC()'
+  #other argument checks are done through 'rareCC()'
 
   # apply continuity correction (put cc = "none" if not needed)
   x <- rareCC(x, cc = cc, ccval = ccval, tccval = tccval, cccval = cccval,

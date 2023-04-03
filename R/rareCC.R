@@ -1,4 +1,169 @@
-# Function for Continuity correction (and only continuity correction)
+#' Apply continuity correction to your data
+#'
+#' Function to apply different kinds of continuity correction to your data.
+#'
+#'
+#' @param x an object of class `"rareData"`.
+#' @param cc character string specifying the type of continuity corrections to be used
+#' (either `"constant"`, `"tacc"` or `"empirical"`). Default is "constant". See 'Details'.
+#' @param ccval scalar or numerical vector specifying the value of the continuity correction if
+#' `cc = "constant"`. Must be a scalar or a vector of length equal to the number of studies.
+#' Default is `ccval = 0.5`. If a scalar is specified, the value is added to all studies for
+#' which the number of events is zero in at least one of the groups. This behavior can be changed
+#' using the argument `ccto`. The argument `ccval` is overwritten by `tccval` and `cccval` if both arguments are specified.
+#' @param tccval scalar or numerical vector specifying the value of the continuity correction
+#' applied to the observations from the treatment group (group 1) if `cc = "constant"`. Must be a scalar or a vector
+#' of length equal to the number of studies. If `cc = "constant"` and `tccval` is not specified, `tccval` is
+#' set to the value of `ccval` internally.
+#' @param cccval scalar or numerical vector specifying the value of the continuity correction
+#' applied to the observations from the control group (group 2) if `cc = "constant"`. Must be a scalar or a vector
+#' of length equal to the number of studies. If `cc = "constant"` and `cccval` is not specified, `cccval` is
+#' set to the value of `ccval` internally.
+#' @param ccsum numeric value specifying the value of the sum of the continuity correction applied to the
+#' observations from the treatment group and the continuity correction applied to the observations from
+#' the control group. Default is `ccsum = 1`. Currently, setting this argument to a different number only has
+#' an effect when `cc = "tacc"` or `cc = "empirical"`.
+#' @param ccto character string indicating to which studies the continuity correction should
+#' be applied. Either `"only0"`, for which the continuity correction is applied to all studies
+#' for which the number of events is zero in at least one of the groups, `"all"`, for which the
+#' continuity correction is applied to all studies, or `"if0all"`, for which the continuity
+#' correction is applied to all studies if any of the individual studies has zero events in at
+#' least one of the groups.
+#' @param drop00 logical indicating whether double-zero studies (i.e., studies with no events or
+#' only events in both groups) should be excluded from the dataset.
+#' @param measure character string specifying the effect size or outcome measure to be used
+#' (either `"logOR"` for the log odds ratio, `"logRR"` for the log relative risk,
+#' or `"RD"` for the risk difference). Important when selecting continuity corrections dependent
+#' on the estimated summary effect size of some subset of the studies involved in the analyisis,
+#' i.e. `cc = "empircal`.
+#' @param method character string specifying whether a fixed- or a random-effects model should be fitted.
+#' A fixed-effects model is fitted when using `method = "FE"` . A random-effects model is fitted
+#' by setting `method` equal to one of the following: `"DL"`, `"HE"`, `"SJ"`, `"ML"`, `"REML"`, `"EB"`, `"HS"`,
+#' `"PM"`, `"IPM"`, `"GENQ"`, `"PMM"` or `"GENQM"`. Important when selecting continuity corrections dependent
+#' on the estimated summary effect size of some subset of the studies involved in the analyisis,
+#' i.e. `cc = "empircal"`.
+#'
+#' @details
+#' # Details
+#' ## Data input
+#' The main input of the `rareCC()` function is a so-called `rareData` object. A `rareData` object
+#' can be produced from a data frame by applying the `rareDescribe()` function to it. The `rareDescribe()`
+#' function pre-processes the data frame and stores the information required by the `rareCC()` function
+#' in a list. See `?rareDescribe` for more details.
+#'
+#' ## Types of continuity correction
+#' This function offers three kinds of continuity correction.
+#'
+#' ### Constant continuity correction
+#' When setting `cc = "constant"`, a constant value will be added to all
+#' cells of all studies specified via the `ccto` argument. The default is `ccval = 0.5`.
+#' Through specification of `tccval` and `cccval` different values can be specified for the
+#' cells of the treatment group and the control group, respectively.
+#' By inputting vectors in the afforementioned arguments, different values can be added
+#' to different studies (adding the `k`-th value to the `k`-th study),
+#' making it possible for the user to introduce their own continuity correction.
+#'
+#' ### Treatment-arm continuity correction
+#' When setting `cc = "tacc"` (treatment-arm continuity correction), the size of
+#' both of study arms is used to calculate a value for continuity correction.
+#' For a precise definition (including the role of the `ccsum` argument), see Sweeting et al. (2004).
+#'
+#' ### Empirical correction
+#' When setting `cc = "empirical"`, the estimated summary effect size
+#' (logOR, logRR or RD) for all studies which enable the estimation of the corresponding individual effect
+#' size is used to calculate a value for continuity correction.
+#' This means that there must be at least one study enabling the estimation of
+#' the corresponding individual effect size and the `measure`- and `method` argument must be
+#' specified.
+#' For a precise definition (including the role of the `ccsum` argument), see Sweeting et al. (2004).
+#' When it comes to model fitting, there is the possibility to fit fixed-effects models (also known as equal-effects models)
+#' and random-effects models using the inverse variance approach.
+#' A fixed-effects model is fitted when `method` is set to `"FE"` (or `"EE"`). A random-effects model
+#' is fitted when `method` is set to either `"DL"`, `"HE"`, `"SJ"`, `"ML"`, `"REML"`, `"EB"`, `"HS"`,
+#' `"PM"`, `"IPM"`, `"GENQ"`, `"PMM"` or `"GENQM"`.
+#' For a basic introduction to fixed-effects and random-effects meta-analysis, please refer to Borenstein et al. (2021)
+#' Currently, the model fit is done by using the `metafor` package, see Viechtbauer (2010).
+#'
+#' ## Estimation of the between-study variance in random-effects meta-analysis
+#' Different estimators can be used to estimate the between-study variance, tau^2, in random-effects
+#' meta-analysis. The estimator to be used is specified via the `methods` argument.
+#' * `"DL"`: DerSimonian-Laird estimator
+#' * `"HE"`: Hedges estimator
+#' * `"SJ"`: Sidik-Jonkman estimator
+#' * `"ML"`: maximum likelihood estimator
+#' * `"REML"`: restricted maximum likelihood estimator
+#' * `"EB"`: empirical Bayes estimator
+#' * `"HS"`: Hunter-Schmidt estimator
+#' * `"PM"`: Paule-Mandel estimator
+#' * `"IPM"`: improved Paule-Mandel estimator
+#' * `"GENQ"`: generalized Q-statistic estimator
+#' * `"PMM"`: median-unbiased Paule-Mandel estimator
+#' * `"GENQM"`: median-unbiased generalized Q-statistic estimator
+#'
+#' Most of these estimators are described in Zhang et al. (2021). For details on the improved Paule-Mandel estimator,
+#' see also Bhaumik et al. (2012). The median-unbiased Paule-Mandel estimator and the median-unbiased generalized
+#' Q-statistic estimator are described in Viechtbauer (2021).
+#'
+#' @return an object of class "raremeta". The object is a list containing the following elements:
+#' * `ai`, `bi`, `ci`, `di`: original entries of the 2x2 tables for all studies.
+#' * `ai.cc`, `bi.cc`, `ci.cc`, `di.cc`: entries of the 2x2 tables for all studies after
+#' application of the specified continuity correction.
+#' * `ni`, `n1i`, `n2i`: original total and group sample sizes.
+#' * `ni.cc`, `n1i.cc`, `n2i.cc`: total and group sample sizes after application of the
+#' specified continuity correction.
+#' * `tcc`, `ccc`: value of the specified continuity correction for the treatment group (group 1) and control
+#' group (group 2).
+#' * `cc.studies`: vector which indicates whether the continuity correction was applied
+#' to a study.
+#' * `remove`: logical vector indicating which studies were removed before
+#' aplication of the continuity correction
+#' * `kdz`,`ksz`: number of double-zero and single-zero studies.
+#' * `k1sz`, `k2sz`: number of single-zero studies where the zero is in group 1 or group 2.
+#' * `cc` : the type of continuity correction applied
+#' * `drop00`: logical indicating whether double-zero studies were omitted
+#' * ...
+#'
+#'
+#'
+#'
+
+#'
+#' @export
+#'
+#' @examples
+#' #initializing a data set
+#' data("dat.nissen2007")
+#' d <- dat.nissen2007
+#' x <- rareDescribe(ai=miRosiglitazone, n1i=nRosiglitazone, ci=miControl, n2i=nControl, data= d)
+#'
+#' #applying the default continuity correction (i.e. cc = "constant" with ccval = 0.5)
+#' x.constant <- rareCC(x)
+#'
+#' #applying the treatment-arm continuity correction with `ccsum = 0.1`
+#' x.tacc <- rareCC(x, cc = "tacc", measure = "logOR", method = "FE", ccsum = 0.1)
+#'
+#' #applying the empirical continuity correction for the log odds ratio for the fixed effects model
+#' x.empirical <- rareCC(x, cc = "empirical", measure = "logOR", method = "FE")
+#'
+#' @references
+#' Borenstein, M., Hedges, L. V., Higgins, J. P., & Rothstein, H. R. (2021). Introduction to meta-analysis.
+#' John Wiley & Sons.
+#'
+#' Bhaumik, D. K., Amatya, A., Normand, S.-L. T., Greenhouse, J., Kaizar, E., Neelon, B., & Gibbons, R. D. (2012).
+#' Meta-analysis of rare binary adverse event data. Journal of the American Statistical
+#' Association 107, 555–567. doi: 10.1080/01621459.2012.664484
+#'
+#' Sweeting, M. J., Sutton, A. J., & Lambert, P. C. (2004). What to add to nothing? Use and avoidance of
+#' continuity corrections in meta-analysis of sparse data. Statistics in Medicine, 23, 1351–1375. doi: 10.1002/sim.1761
+#'
+#' Viechtbauer, W. (2010). Conducting Meta-Analyses in R with the metafor Package.
+#' Journal of Statistical Software, 36(3), 1–48. https://doi.org/10.18637/jss.v036.i03
+#'
+#' Viechtbauer, W. (2021). Median-unbiased estimators for the amount of heterogeneity in meta-analysis. European Congress of Methodology,
+#' Valencia, Spain. https://www.wvbauer.com/lib/exe/fetch.php/talks:2021_viechtbauer_eam_median_tau2.pdf
+#'
+#' Zhang, C., Chen, M., & Wang, X. (2020). Statistical methods for quantifying between-study heterogeneity in meta-analysis
+#' with focus on rare binary events. Statistics and its interface, 13(4), 449. doi: 10.4310/sii.2020.v13.n4.a3
 
 
 rareCC <- function(x, cc = "constant", ccval = 0.5, tccval, cccval, ccsum = 1,
@@ -18,13 +183,6 @@ rareCC <- function(x, cc = "constant", ccval = 0.5, tccval, cccval, ccsum = 1,
   n1i <- x$n1i
   n2i <- x$n2i
 
-
-  ## check if cc is specified
-  #if(missing(cc)){
-  #  stop("Some studies have zero events. \n
-  #       You must specify the 'cc' argument to determine how they are handled.\n
-  #       In case you want to exclude all zero-studies, set 'cc' equal to 'none'.")
-  #}
 
   # check if cc argument is valid
   if(!is.element(cc, c("none", "constant", "tacc", "empirical"))){
@@ -219,7 +377,7 @@ rareCC <- function(x, cc = "constant", ccval = 0.5, tccval, cccval, ccsum = 1,
                      k1rare.cc = x.cc$k1rare, k1veryrare.cc = x.cc$k1veryrare,
                      k2rare.cc = x.cc$k2rare, k2veryrare.cc = x.cc$k2veryrare,
                      cc = cc, ccto = ccto, drop00 = drop00, ccstudies = ccstudies,
-                     ccc = ccc, tcc = tcc, remove = remove), x)
+                     ccc = ccc, tcc = tcc, ccval = ccval, remove = remove), x)
 
   #report measure and method argument used in 'tacc'- and 'empirical'- continuity correction
   if(cc == "tacc" || cc == "empirical"){

@@ -49,7 +49,7 @@
 #' @return an object of class "raremeta".
 #' The object is a list containing the following elements:
 #' * `beta`, `b`: estimated effect size.
-#' * `se`: standard error of the  estimator.
+#' * `se`: estimated standard error of the  estimator.
 #' * `zval`: test statistics of the coefficients.
 #' * `pval`: p-values corresponding to the test statistics.
 #' * `ci.lb`: lower bound of the confidence intervals for the coefficients.

@@ -23,7 +23,7 @@ an object of class "raremeta".
 The object is a list containing the following elements:
 \itemize{
 \item \code{beta}, \code{b}: estimated effect size.
-\item \code{se}: standard error of the  estimator.
+\item \code{se}: estimated standard error of the  estimator.
 \item \code{zval}: test statistics of the coefficients.
 \item \code{pval}: p-values corresponding to the test statistics.
 \item \code{ci.lb}: lower bound of the confidence intervals for the coefficients.

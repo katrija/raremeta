@@ -7,7 +7,7 @@
 rarePeto(x, level = 95, digits = 4)
 }
 \arguments{
-\item{x}{an object of class "raredata"}
+\item{x}{an object of class "raredata" (see \code{?rareDescribe} for more information)}
 
 \item{level}{numeric nbetween 0 and 100 specifying the confidence interval
 level (the default is 95)}
@@ -35,7 +35,7 @@ The object is a list containing the following elements:
 }
 \description{
 Function to conduct a meta-analysis.
-Effect size is the log-odds-ratio estimated from event counts in form of
+Effect size is the log odds ratio estimated from event counts in form of
 2x2 contingency tables using Peto's method (see Yusuf et al., 1985).
 }
 \section{Details}{
@@ -45,6 +45,17 @@ The main input of the \code{rareMH()} function is a so-called \code{rareData} ob
 can be produced from a data frame by applying the \code{rareDescribe()} function to it. The \code{rareDescribe()}
 function pre-processes the data frame and stores the information required by the \code{rareMH()} function
 in a list. See \code{?rareDescribe} for more details.
+}
+
+\subsection{Effect size measure}{
+
+The function is a meta-analytic method for estimating log odds ratios.
+Data comes in form of event counts in form of 2x2 contingency tables.\tabular{lrr}{
+    \tab event \tab no event \cr
+   group1 (treatment) \tab ai \tab bi \cr
+   group2 (control) \tab ci \tab di \cr
+}
+
 }
 }
 
