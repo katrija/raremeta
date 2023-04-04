@@ -1,5 +1,6 @@
 #' Conduct a meta-analysis using a generalized linear (mixed) model (GLMM)
 #'
+#'@description
 #' Function to conduct a meta-analysis of a rare event using a generalized linear
 #' or generalized linear mixed model. See below for more details on these
 #' models and their application in meta-analyses of rare events.
@@ -19,9 +20,9 @@
 #' @param cor logical specifying whether random effects should be modeled as correlated or uncorrelated.
 #' Default is `cor = FALSE`. This argument is only relevant if `intercept = "random"` and `slope = "random"`.
 #' @param coding numeric specifying the coding scheme used for the random effects structure. Values between 0
-#' and 1 can be specified. Default is `coding = -1/2`. The default option implies equal variances in the two groups.
-#' Values closer to 0 imply a larger variance in the control group (group 2), while values closer to 1 imply a larger
-#' variance in the treatment group (group 1).
+#' and 1 can be specified. Default is `coding = -1/2`. Given that `cor = FALSE`is specified, the default
+#' option implies equal variances in the two groups. Values closer to 0 imply a larger variance in the
+#' control group (group 2), while values closer to 1 imply a larger variance in the treatment group (group 1).
 #' @param drop00 logical indicating whether double-zero studies (i.e., studies with no events or
 #' only events in both groups) should be excluded when calculating the outcome measufit for the
 #' individual studies.
@@ -37,8 +38,43 @@
 #' @param ... additional arguments.
 #'
 #' @details
-#' # Details
+#' \loadmathjax{}
+#'
+#' ## Data input
+#' The main input of the `rareGLMM()` function is a so-called `rareData` object. A `rareData` object
+#' can be produced from a data frame by applying the `rareDescribe()` function to it. The `rareDescribe()`
+#' function pre-processes the data frame and stores the information required by the `rareIV()` function
+#' in a list. See `?rareDescribe` for more details.
+#'
+#' ## Effect size measures
+#' The function includes different versions of the generalized linear (mixed) model. The regression equation
+#' for the of all these models can be expressed as
+#'
+#' \mjseqn{g(\pi_{ij}) = \alpha_i + \theta \cdot x_{ij}},
+#'
+#' for the fixed-effects model (GLM) and
+#'
+#' \mjseqn{g(\pi_{ij}) = \alpha_i+ \theta \cdot x_{ij} + \epsilon_{ij} \cdot z_{ij}},
+#'
+#' for the random-effects model (GLMM), where \mjseqn{i = 1, ..., k } is the study index and \mjseqn{j = 1, 2} is the group index,
+#' \mjseqn{x_{i1} = 1}, \mjseqn{x_{i2} = 0}, and \mjseqn{z_{ij}} is defined by the `coding` argument.
+#' Specifically, for `coding = z`, \mjseqn{z_{i1} = 1-z} and \mjseqn{z_{i2} = -z}. Default is \mjseqn{z = 1/2}.
+#'
+#'
+#' For `measure = "logOR"`, a GL(M)M with a binomial within-study distribution is used for the numbers of
+#' events in each group, with sample size \mjseqn{n_{ij}} and probability \mjseqn{\pi_{ij}}. For this model,
+#' \mjseqn{g(\cdot)} corresponds to the logit function, i.e., \mjseqn{g(\pi_{ij}) = \log \left( \frac{\pi_{ij}}{(1-\pi_{ij})} \right)}.
+#'
+#' For `measure = "logRR"`, a GL(M)M with a Poisson within-study distribution is used for the numbers of
+#' events in each group, with rate \mjseqn{n_{ij}\pi_{ij}}. For this model,
+#' \mjseqn{g(\cdot)} corresponds to the natural logarithm.
+#'
+#' It is currently not possible to fit GL(M)Ms for `measure = "RD"`, but this functionality may be
+#' enabled in future versions of the package.
+#'
+#' ## Baseline and effect heterogeneity
 #' ...
+#'
 #'
 #' @return an object of class "raremeta". The object is a list containing the following elements:
 #' * `model`: name of the model used for conducting the meta-analysis.
@@ -64,7 +100,7 @@
 #' * `ni`, `n1i`, `n2i`: original total and group sample sizes.
 #' * ...
 #' @export
-#'
+#' @import mathjaxr
 rareGLMM <- function(x, measure,
                      intercept = "fixed", slope = "random", conditional = FALSE,
                      cor = FALSE, coding = 1 / 2,
