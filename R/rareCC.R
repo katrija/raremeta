@@ -228,9 +228,9 @@ rareCC <- function(x, cc = "constant", ccval = 0.5, tccval, cccval, ccsum = 1,
         stop("'tccval' must have length 1 or length equal to the number of studies.")
       }
 
-      #if(drop00 == TRUE && !is.element(length(tccval), c(1,x$k,x$k-x$kdz))){
-      #  stop("'tccval' must have length 1 or length equal to the number of studies (in- or excluding double-zero studies).")
-      #}
+      if(drop00 == TRUE && !is.element(length(tccval), c(1,x$k,x$k-x$kdz))){
+        stop("'tccval' must have length 1 or length equal to the number of studies (in- or excluding double-zero studies).")
+      }
 
       if(any(c(tccval, cccval) < 0)){
         stop("All values in 'tccval' and 'cccval' must be non-negative.")
@@ -353,6 +353,8 @@ rareCC <- function(x, cc = "constant", ccval = 0.5, tccval, cccval, ccsum = 1,
     ccc[ccstudies] <- ccsum*rinv/(rinv+prior)
 
   }
+
+
 
   ai.cc <- ai; bi.cc <- bi; ci.cc <- ci; di.cc <- di
 
