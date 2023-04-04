@@ -197,10 +197,10 @@ test_that("rareMH returns errors and warning messages", {
     "'ccval' must have length 1 or length equal to the number of studies."
   )
 
-  #expect_error(
-  #  rareCC(x, cc="constant", drop00 = TRUE, ccval = c(1,2)),
-  #  "'ccval' must have length 1 or length equal to the number of studies (in- or excluding double-zero studies)."
-  #)
+  expect_error(
+    rareCC(x, cc="constant", drop00 = TRUE, ccval = c(1,2)),
+    "'ccval' must have length 1 or length equal to the number of studies"
+  )
 
   expect_error(
     rareCC(x, cc="constant", ccval = -1),
@@ -232,10 +232,10 @@ test_that("rareMH returns errors and warning messages", {
     "'tccval' must have length 1 or length equal to the number of studies."
   )
 
-  #expect_error(
-  #  rareCC(x, cc = "constant", drop00 = TRUE, cccval = c(1,1), tccval = c(1,1)),
-  #  "'tccval' must have length 1 or length equal to the number of studies (in- or excluding double-zero studies)."
-  #)
+  expect_error(
+    rareCC(x, cc = "constant", drop00 = TRUE, cccval = c(1,1), tccval = c(1,1)),
+    "'tccval' must have length 1 or length equal to the number of studies"
+  )
 
   expect_error(
     rareCC(x, cc = "constant", drop00 = FALSE, cccval = c(1,1,1,-1), tccval = c(1,1,1,1)),
