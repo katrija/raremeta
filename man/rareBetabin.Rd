@@ -25,7 +25,7 @@ rareBetabin(
 
 \item{common_rho}{logical specifying whether a common intraclass correlations shall be assumed
 for the two groups (\code{TRUE}), or whether the intraclass correlation shall be allowed
-to differ between the two groups (\code{FALSE})}
+to differ between the two groups (\code{FALSE}). See below for more detail.s}
 
 \item{drop00}{logical indicating whether double-zero studies (i.e., studies with no events or
 only events in both groups) should be excluded when calculating the outcome measufit for the
@@ -80,7 +80,53 @@ Function to conduct a meta-analysis of a rare event using a beta-binomial model
 See below for more details on this model and its application in meta-analyses of
 rare events.
 }
-\section{Details}{
-...
+\details{
+\loadmathjax{}
+\subsection{Data input}{
+
+The main input of the \code{rareGLMM()} function is a so-called \code{rareData} object. A \code{rareData} object
+can be produced from a data frame by applying the \code{rareDescribe()} function to it. The \code{rareDescribe()}
+function pre-processes the data frame and stores the information required by the \code{rareIV()} function
+in a list. See \code{?rareDescribe} for more details.
 }
 
+\subsection{Effect size measures}{
+
+The function includes different versions of the beta-binomial model (see Kuss (2014), for a description).
+The regression equation used in all these models can be expressed as
+
+\mjseqn{g(\mu_j) = \alpha + \theta \cdot x_{ij}},
+
+where \mjseqn{i = 1, ..., k } is the study index and \mjseqn{j = 1, 2} is the group index,
+\mjseqn{x_{i1} = 1} and \mjseqn{x_{i2} = 0}.
+
+All models assume that the number of events in each group follows a beta-binomial distribution
+with mean \mjseqn{n_{ij}\mu_j} and intraclass correlation \mjseqn{\rho_j}.
+
+For \code{measure = "logOR"}, \mjseqn{g(\cdot)} corresponds to the logit function, i.e., \mjseqn{g(\mu_j) = \log \left( \frac{\mu_j}{1-\mu_j} \right)}.
+
+For \code{measure = "logRR"}, \mjseqn{g(\cdot)} correspond to the natural logarithm.
+
+It is currently not possible to use \code{rareBetabin} with \code{measure = "RD"},
+but this functionality may be implemented in future versions of this package.
+}
+
+\subsection{Group-specific intraclass correlation}{
+
+Per default, it is assumed that \mjseqn{\rho_1 = \rho_2}, i.e. the intraclass correlations
+are assumed to be equal for both groups. It is possible to fit the beta-binomial
+with different intraclass correlations by setting \code{common_rho} to \code{FALSE}.
+Internally, different intraclass correlations are modeled via the regression equation
+
+\mjseqn{\log\left(\frac{\rho_j}{1-\rho_j}\right) = \zeta + \gamma \cdot x_{ij}},
+
+where \mjseqn{x_{i1} = 1} and \mjseqn{x_{i2} = 0}. Estimates
+for \mjseqn{\rho_1} and \mjseqn{\rho_2} are then obtained by back-transforming
+the results to the original scale.
+}
+}
+\references{
+Kuss, O. (2014). Statistical methods for meta-analyses including information from studies
+without any events-add nothing to nothing and succeed nevertheless. Statistics in
+Medicine, 34 (7), 1097–1116. doi: 10.1002/sim.6383
+}
