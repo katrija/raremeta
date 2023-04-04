@@ -95,5 +95,11 @@ the unrestricted and restricted likelihood.
 }
 }
 \description{
-Conduct a meta-analysis using a generalized linear (mixed) model (GLMM)
+Function to conduct a meta-analysis of a rare event using a generalized linear
+or generalized linear mixed model. See below for more details on these
+models and their application in meta-analyses of rare events.
 }
+\section{Details}{
+...
+}
+

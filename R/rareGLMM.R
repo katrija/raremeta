@@ -1,5 +1,9 @@
 #' Conduct a meta-analysis using a generalized linear (mixed) model (GLMM)
 #'
+#' Function to conduct a meta-analysis of a rare event using a generalized linear
+#' or generalized linear mixed model. See below for more details on these
+#' models and their application in meta-analyses of rare events.
+#'
 #' @param x an object of class `"rareData"`.
 #' @param measure character string specifying the effect size or outcome measure to be used
 #' (either `"logOR"` for the log odds ratio or `"logRR"` for the log relative risk).
@@ -31,6 +35,10 @@
 #' @param control optional list of control values for the iterative algorithms. If unspecified, default
 #' values are defined inside the functions.
 #' @param ... additional arguments.
+#'
+#' @details
+#' # Details
+#' ...
 #'
 #' @return an object of class "raremeta". The object is a list containing the following elements:
 #' * `model`: name of the model used for conducting the meta-analysis.

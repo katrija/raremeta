@@ -1,3 +1,60 @@
+#' Conduct a meta-analysis using the beta-binomial model
+#'
+#' Function to conduct a meta-analysis of a rare event using a beta-binomial model
+#' See below for more details on this model and its application in meta-analyses of
+#' rare events.
+#'
+#' @param x an object of class `"rareData"`.
+#' @param measure character string specifying the effect size or outcome measure to be used
+#' (either `"logOR"` for the log odds ratio or `"logRR"` for the log relative risk).
+#' @param common_rho logical specifying whether a common intraclass correlations shall be assumed
+#' for the two groups (`TRUE`), or whether the intraclass correlation shall be allowed
+#' to differ between the two groups (`FALSE`)
+#' @param drop00 logical indicating whether double-zero studies (i.e., studies with no events or
+#' only events in both groups) should be excluded when calculating the outcome measufit for the
+#' individual studies.
+#' @param level numeric between 0 and 100 specifying the confidence interval level (the default is 95).
+#' @param test character string specifying how test statistics and confidence intervals for the
+#' fixed effects should be computed (currently, only `"z"`, for Wald-type tests is available).
+#' @param digits integer specifying the number of decimal places to which the printed results
+#' should be rounded (if unspecified, the default is 4).
+#' @param verbose logical indicating whether output should be generated on the progress of model
+#' fitting (the default is `FALSE`). Can also be an integer. Values > 1 generate more verbose output.
+#' @param control optional list of control values for the iterative algorithms. If unspecified, default
+#' values are defined inside the functions.
+#' @param ... additional arguments.
+#'
+#' @details
+#' # Details
+#' ...
+#'
+#' @return an object of class "raremeta". The object is a list containing the following elements:
+#' * `model`: name of the model used for conducting the meta-analysis.
+#' * `beta`: estimated coefficients of the model.
+#' * `se`: standard errors of the  coefficients.
+#' * `zval`: test statistics of the coefficients.
+#' * `zval`: p-values corresponding to the test statistics.
+#' * `ci.lb`: lower bound of the confidence intervals for the coefficients.
+#' * `ci.ub`: upper bound of the confidence intervals for the coefficients.
+#' * `vb`: variance-covariance matrix of the estimated coefficients.
+#' * `rho`: estimated intraclass correlation. If `common_rho = FALSE`, rho is a vector
+#' which contains both intraclass correlations.
+#' * `LRT.Chisq`: Test statistic of the likelihood ratio test testing for homogeneity.
+#' * `LRT.df`: Degrees of freedom of the likelihood ratio test testing for homogeneity.
+#' * `LRT.pval`: p-value of the likelihood ratio test testing for homogeneity.
+#' * `fit.stats`: a list with log-likelihood, deviance, AIC, BIC, and AICc values under
+#' the unrestricted and restricted likelihood.
+#' * `p`: number of coefficients in the model (including the intercept).
+#' * `k`: number of studies included in the analysis.
+#' * `k.all`: total number of studies (before exclusion).
+#' * `kdz`,`ksz`: number of double-zero and single-zero studies.
+#' * `k1sz`, `k2sz`: number of single-zero studies where the zero is in group 1 or group 2.
+#' * `ai`, `bi`, `ci`, `di`: original entries of the 2x2 tables for all studies.
+#' * `ni`, `n1i`, `n2i`: original total and group sample sizes.
+#' * ...
+#'
+#' @export
+#'
 rareBetabin <- function(x, measure,
                         common_rho = TRUE,
                         drop00 = FALSE,
