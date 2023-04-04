@@ -51,8 +51,6 @@
 #' Zhang, C., Chen, M., & Wang, X. (2020). Statistical methods for quantifying between-study heterogeneity in meta-analysis
 #' with focus on rare binary events. Statistics and its interface, 13(4), 449. doi: 10.4310/sii.2020.v13.n4.a3
 #'
-#' @export
-#'
 #' @examples
 rareHet <- function(x, measure = "logOR", method = "FE",
                     test = "q", type = "standard",
