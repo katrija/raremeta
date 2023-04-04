@@ -25,27 +25,29 @@ rareGLMM(
 \item{x}{an object of class \code{"rareData"}.}
 
 \item{measure}{character string specifying the effect size or outcome measure to be used
-(either \code{"logOR"} for the log odds ratio or \code{"logRR"} for the log relative risk).}
+(either \code{"logOR"} for the log odds ratio or \code{"logRR"} for the log relative risk). See below for more details.}
 
 \item{intercept}{character string specifying whether to fit a model with fixed, study-specific
-intercepts (\code{"fixed"}) or a random intercept (\code{"random"}).}
+intercepts (\code{"fixed"}) or a random intercept (\code{"random"}). See below for more details.}
 
 \item{slope}{character string specifying whether to fit a model with a fixed slope (\code{"fixed"}) or a
 random slope (\code{"random"}). A model with a fixed slope is a model with homogeneous effects, that is, a
 fixed-effects model, while a model with a random slope is a model with heterogeneous effects, that is, a
-random effects model.}
+random effects model. See below for more details.}
 
 \item{conditional}{logical specifying whether to estimate a conditional generalized linear mixed model.
 Default is \code{FALSE}. Conditional models are not implemented yet and specifying \code{conditional = TRUE} will
 yield an error.}
 
 \item{cor}{logical specifying whether random effects should be modeled as correlated or uncorrelated.
-Default is \code{cor = FALSE}. This argument is only relevant if \code{intercept = "random"} and \code{slope = "random"}.}
+Default is \code{cor = FALSE}. This argument is only relevant if \code{intercept = "random"} and \code{slope = "random"}.
+See below for more details.}
 
 \item{coding}{numeric specifying the coding scheme used for the random effects structure. Values between 0
-and 1 can be specified. Default is \code{coding = -1/2}. Given that \code{cor = FALSE}is specified, the default
+and 1 can be specified. Default is \code{coding = 1/2}. Given that \code{cor = FALSE}is specified, the default
 option implies equal variances in the two groups. Values closer to 0 imply a larger variance in the
-control group (group 2), while values closer to 1 imply a larger variance in the treatment group (group 1).}
+control group (group 2), while values closer to 1 imply a larger variance in the treatment group (group 1).
+See below for more details.}
 
 \item{drop00}{logical indicating whether double-zero studies (i.e., studies with no events or
 only events in both groups) should be excluded when calculating the outcome measufit for the
@@ -118,19 +120,23 @@ for the of all these models can be expressed as
 
 for the fixed-effects model (GLM) and
 
-\mjseqn{g(\pi_{ij}) = \alpha_i+ \theta \cdot x_{ij} + \epsilon_{ij} \cdot z_{ij}},
+\mjseqn{g(\pi_{ij}) = \alpha_i+ \theta \cdot x_{ij} + \epsilon_{i} \cdot z_{ij}},
 
 for the random-effects model (GLMM), where \mjseqn{i = 1, ..., k } is the study index and \mjseqn{j = 1, 2} is the group index,
 \mjseqn{x_{i1} = 1}, \mjseqn{x_{i2} = 0}, and \mjseqn{z_{ij}} is defined by the \code{coding} argument.
-Specifically, for \code{coding = z}, \mjseqn{z_{i1} = 1-z} and \mjseqn{z_{i2} = -z}. Default is \mjseqn{z = 1/2}.
+Specifically, for \code{coding = z}, \mjseqn{z_{i1} = z} and \mjseqn{z_{i2} = z-1}. Default is \mjseqn{z = 1/2}.
+\code{coding = 1} corresponds to Models 2 and 4 in Jackson et al. (2017), and \code{coding = 1/2} corresponds to Models 3 and 5 in
+the same study.
 
 For \code{measure = "logOR"}, a GL(M)M with a binomial within-study distribution is used for the numbers of
 events in each group, with sample size \mjseqn{n_{ij}} and probability \mjseqn{\pi_{ij}}. For this model,
-\mjseqn{g(\cdot)} corresponds to the logit function, i.e., \mjseqn{g(\pi_{ij}) = \log \left( \frac{\pi_{ij}}{(1-\pi_{ij})} \right)}.
+\mjseqn{g(\cdot)} corresponds to the logit function, i.e., \mjseqn{g(\pi_{ij}) = \log \left( \frac{\pi_{ij}}{1-\pi_{ij}} \right)}.
+See Stijnen et al. (2011), for further details.
 
 For \code{measure = "logRR"}, a GL(M)M with a Poisson within-study distribution is used for the numbers of
 events in each group, with rate \mjseqn{n_{ij}\pi_{ij}}. For this model,
-\mjseqn{g(\cdot)} corresponds to the natural logarithm.
+\mjseqn{g(\cdot)} corresponds to the natural logarithm. See Böhning et al. (2015), for
+further details.
 
 It is currently not possible to fit GL(M)Ms for \code{measure = "RD"}, but this functionality may be
 enabled in future versions of the package.
@@ -138,6 +144,32 @@ enabled in future versions of the package.
 
 \subsection{Baseline and effect heterogeneity}{
 
-...
+Baseline heterogeneity refers to the way the intercept is modeled. By specifying
+\code{intercept = "fixed"}, the intercepts \mjseqn{\alpha_i} are modeled as fixed, study-specific
+intercepts. By specifying \code{intercept = "random"}, it is assumed that \mjseqn{\alpha_i \sim N(\alpha, \sigma_{\alpha}^2)}.
+
+Effect heterogeneity refers to the way the slope is modeled. By specifying
+\code{slope = "fixed"}, a fixed slope is modeled, corresponding to a fixed-effects meta-analysis.
+By specifying \verb{slope = "random}, it is assumed that \mjseqn{\epsilon_i \sim N(0, \tau^2)},
+corresponding to a random-effects meta-analysis with between-study variance \mjseqn{\tau^2}.
 }
+
+\subsection{Correlated random effects}{
+
+When both \code{intercept = "random"} and \code{slope = "random"} is specified, the argument \code{cor} can be
+used to specify whether random-effects are assumed to be correlated. Per default, this is not
+the case, i.e. \code{cor = FALSE}.
+}
+}
+\references{
+Böhning, D., Mylona, K., & Kimber, A. (2015). Meta-analysis of clinical trials with rare
+events. Biometrical Journal, 57 (4), 633–648. doi: 10.1002/bimj.201400184
+
+Jackson, D., Law, M., Stijnen, T., Viechtbauer, W., & White, I. R. (2018). A comparison
+of seven random-effects models for meta-analyses that estimate the summary odds
+ratio. Statistics in Medicine, 37 (7), 1059–1085. doi: 10.1002/sim.7588
+
+Stijnen, T., Hamza, T. H., & Özdemir, P. (2010). Random effects meta-analysis of event
+outcome in the framework of the generalized linear mixed model with applications
+in sparse data. Statistics in Medicine, 29 (29), 3046–3067. doi: 10.1002/sim.4040
 }
