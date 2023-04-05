@@ -123,11 +123,16 @@ rareDescribe <- function(ai, bi, ci, di, n1i, n2i,
   # count all studies
   k <- length(ai)
 
-  # count 0 and 00 studies:
-  kdz <- sum(ai == 0 & ci == 0, na.rm = TRUE)
-  ksz <- sum((ai == 0 | ci == 0) & !(ai == 0 & ci == 0), na.rm = TRUE)
-  k1sz <- sum((ai == 0) & !(ai == 0 & ci == 0), na.rm = TRUE)
-  k2sz <- sum((ci == 0) & !(ai == 0 & ci == 0), na.rm = TRUE)
+  # label and count 0 and 00 studies:
+  sz1studies <- (ai == 0) & !(ai == 0 & ci == 0)
+  sz2studies <- (ci == 0) & !(ai == 0 & ci == 0)
+  dzstudies  <- (ai == 0) & (ci == 0)
+  szstudies  <- sz1studies | sz2studies
+
+  kdz  <- sum(dzstudies, na.rm = TRUE)
+  ksz  <- sum(szstudies, na.rm = TRUE)
+  k1sz <- sum(sz1studies, na.rm = TRUE)
+  k2sz <- sum(sz2studies, na.rm = TRUE)
 
   # vector for sample size treatment group:
   n1i <- ai + bi
@@ -208,6 +213,8 @@ rareDescribe <- function(ai, bi, ci, di, n1i, n2i,
     ai = ai, bi = bi, ci = ci, di = di,
     n1i = n1i, n2i = n2i, ni = ni, nratioi = nratioi,
     k = k, kdz = kdz, ksz = ksz, k1sz = k1sz, k2sz = k2sz,
+    dzstudies = dzstudies, szstudies = szstudies,
+    sz1studies = sz1studies, sz2studies = sz2studies,
     n1 = n1, n2 = n2, n = n, nratio = nratio,
     rf1 = rf1, rf2 = rf2, rf = rf,
     krare = krare, kveryrare = kveryrare,
