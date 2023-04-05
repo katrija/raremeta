@@ -66,7 +66,7 @@
 #' ### Treatment-arm continuity correction
 #' When setting `cc = "tacc"` (treatment-arm continuity correction), the size of
 #' both of study arms is used to calculate a value for continuity correction.
-#' For a precise definition (including the role of the `ccsum` argument), see Sweeting et al. (2004).
+#' For a precise definition see Sweeting et al. (2004).
 #'
 #' ### Empirical correction
 #' When setting `cc = "empirical"`, the estimated summary effect size
@@ -75,7 +75,7 @@
 #' This means that there must be at least one study enabling the estimation of
 #' the corresponding individual effect size and the `measure`- and `method` argument must be
 #' specified.
-#' For a precise definition (including the role of the `ccsum` argument), see Sweeting et al. (2004).
+#' For a precise definition see Sweeting et al. (2004).
 #' When it comes to model fitting, there is the possibility to fit fixed-effects models (also known as equal-effects models)
 #' and random-effects models using the inverse variance approach.
 #' A fixed-effects model is fitted when `method` is set to `"FE"` (or `"EE"`). A random-effects model
@@ -140,7 +140,7 @@
 #' x.constant <- rareCC(x)
 #'
 #' #applying the treatment-arm continuity correction with `ccsum = 0.1`
-#' x.tacc <- rareCC(x, cc = "tacc", measure = "logOR", method = "FE", ccsum = 0.1)
+#' x.tacc <- rareCC(x, cc = "tacc", ccsum = 0.1)
 #'
 #' #applying the empirical continuity correction for the log odds ratio for the fixed effects model
 #' x.empirical <- rareCC(x, cc = "empirical", measure = "logOR", method = "FE")
@@ -169,6 +169,7 @@
 rareCC <- function(x, cc = "constant", ccval = 0.5, tccval, cccval, ccsum = 1,
                    ccto = "only0", drop00 = TRUE, measure, method = "FE"){
 
+  ## argument checking ##
 
   # check if x is an object of class rareData
   if(!inherits(x,"rareData")){
@@ -195,8 +196,8 @@ rareCC <- function(x, cc = "constant", ccval = 0.5, tccval, cccval, ccsum = 1,
   }
 
   # check if ccto argument is valid (if cc shall be applied)
-  if(cc != "none" &&  !is.element(ccto, c("only0", "all", "if0all"))){
-    stop("'ccto' must be either 'only0', 'all', or 'if0all'.")
+  if(cc != "none" &&  !is.element(ccto, c("only0", "all", "if0all", "none"))){
+    stop("'ccto' must be either 'only0', 'all', 'none', or 'if0all'.")
   }
 
   # check ccval, tccval, cccval arguments (if cc == "constant")
@@ -283,11 +284,20 @@ rareCC <- function(x, cc = "constant", ccval = 0.5, tccval, cccval, ccsum = 1,
     cccval <- ccval
   }
 
+  ## remove studies if desired ##
+
   remove <- rep(FALSE, length(ai))
 
-  # remove double-zero studies if desired:
-  if(drop00 == TRUE){
-    remove <- (ai == 0 & ci == 0) | (bi == 0 & di == 0)
+
+  if(drop00 == TRUE) remove <- x$dzstudies
+
+  if(cc == "none") remove <- (x$szstudies | x$dzstudies)
+
+  if(cc == "none" && (sum(remove, na.rm = TRUE) > 0)){
+    warning("The data contains studies with no event in at least one of the cells.
+    Since cc = 'none' (no continuity correction) was selected, these studies were removed from the analysis.")
+  }
+
     ai <- ai[!remove]
     bi <- bi[!remove]
     ci <- ci[!remove]
@@ -299,11 +309,19 @@ rareCC <- function(x, cc = "constant", ccval = 0.5, tccval, cccval, ccsum = 1,
       tccval <- tccval[!remove]
       cccval <- cccval[!remove]
     }
-  }
+
+
+
+
+  ## specify studies to be continuity corrected ##
 
   ccstudies <- rep(FALSE, length(ai))
 
-  # specify studies to be continuity corrected:
+  if(cc == "none"){
+     ccto  <- "none"
+     ccval <- 0
+  }
+
   if(ccto == "only0"){
     ccstudies <- (ai == 0 | ci == 0 | bi == 0 | di == 0)
   }
@@ -312,10 +330,13 @@ rareCC <- function(x, cc = "constant", ccval = 0.5, tccval, cccval, ccsum = 1,
     ccstudies <- rep(TRUE, length(ai))
   }
 
+  ## calculate the continuity correction ##
+
   tcc <- rep(0,length(ai))
   ccc <- rep(0,length(ci))
 
   if(cc == "constant"){
+
 
     if(length(tccval) == 1){
       tcc[ccstudies] <- tccval
@@ -358,13 +379,14 @@ rareCC <- function(x, cc = "constant", ccval = 0.5, tccval, cccval, ccsum = 1,
 
   ai.cc <- ai; bi.cc <- bi; ci.cc <- ci; di.cc <- di
 
-  # apply continuity correction:
+  # apply continuity correction
   ai.cc <- ai+tcc
   bi.cc <- bi+tcc
   ci.cc <- ci+ccc
   di.cc <- di+ccc
 
-  #adding description of continuity corrected data
+  ## adding description of continuity corrected data ##
+
   data.cc <- data.frame(ai.cc = ai.cc, bi.cc = bi.cc, ci.cc = ci.cc, di.cc = di.cc)
   x.cc <- rareDescribe(ai.cc, bi.cc, ci.cc, di.cc, data = data.cc)
 
@@ -381,8 +403,8 @@ rareCC <- function(x, cc = "constant", ccval = 0.5, tccval, cccval, ccsum = 1,
                      cc = cc, ccto = ccto, drop00 = drop00, ccstudies = ccstudies,
                      ccc = ccc, tcc = tcc, ccval = ccval, remove = remove), x)
 
-  #report measure and method argument used in 'tacc'- and 'empirical'- continuity correction
-  if(cc == "tacc" || cc == "empirical"){
+  #report measure and method argument used in 'empirical'continuity correction
+  if(cc == "empirical"){
     out <- append(out, list(method.cc = method, measure.cc = measure))
   }
 

@@ -31,7 +31,7 @@ test_that("rarePeto() runs with valid inputs",{
 
 test_that("comparing to metafor::rma.peto()",{
   rareM     <- rarePeto(x)
-  metaforM  <- metafor::rma.peto(ai=ai,bi=bi,ci=ci,di=di,data=data)
+  metaforM  <- suppressWarnings(metafor::rma.peto(ai=ai,bi=bi,ci=ci,di=di,data=data))
 
   expect_equal(as.numeric(rareM["beta"]),
                as.numeric(metaforM["beta"]))

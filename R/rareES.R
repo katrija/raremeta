@@ -115,7 +115,7 @@
 #' x <- rareDescribe(ai = ai, bi = bi, ci = ci, di = di, data = data)
 #'
 #' rareES(x, measure = "logOR", cc = "constant", ccval = 0.5)
-rareES <- function(x, measure, cc, ccval = 0.5, tccval, cccval, ccsum = 1,
+rareES <- function(x, measure, cc = "none", ccval = 0.5, tccval, cccval, ccsum = 1,
                    ccto = "only0", drop00 = TRUE,
                    method = "FE", ...){
 

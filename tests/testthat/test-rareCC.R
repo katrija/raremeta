@@ -187,7 +187,7 @@ test_that("rareMH returns errors and warning messages", {
 
   expect_error(
     rareCC(x, cc= "constant", ccto = "someofthem"),
-    "'ccto' must be either 'only0', 'all', or 'if0all'."
+    "'ccto' must be either 'only0', 'all', 'none', or 'if0all'."
   )
 
   #ccval, cccval, tccval
