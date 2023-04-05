@@ -20,7 +20,7 @@ Imports:
     metafor,
     numDeriv,
     mathjaxr
-Rdmacros:
+RdMacros:
     mathjaxr
 Depends: 
     R (>= 2.10)
