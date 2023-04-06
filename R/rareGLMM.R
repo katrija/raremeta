@@ -127,6 +127,19 @@
 #' outcome in the framework of the generalized linear mixed model with applications
 #' in sparse data. Statistics in Medicine, 29 (29), 3046–3067. doi: 10.1002/sim.4040
 #'
+#' @examples
+#'
+#' data <- data.frame(
+#' ai = c(0, 3, 2, 0),
+#' bi = c(20, 18, 15, 19),
+#' ci = c(1, 4, 0, 0),
+#' di = c(19, 17, 16, 20)
+#' )
+#'
+#' x <- rareDescribe(ai = ai, bi = bi, ci = ci, di = di, data = data)
+#'
+#' rareGLMM(x, measure = "logOR", intercept = "random", slope = "random")
+#'
 #' @export
 #' @import mathjaxr
 rareGLMM <- function(x, measure,
