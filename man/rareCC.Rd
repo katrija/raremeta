@@ -58,17 +58,17 @@ only events in both groups) should be excluded from the dataset.}
 (either \code{"logOR"} for the log odds ratio, \code{"logRR"} for the log relative risk,
 or \code{"RD"} for the risk difference). Important when selecting continuity corrections dependent
 on the estimated summary effect size of some subset of the studies involved in the analyisis,
-i.e. \verb{cc = "empircal}.}
+i.e., \code{cc = "empirical"}.}
 
 \item{method}{character string specifying whether a fixed- or a random-effects model should be fitted.
 A fixed-effects model is fitted when using \code{method = "FE"} . A random-effects model is fitted
 by setting \code{method} equal to one of the following: \code{"DL"}, \code{"HE"}, \code{"SJ"}, \code{"ML"}, \code{"REML"}, \code{"EB"}, \code{"HS"},
 \code{"PM"}, \code{"IPM"}, \code{"GENQ"}, \code{"PMM"} or \code{"GENQM"}. Important when selecting continuity corrections dependent
 on the estimated summary effect size of some subset of the studies involved in the analyisis,
-i.e. \code{cc = "empircal"}.}
+i.e., \code{cc = "empirical"}.}
 }
 \value{
-an object of class "raremeta". The object is a list containing the following elements:
+an object of class "rareData". The object is a list containing the following elements:
 \itemize{
 \item \code{ai}, \code{bi}, \code{ci}, \code{di}: original entries of the 2x2 tables for all studies.
 \item \code{ai.cc}, \code{bi.cc}, \code{ci.cc}, \code{di.cc}: entries of the 2x2 tables for all studies after
@@ -90,7 +90,7 @@ aplication of the continuity correction
 }
 }
 \description{
-Function to apply different kinds of continuity correction to your data.
+Function to apply different kinds of continuity corrections to meta-analytic data.
 }
 \section{Details}{
 \subsection{Data input}{
@@ -119,7 +119,7 @@ making it possible for the user to introduce their own continuity correction.
 
 When setting \code{cc = "tacc"} (treatment-arm continuity correction), the size of
 both of study arms is used to calculate a value for continuity correction.
-For a precise definition (including the role of the \code{ccsum} argument), see Sweeting et al. (2004).
+For a precise definition see Sweeting et al. (2004).
 }
 
 \subsection{Empirical correction}{
@@ -130,14 +130,14 @@ size is used to calculate a value for continuity correction.
 This means that there must be at least one study enabling the estimation of
 the corresponding individual effect size and the \code{measure}- and \code{method} argument must be
 specified.
-For a precise definition (including the role of the \code{ccsum} argument), see Sweeting et al. (2004).
+For a precise definition see Sweeting et al. (2004).
 When it comes to model fitting, there is the possibility to fit fixed-effects models (also known as equal-effects models)
 and random-effects models using the inverse variance approach.
 A fixed-effects model is fitted when \code{method} is set to \code{"FE"} (or \code{"EE"}). A random-effects model
 is fitted when \code{method} is set to either \code{"DL"}, \code{"HE"}, \code{"SJ"}, \code{"ML"}, \code{"REML"}, \code{"EB"}, \code{"HS"},
 \code{"PM"}, \code{"IPM"}, \code{"GENQ"}, \code{"PMM"} or \code{"GENQM"}.
 For a basic introduction to fixed-effects and random-effects meta-analysis, please refer to Borenstein et al. (2021)
-Currently, the model fit is done by using the \code{metafor} package, see Viechtbauer (2010).
+Currently, the model is fitted by applying the \code{rma} function from the \code{metafor} package, see Viechtbauer (2010).
 }
 
 }
@@ -177,7 +177,7 @@ x <- rareDescribe(ai=miRosiglitazone, n1i=nRosiglitazone, ci=miControl, n2i=nCon
 x.constant <- rareCC(x)
 
 #applying the treatment-arm continuity correction with `ccsum = 0.1`
-x.tacc <- rareCC(x, cc = "tacc", measure = "logOR", method = "FE", ccsum = 0.1)
+x.tacc <- rareCC(x, cc = "tacc", ccsum = 0.1, measure = "logOR")
 
 #applying the empirical continuity correction for the log odds ratio for the fixed effects model
 x.empirical <- rareCC(x, cc = "empirical", measure = "logOR", method = "FE")

@@ -6,8 +6,8 @@
 #' tables using Mantel-Haenszel type estimators.
 #'
 #'
-#' @param x an object of class `"raredata"`
-#' @param measure measure character string specifying the effect size or outcome measure to be used
+#' @param x an object of class `"rareData"`
+#' @param measure character string specifying the effect size or outcome measure to be used
 #' (either `"logOR"` for the log odds ratio, `"logRR"` for the log relative risk,
 #' or `"RD"` for the risk difference).
 #' @param level numeric between 0 and 100 specifying the confidence interval level (the default is 95).

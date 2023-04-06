@@ -7,9 +7,9 @@
 rareMH(x, measure, level = 95, digits = 4)
 }
 \arguments{
-\item{x}{an object of class \code{"raredata"}}
+\item{x}{an object of class \code{"rareData"}}
 
-\item{measure}{measure character string specifying the effect size or outcome measure to be used
+\item{measure}{character string specifying the effect size or outcome measure to be used
 (either \code{"logOR"} for the log odds ratio, \code{"logRR"} for the log relative risk,
 or \code{"RD"} for the risk difference).}
 

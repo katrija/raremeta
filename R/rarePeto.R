@@ -13,9 +13,9 @@
 #' @details
 #' # Details
 #' ## Data input
-#' The main input of the `rareMH()` function is a so-called `rareData` object. A `rareData` object
+#' The main input of the `rarePeto()` function is a so-called `rareData` object. A `rareData` object
 #' can be produced from a data frame by applying the `rareDescribe()` function to it. The `rareDescribe()`
-#' function pre-processes the data frame and stores the information required by the `rareMH()` function
+#' function pre-processes the data frame and stores the information required by the `rarePeto()` function
 #' in a list. See `?rareDescribe` for more details.
 #'
 #' ## Effect size measure
@@ -54,6 +54,17 @@
 #' @export
 #'
 #' @examples
+#'
+#' data <- data.frame(
+#' ai = c(0, 3, 2, 0),
+#' bi = c(20, 18, 15, 19),
+#' ci = c(1, 4, 0, 0),
+#' di = c(19, 17, 16, 20)
+#' )
+#'
+#' x <- rareDescribe(ai = ai, bi = bi, ci = ci, di = di, data = data)
+#'
+#' rarePeto(x)
 #'
 rarePeto <- function(x, level = 95, digits = 4){
 
