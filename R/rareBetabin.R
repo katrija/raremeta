@@ -209,12 +209,12 @@ rareBetabin <- function(x, measure,
 
   if(measure == "logRR"){
     fam <- stats::binomial(link = "log")
-    mFE <- y ~ 1 + group
+    mFE <- cbind(y, n-y) ~ 1 + group
   }
 
   if(measure == "RD"){
     fam <- stats::binomial(link = "identity")
-    mFE <- y ~ 1 + group
+    mFE <- cbind(y, n-y) ~ 1 + group
   }
 
   invlink <- fam$linkinv
