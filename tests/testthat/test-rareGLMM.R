@@ -103,8 +103,7 @@ fit1 <- rareGLMM(x,
   drop00 = TRUE
 )
 fit1_no00 <- rareGLMM(x_no00,
-  measure = "logOR", intercept = "random", slope = "random",
-  drop00 = TRUE
+  measure = "logOR", intercept = "random", slope = "random"
 )
 
 test_that("rareGLMM handles the exclusion of double-zero studies correctly", {
