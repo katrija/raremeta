@@ -20,20 +20,10 @@
 #' @details
 #' # Details
 #' ## Data input
-<<<<<<< HEAD
 #' Data input can happen either through the parameter `x` (an object of type `rareData`)
 #' or through the parameters `ai`,`bi`,`ci`, `di`, `n1i`, `n2i`, `data` (columns of a dataframe).
 #' A `rareData` object can be produced from a data frame by applying the `rareDescribe()` function to it. The `rareDescribe()`
 #' function pre-processes the data frame and stores the information required by the `rareMH()` function
-||||||| 09c5356
-#' The main input of the `rareMH()` function is a so-called `rareData` object. A `rareData` object
-#' can be produced from a data frame by applying the `rareDescribe()` function to it. The `rareDescribe()`
-#' function pre-processes the data frame and stores the information required by the `rareMH()` function
-=======
-#' The main input of the `rarePeto()` function is a so-called `rareData` object. A `rareData` object
-#' can be produced from a data frame by applying the `rareDescribe()` function to it. The `rareDescribe()`
-#' function pre-processes the data frame and stores the information required by the `rarePeto()` function
->>>>>>> 002bbf7b3861629eb0ed269627f9e31800d089a3
 #' in a list. See `?rareDescribe` for more details.
 #'
 #' ## Effect size measure
@@ -72,12 +62,6 @@
 #' @export
 #'
 #' @examples
-#'
-<<<<<<< HEAD
-rarePeto <- function(x, ai, bi, ci, di, n1i, n2i, data, level = 95, digits = 4){
-||||||| 09c5356
-rarePeto <- function(x, level = 95, digits = 4){
-=======
 #' data <- data.frame(
 #' ai = c(0, 3, 2, 0),
 #' bi = c(20, 18, 15, 19),
@@ -89,8 +73,7 @@ rarePeto <- function(x, level = 95, digits = 4){
 #'
 #' rarePeto(x)
 #'
-rarePeto <- function(x, level = 95, digits = 4){
->>>>>>> 002bbf7b3861629eb0ed269627f9e31800d089a3
+rarePeto <- function(x, ai, bi, ci, di, n1i, n2i, data, level = 95, digits = 4){
 
 
   ## argument checking ##
