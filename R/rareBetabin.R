@@ -94,6 +94,19 @@
 #' without any events-add nothing to nothing and succeed nevertheless. Statistics in
 #' Medicine, 34 (7), 1097–1116. doi: 10.1002/sim.6383
 #'
+#' @examples
+#'
+#' data <- data.frame(
+#' ai = c(0, 3, 2, 0),
+#' bi = c(20, 18, 15, 19),
+#' ci = c(1, 4, 0, 0),
+#' di = c(19, 17, 16, 20)
+#' )
+#'
+#' x <- rareDescribe(ai = ai, bi = bi, ci = ci, di = di, data = data)
+#'
+#' rareBetabin(x, measure = "logOR", common_rho = TRUE)
+#'
 #' @export
 #'
 rareBetabin <- function(x, measure,
@@ -196,12 +209,12 @@ rareBetabin <- function(x, measure,
 
   if(measure == "logRR"){
     fam <- stats::binomial(link = "log")
-    mFE <- y ~ 1 + group
+    mFE <- cbind(y, n-y) ~ 1 + group
   }
 
   if(measure == "RD"){
     fam <- stats::binomial(link = "identity")
-    mFE <- y ~ 1 + group
+    mFE <- cbind(y, n-y) ~ 1 + group
   }
 
   invlink <- fam$linkinv

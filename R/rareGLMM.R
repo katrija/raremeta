@@ -127,6 +127,19 @@
 #' outcome in the framework of the generalized linear mixed model with applications
 #' in sparse data. Statistics in Medicine, 29 (29), 3046–3067. doi: 10.1002/sim.4040
 #'
+#' @examples
+#'
+#' data <- data.frame(
+#' ai = c(0, 3, 2, 0),
+#' bi = c(20, 18, 15, 19),
+#' ci = c(1, 4, 0, 0),
+#' di = c(19, 17, 16, 20)
+#' )
+#'
+#' x <- rareDescribe(ai = ai, bi = bi, ci = ci, di = di, data = data)
+#'
+#' rareGLMM(x, measure = "logOR", intercept = "random", slope = "random")
+#'
 #' @export
 #' @import mathjaxr
 rareGLMM <- function(x, measure,
@@ -258,7 +271,7 @@ rareGLMM <- function(x, measure,
     if (intercept == "random" & slope == "random" & conditional == FALSE) {
       if (cor == FALSE) {
         m <- y ~ 1 + group + offset(log(n)) + (1 + groupRE || id)
-        mFE <- y ~ 1 + group + offset(log(n)) + (1 || id)
+        mFE <- y ~ 1 + group + offset(log(n)) + (1 | id)
       } else {
         m <- y ~ 1 + group + offset(log(n)) + (1 + groupRE | id)
         mFE <- y ~ 1 + group + offset(log(n)) + (1 | id)
@@ -303,7 +316,7 @@ rareGLMM <- function(x, measure,
   llML <- stats::logLik(fitML)
 
   # Fit FE model ---------------------------------------------------------------
-  LRT.Chisq <- LRT.df <- LRT.pval <- NA
+  llFE <- LRT.Chisq <- LRT.df <- LRT.pval <- NA
 
   if (slope == "random") {
     if (intercept == "fixed") {
@@ -322,10 +335,14 @@ rareGLMM <- function(x, measure,
       )
     }
 
-    if(inherits(fitML, "try-error")){
+    if(inherits(fitFE, "try-error")){
       warning("Unable to fit fixed-effects model.")
     }else{
       llFE <- stats::logLik(fitFE)
+
+      # if(intercept == "fixed"){
+      #   llML <- llFE-0.5*stats::deviance(fitML)
+      # }
 
       LRT.Chisq <- as.numeric(2 * (llML - llFE))
       LRT.df <- attributes(llML)$df - attributes(llFE)$df

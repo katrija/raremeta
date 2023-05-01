@@ -161,6 +161,20 @@ used to specify whether random-effects are assumed to be correlated. Per default
 the case, i.e. \code{cor = FALSE}.
 }
 }
+\examples{
+
+data <- data.frame(
+ai = c(0, 3, 2, 0),
+bi = c(20, 18, 15, 19),
+ci = c(1, 4, 0, 0),
+di = c(19, 17, 16, 20)
+)
+
+x <- rareDescribe(ai = ai, bi = bi, ci = ci, di = di, data = data)
+
+rareGLMM(x, measure = "logOR", intercept = "random", slope = "random")
+
+}
 \references{
 Böhning, D., Mylona, K., & Kimber, A. (2015). Meta-analysis of clinical trials with rare
 events. Biometrical Journal, 57 (4), 633–648. doi: 10.1002/bimj.201400184

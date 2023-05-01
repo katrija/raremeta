@@ -125,6 +125,20 @@ for \mjseqn{\rho_1} and \mjseqn{\rho_2} are then obtained by back-transforming
 the results to the original scale.
 }
 }
+\examples{
+
+data <- data.frame(
+ai = c(0, 3, 2, 0),
+bi = c(20, 18, 15, 19),
+ci = c(1, 4, 0, 0),
+di = c(19, 17, 16, 20)
+)
+
+x <- rareDescribe(ai = ai, bi = bi, ci = ci, di = di, data = data)
+
+rareBetabin(x, measure = "logOR", common_rho = TRUE)
+
+}
 \references{
 Kuss, O. (2014). Statistical methods for meta-analyses including information from studies
 without any events-add nothing to nothing and succeed nevertheless. Statistics in
