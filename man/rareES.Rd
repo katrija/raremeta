@@ -92,11 +92,10 @@ an object of class "raremeta". The object is a list containing the following ele
 \itemize{
 \item \code{ai}, \code{bi}, \code{ci}, \code{di}: original entries of the 2x2 tables for all studies.
 \item \code{measure}: effect size estimand
-\item \code{yi}: estimated individuall effect sizes
-\item \code{vi}: estimated variance of the estimator
-\item \code{ai.cc}, \code{bi.cc}, \code{ci.cc}, \code{di.cc}: entries of the 2x2 tables for all studies after
-application of the specified continuity correction (the cell entries, the estimated
-effect sizes are calculated from)
+\item \code{yi}: vector which contains the estimated study effect sizes
+\item \code{vi}: vector which contains the estimated sampling variances
+\item \code{ai.cc}, \code{bi.cc}, \code{ci.cc}, \code{di.cc}: modified entries of the 2x2 tables for all studies after
+application of the specified continuity correction
 \item ...
 }
 }

@@ -102,11 +102,10 @@
 #' @return an object of class "raremeta". The object is a list containing the following elements:
 #' * `ai`, `bi`, `ci`, `di`: original entries of the 2x2 tables for all studies.
 #' * `measure`: effect size estimand
-#' * `yi`: estimated individuall effect sizes
-#' * `vi`: estimated variance of the estimator
-#' * `ai.cc`, `bi.cc`, `ci.cc`, `di.cc`: entries of the 2x2 tables for all studies after
-#' application of the specified continuity correction (the cell entries, the estimated
-#' effect sizes are calculated from)
+#' * `yi`: vector which contains the estimated study effect sizes
+#' * `vi`: vector which contains the estimated sampling variances
+#' * `ai.cc`, `bi.cc`, `ci.cc`, `di.cc`: modified entries of the 2x2 tables for all studies after
+#' application of the specified continuity correction
 #' * ...
 #'
 #' @export

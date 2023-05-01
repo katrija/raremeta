@@ -55,10 +55,20 @@ Effect size is the log odds ratio estimated from event counts in form of
 \section{Details}{
 \subsection{Data input}{
 
+<<<<<<< HEAD
 Data input can happen either through the parameter \code{x} (an object of type \code{rareData})
 or through the parameters \code{ai},\code{bi},\code{ci}, \code{di}, \code{n1i}, \code{n2i}, \code{data} (columns of a dataframe).
 A \code{rareData} object can be produced from a data frame by applying the \code{rareDescribe()} function to it. The \code{rareDescribe()}
 function pre-processes the data frame and stores the information required by the \code{rareMH()} function
+||||||| 09c5356
+The main input of the \code{rareMH()} function is a so-called \code{rareData} object. A \code{rareData} object
+can be produced from a data frame by applying the \code{rareDescribe()} function to it. The \code{rareDescribe()}
+function pre-processes the data frame and stores the information required by the \code{rareMH()} function
+=======
+The main input of the \code{rarePeto()} function is a so-called \code{rareData} object. A \code{rareData} object
+can be produced from a data frame by applying the \code{rareDescribe()} function to it. The \code{rareDescribe()}
+function pre-processes the data frame and stores the information required by the \code{rarePeto()} function
+>>>>>>> 002bbf7b3861629eb0ed269627f9e31800d089a3
 in a list. See \code{?rareDescribe} for more details.
 }
 
@@ -74,6 +84,20 @@ Data comes in form of event counts in form of 2x2 contingency tables.\tabular{lr
 }
 }
 
+\examples{
+
+data <- data.frame(
+ai = c(0, 3, 2, 0),
+bi = c(20, 18, 15, 19),
+ci = c(1, 4, 0, 0),
+di = c(19, 17, 16, 20)
+)
+
+x <- rareDescribe(ai = ai, bi = bi, ci = ci, di = di, data = data)
+
+rarePeto(x)
+
+}
 \references{
 Yusuf, S., Peto, R., Lewis, J., Collins, R., & Sleight, P. (1985).
 Beta blockade during and after myocardial infarction: an overview of

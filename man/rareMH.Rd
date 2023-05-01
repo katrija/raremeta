@@ -7,8 +7,9 @@
 rareMH(x, ai, bi, ci, di, n1i, n2i, data, measure, level = 95, digits = 4)
 }
 \arguments{
-\item{x}{an object of class \code{"raredata"}}
+\item{x}{an object of class \code{"rareData"}}
 
+<<<<<<< HEAD
 \item{ai}{Data frame column to specify the number of events in group 1 (i.e., the treatment group).}
 
 \item{bi}{Data frame column to specify the number of non-events in group 1 (i.e., the treatment group).}
@@ -24,6 +25,11 @@ rareMH(x, ai, bi, ci, di, n1i, n2i, data, measure, level = 95, digits = 4)
 \item{data}{Data frame.}
 
 \item{measure}{measure character string specifying the effect size or outcome measure to be used
+||||||| 09c5356
+\item{measure}{measure character string specifying the effect size or outcome measure to be used
+=======
+\item{measure}{character string specifying the effect size or outcome measure to be used
+>>>>>>> 002bbf7b3861629eb0ed269627f9e31800d089a3
 (either \code{"logOR"} for the log odds ratio, \code{"logRR"} for the log relative risk,
 or \code{"RD"} for the risk difference).}
 

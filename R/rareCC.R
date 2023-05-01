@@ -1,6 +1,6 @@
 #' Apply continuity correction to your data
 #'
-#' Function to apply different kinds of continuity correction to your data.
+#' Function to apply different kinds of continuity corrections to meta-analytic data.
 #'
 #'
 #' @param x an object of class `"rareData"`.
@@ -42,13 +42,13 @@
 #' (either `"logOR"` for the log odds ratio, `"logRR"` for the log relative risk,
 #' or `"RD"` for the risk difference). Important when selecting continuity corrections dependent
 #' on the estimated summary effect size of some subset of the studies involved in the analyisis,
-#' i.e. `cc = "empircal`.
+#' i.e., `cc = "empirical"`.
 #' @param method character string specifying whether a fixed- or a random-effects model should be fitted.
 #' A fixed-effects model is fitted when using `method = "FE"` . A random-effects model is fitted
 #' by setting `method` equal to one of the following: `"DL"`, `"HE"`, `"SJ"`, `"ML"`, `"REML"`, `"EB"`, `"HS"`,
 #' `"PM"`, `"IPM"`, `"GENQ"`, `"PMM"` or `"GENQM"`. Important when selecting continuity corrections dependent
 #' on the estimated summary effect size of some subset of the studies involved in the analyisis,
-#' i.e. `cc = "empircal"`.
+#' i.e., `cc = "empirical"`.
 #'
 #' @details
 #' # Details
@@ -90,7 +90,7 @@
 #' is fitted when `method` is set to either `"DL"`, `"HE"`, `"SJ"`, `"ML"`, `"REML"`, `"EB"`, `"HS"`,
 #' `"PM"`, `"IPM"`, `"GENQ"`, `"PMM"` or `"GENQM"`.
 #' For a basic introduction to fixed-effects and random-effects meta-analysis, please refer to Borenstein et al. (2021)
-#' Currently, the model fit is done by using the `metafor` package, see Viechtbauer (2010).
+#' Currently, the model is fitted by applying the `rma` function from the `metafor` package, see Viechtbauer (2010).
 #'
 #' ## Estimation of the between-study variance in random-effects meta-analysis
 #' Different estimators can be used to estimate the between-study variance, tau^2, in random-effects
@@ -112,7 +112,7 @@
 #' see also Bhaumik et al. (2012). The median-unbiased Paule-Mandel estimator and the median-unbiased generalized
 #' Q-statistic estimator are described in Viechtbauer (2021).
 #'
-#' @return an object of class "raremeta". The object is a list containing the following elements:
+#' @return an object of class "rareData". The object is a list containing the following elements:
 #' * `ai`, `bi`, `ci`, `di`: original entries of the 2x2 tables for all studies.
 #' * `ai.cc`, `bi.cc`, `ci.cc`, `di.cc`: entries of the 2x2 tables for all studies after
 #' application of the specified continuity correction.
@@ -148,7 +148,7 @@
 #' x.constant <- rareCC(x)
 #'
 #' #applying the treatment-arm continuity correction with `ccsum = 0.1`
-#' x.tacc <- rareCC(x, cc = "tacc", ccsum = 0.1)
+#' x.tacc <- rareCC(x, cc = "tacc", ccsum = 0.1, measure = "logOR")
 #'
 #' #applying the empirical continuity correction for the log odds ratio for the fixed effects model
 #' x.empirical <- rareCC(x, cc = "empirical", measure = "logOR", method = "FE")

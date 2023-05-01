@@ -6,6 +6,7 @@
 #' tables using Mantel-Haenszel type estimators.
 #'
 #'
+<<<<<<< HEAD
 #' @param x an object of class `"raredata"`
 #' @param ai Data frame column to specify the number of events in group 1 (i.e., the treatment group).
 #' @param bi Data frame column to specify the number of non-events in group 1 (i.e., the treatment group).
@@ -15,6 +16,13 @@
 #' @param n2i Data frame column to specify the sample sizes in group 2 (i.e., the control group).
 #' @param data Data frame.
 #' @param measure measure character string specifying the effect size or outcome measure to be used
+||||||| 09c5356
+#' @param x an object of class `"raredata"`
+#' @param measure measure character string specifying the effect size or outcome measure to be used
+=======
+#' @param x an object of class `"rareData"`
+#' @param measure character string specifying the effect size or outcome measure to be used
+>>>>>>> 002bbf7b3861629eb0ed269627f9e31800d089a3
 #' (either `"logOR"` for the log odds ratio, `"logRR"` for the log relative risk,
 #' or `"RD"` for the risk difference).
 #' @param level numeric between 0 and 100 specifying the confidence interval level (the default is 95).
