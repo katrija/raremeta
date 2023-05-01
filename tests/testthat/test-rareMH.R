@@ -216,10 +216,33 @@ test_that("comparing output of rareMH to output of metafor::rma.mh",{
   expect_equal(rare$ci.lb, fit_rma$ci.lb, ignore_attr = TRUE)
   expect_equal(rare$ci.ub, fit_rma$ci.ub, ignore_attr = TRUE)
   expect_equal(rare$k, fit_rma$k, ignore_attr = TRUE)
+})
 
 
+# checking equivalent ways of data input
 
+test_that("does not matter if data is put in as data frame or rareData-object",{
 
+  k <- which(names(rareMH(x=x, measure = "logOR")) == "call")
 
+  expect_equal(
+    rareMH(x=x, measure = "logOR")[-k],
+    rareMH(ai=ai, bi=bi, ci=ci, di=di, n1i=n1i, n2i=n2i, data=data, measure = "logOR")[-k],
+  )
+
+  expect_equal(
+    rareMH(x=x, measure = "logOR")[-k],
+    rareMH(ai=ai, ci=ci, n1i=n1i, n2i=n2i, data=data, measure = "logOR")[-k]
+  )
+
+  expect_equal(
+    rareMH(x=x, measure = "logOR")[-k],
+    rareMH(ai=ai, ci=ci, di=di, n1i=n1i, data=data, measure = "logOR")[-k]
+  )
+
+  expect_equal(
+    rareMH(x=x, measure = "logOR")[-k],
+    rareMH(ai=ai, bi=bi, ci=ci, di=di, data=data, measure = "logOR")[-k]
+  )
 
 })

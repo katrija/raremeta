@@ -637,6 +637,33 @@ test_that("results from rareIV equal results from metafor package", {
   # warning message: NAs omitted from model fitting for metafor::rma
 })
 
+# checking equivalent ways of data input
+
+test_that("does not matter if data is put in as data frame or rareData-object",{
+
+  k <- which(names(rareIV(x=x, measure = "logOR", method = "FE", cc = "constant")) == "call")
+
+  expect_equal(
+    rareIV(x=x, measure = "logOR", method = "FE", cc = "constant")[-k],
+    rareIV(ai=ai, bi=bi, ci=ci, di=di, n1i=n1i, n2i=n2i, data=data, measure = "logOR", method = "FE", cc = "constant")[-k],
+  )
+
+  expect_equal(
+    rareIV(x=x, measure = "logOR", method = "FE", cc = "constant")[-k],
+    rareIV(ai=ai, ci=ci, n1i=n1i, n2i=n2i, data=data, measure = "logOR", method = "FE", cc = "constant")[-k]
+  )
+
+  expect_equal(
+    rareIV(x=x, measure = "logOR", method = "FE", cc = "constant")[-k],
+    rareIV(ai=ai, ci=ci, di=di, n1i=n1i, data=data, measure = "logOR", method = "FE", cc = "constant")[-k]
+  )
+
+  expect_equal(
+    rareIV(x=x, measure = "logOR", method = "FE", cc = "constant")[-k],
+    rareIV(ai=ai, bi=bi, ci=ci, di=di, data=data, measure = "logOR", method = "FE", cc = "constant")[-k]
+  )
+
+})
 
 
 # test if studies to be continuity corrected are specified correctly

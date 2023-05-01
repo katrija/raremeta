@@ -6,6 +6,13 @@
 \usage{
 rareCC(
   x,
+  ai,
+  bi,
+  ci,
+  di,
+  n1i,
+  n2i,
+  data,
   cc = "constant",
   ccval = 0.5,
   tccval,
@@ -19,6 +26,20 @@ rareCC(
 }
 \arguments{
 \item{x}{an object of class \code{"rareData"}.}
+
+\item{ai}{Data frame column to specify the number of events in group 1 (i.e., the treatment group).}
+
+\item{bi}{Data frame column to specify the number of non-events in group 1 (i.e., the treatment group).}
+
+\item{ci}{Data frame column to specify the number of events in group 2 (i.e., the control group).}
+
+\item{di}{Data frame column to specify number of non-events in group 2 (i.e., the control group).}
+
+\item{n1i}{Data frame column to specify the sample sizes in group 1 (i.e., the treatment group).}
+
+\item{n2i}{Data frame column to specify the sample sizes in group 2 (i.e., the control group).}
+
+\item{data}{Data frame.}
 
 \item{cc}{character string specifying the type of continuity corrections to be used
 (either \code{"constant"}, \code{"tacc"} or \code{"empirical"}). Default is "constant". See 'Details'.}
@@ -95,8 +116,9 @@ Function to apply different kinds of continuity correction to your data.
 \section{Details}{
 \subsection{Data input}{
 
-The main input of the \code{rareCC()} function is a so-called \code{rareData} object. A \code{rareData} object
-can be produced from a data frame by applying the \code{rareDescribe()} function to it. The \code{rareDescribe()}
+Data input can happen either through the parameter \code{x} (an object of type \code{rareData})
+or through the parameters \code{ai},\code{bi},\code{ci}, \code{di}, \code{n1i}, \code{n2i}, \code{data} (columns of a dataframe).
+A \code{rareData} object can be produced from a data frame by applying the \code{rareDescribe()} function to it. The \code{rareDescribe()}
 function pre-processes the data frame and stores the information required by the \code{rareCC()} function
 in a list. See \code{?rareDescribe} for more details.
 }
@@ -119,7 +141,7 @@ making it possible for the user to introduce their own continuity correction.
 
 When setting \code{cc = "tacc"} (treatment-arm continuity correction), the size of
 both of study arms is used to calculate a value for continuity correction.
-For a precise definition (including the role of the \code{ccsum} argument), see Sweeting et al. (2004).
+For a precise definition see Sweeting et al. (2004).
 }
 
 \subsection{Empirical correction}{
@@ -130,7 +152,7 @@ size is used to calculate a value for continuity correction.
 This means that there must be at least one study enabling the estimation of
 the corresponding individual effect size and the \code{measure}- and \code{method} argument must be
 specified.
-For a precise definition (including the role of the \code{ccsum} argument), see Sweeting et al. (2004).
+For a precise definition see Sweeting et al. (2004).
 When it comes to model fitting, there is the possibility to fit fixed-effects models (also known as equal-effects models)
 and random-effects models using the inverse variance approach.
 A fixed-effects model is fitted when \code{method} is set to \code{"FE"} (or \code{"EE"}). A random-effects model
@@ -177,7 +199,7 @@ x <- rareDescribe(ai=miRosiglitazone, n1i=nRosiglitazone, ci=miControl, n2i=nCon
 x.constant <- rareCC(x)
 
 #applying the treatment-arm continuity correction with `ccsum = 0.1`
-x.tacc <- rareCC(x, cc = "tacc", measure = "logOR", method = "FE", ccsum = 0.1)
+x.tacc <- rareCC(x, cc = "tacc", ccsum = 0.1)
 
 #applying the empirical continuity correction for the log odds ratio for the fixed effects model
 x.empirical <- rareCC(x, cc = "empirical", measure = "logOR", method = "FE")

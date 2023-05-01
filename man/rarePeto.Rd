@@ -4,10 +4,24 @@
 \alias{rarePeto}
 \title{Conduct a meta-analysis using Peto's method}
 \usage{
-rarePeto(x, level = 95, digits = 4)
+rarePeto(x, ai, bi, ci, di, n1i, n2i, data, level = 95, digits = 4)
 }
 \arguments{
 \item{x}{an object of class "raredata" (see \code{?rareDescribe} for more information)}
+
+\item{ai}{Data frame column to specify the number of events in group 1 (i.e., the treatment group).}
+
+\item{bi}{Data frame column to specify the number of non-events in group 1 (i.e., the treatment group).}
+
+\item{ci}{Data frame column to specify the number of events in group 2 (i.e., the control group).}
+
+\item{di}{Data frame column to specify number of non-events in group 2 (i.e., the control group).}
+
+\item{n1i}{Data frame column to specify the sample sizes in group 1 (i.e., the treatment group).}
+
+\item{n2i}{Data frame column to specify the sample sizes in group 2 (i.e., the control group).}
+
+\item{data}{Data frame.}
 
 \item{level}{numeric nbetween 0 and 100 specifying the confidence interval
 level (the default is 95)}
@@ -41,8 +55,9 @@ Effect size is the log odds ratio estimated from event counts in form of
 \section{Details}{
 \subsection{Data input}{
 
-The main input of the \code{rareMH()} function is a so-called \code{rareData} object. A \code{rareData} object
-can be produced from a data frame by applying the \code{rareDescribe()} function to it. The \code{rareDescribe()}
+Data input can happen either through the parameter \code{x} (an object of type \code{rareData})
+or through the parameters \code{ai},\code{bi},\code{ci}, \code{di}, \code{n1i}, \code{n2i}, \code{data} (columns of a dataframe).
+A \code{rareData} object can be produced from a data frame by applying the \code{rareDescribe()} function to it. The \code{rareDescribe()}
 function pre-processes the data frame and stores the information required by the \code{rareMH()} function
 in a list. See \code{?rareDescribe} for more details.
 }

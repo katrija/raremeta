@@ -24,6 +24,9 @@ x <- rareDescribe(
 )
 
 
+
+
+# valid inputs
 test_that("rareCC runs with valid inputs",{
   # defaults
   expect_error(
@@ -166,7 +169,9 @@ test_that("rareCC runs with valid inputs",{
 
 })
 
+
 ## test warning messages
+
 
 test_that("rareMH returns errors and warning messages", {
 
@@ -402,3 +407,28 @@ test_that("comparing constant CC to result by hand",{
   )
 })
 
+# checking equivalent ways of data input
+
+test_that("does not matter if data is put in as data frame or rareData-object",{
+  expect_equal(
+    rareCC(x=x),
+    rareCC(ai=ai, bi=bi, ci=ci, di=di, n1i=n1i, n2i=n2i, data=data)
+  )
+
+  expect_equal(
+    rareCC(x=x),
+    rareCC(ai=ai, ci=ci, n1i=n1i, n2i=n2i, data=data)
+  )
+
+  expect_equal(
+    rareCC(x=x),
+    rareCC(ai=ai, ci=ci, di=di, n1i=n1i, data=data)
+  )
+
+  expect_equal(
+    rareCC(x=x),
+    rareCC(ai=ai, bi=bi, ci=ci, di=di, data=data)
+  )
+
+
+})

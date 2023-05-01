@@ -1,6 +1,13 @@
 #' Calculate effect sizes for meta-analyses of rare events.
 #'
 #' @param x an object of class `"rareData"`.
+#' @param ai Data frame column to specify the number of events in group 1 (i.e., the treatment group).
+#' @param bi Data frame column to specify the number of non-events in group 1 (i.e., the treatment group).
+#' @param ci Data frame column to specify the number of events in group 2 (i.e., the control group).
+#' @param di Data frame column to specify number of non-events in group 2 (i.e., the control group).
+#' @param n1i Data frame column to specify the sample sizes in group 1 (i.e., the treatment group).
+#' @param n2i Data frame column to specify the sample sizes in group 2 (i.e., the control group).
+#' @param data Data frame.
 #' @param measure character string specifying the effect size or outcome measure to be used
 #' (either `"logOR"` for the log odds ratio, `"logRR"` for the log relative risk,
 #' or `"RD"` for the risk difference).
@@ -40,9 +47,10 @@
 #' @details
 #' # Details
 #' ## Data input
-#' The main input of the `rareES()` function is a so-called `rareData` object. A `rareData` object
-#' can be produced from a data frame by applying the `rareDescribe()` function to it. The `rareDescribe()`
-#' function pre-processes the data frame and stores the information required by the `rareES()` function
+#' Data input can happen either through the parameter `x` (an object of type `rareData`)
+#' or through the parameters `ai`,`bi`,`ci`, `di`, `n1i`, `n2i`, `data` (columns of a dataframe).
+#' A `rareData` object can be produced from a data frame by applying the `rareDescribe()` function to it.
+#' The `rareDescribe()` function pre-processes the data frame and stores the information required by the `rareES()` function
 #' in a list. See `?rareDescribe` for more details.
 #' ## Effect size measures
 #' The function includes methods for calculating log odds ratios, log risk ratios, and risk differences.
@@ -115,9 +123,17 @@
 #' x <- rareDescribe(ai = ai, bi = bi, ci = ci, di = di, data = data)
 #'
 #' rareES(x, measure = "logOR", cc = "constant", ccval = 0.5)
-rareES <- function(x, measure, cc = "none", ccval = 0.5, tccval, cccval, ccsum = 1,
+rareES <- function(x, ai, bi, ci, di, n1i, n2i, data,
+                   measure, cc = "none", ccval = 0.5, tccval, cccval, ccsum = 1,
                    ccto = "only0", drop00 = TRUE,
                    method = "FE", ...){
+
+  ## argument checking ##
+
+  # defining an object of class 'raredata' if raw data is put in
+  if(missing(x)){
+    x <- rareDescribe(ai=ai, bi=bi, ci=ci, di=di, n1i=n1i, n2i=n2i, data=data)
+  }
 
   # check if x is an object of class rareData
   if(!inherits(x,"rareData")){

@@ -4,6 +4,13 @@
 #'
 #'
 #' @param x an object of class `"rareData"`.
+#' @param ai Data frame column to specify the number of events in group 1 (i.e., the treatment group).
+#' @param bi Data frame column to specify the number of non-events in group 1 (i.e., the treatment group).
+#' @param ci Data frame column to specify the number of events in group 2 (i.e., the control group).
+#' @param di Data frame column to specify number of non-events in group 2 (i.e., the control group).
+#' @param n1i Data frame column to specify the sample sizes in group 1 (i.e., the treatment group).
+#' @param n2i Data frame column to specify the sample sizes in group 2 (i.e., the control group).
+#' @param data Data frame.
 #' @param cc character string specifying the type of continuity corrections to be used
 #' (either `"constant"`, `"tacc"` or `"empirical"`). Default is "constant". See 'Details'.
 #' @param ccval scalar or numerical vector specifying the value of the continuity correction if
@@ -46,8 +53,9 @@
 #' @details
 #' # Details
 #' ## Data input
-#' The main input of the `rareCC()` function is a so-called `rareData` object. A `rareData` object
-#' can be produced from a data frame by applying the `rareDescribe()` function to it. The `rareDescribe()`
+#' Data input can happen either through the parameter `x` (an object of type `rareData`)
+#' or through the parameters `ai`,`bi`,`ci`, `di`, `n1i`, `n2i`, `data` (columns of a dataframe).
+#' A `rareData` object can be produced from a data frame by applying the `rareDescribe()` function to it. The `rareDescribe()`
 #' function pre-processes the data frame and stores the information required by the `rareCC()` function
 #' in a list. See `?rareDescribe` for more details.
 #'
@@ -166,10 +174,16 @@
 #' with focus on rare binary events. Statistics and its interface, 13(4), 449. doi: 10.4310/sii.2020.v13.n4.a3
 
 
-rareCC <- function(x, cc = "constant", ccval = 0.5, tccval, cccval, ccsum = 1,
+rareCC <- function(x, ai, bi, ci, di, n1i, n2i, data,
+                   cc = "constant", ccval = 0.5, tccval, cccval, ccsum = 1,
                    ccto = "only0", drop00 = TRUE, measure, method = "FE"){
 
   ## argument checking ##
+
+  # defining an object of class 'raredata' if raw data is put in
+  if(missing(x)){
+    x <- rareDescribe(ai=ai, bi=bi, ci=ci, di=di, n1i=n1i, n2i=n2i, data=data)
+  }
 
   # check if x is an object of class rareData
   if(!inherits(x,"rareData")){

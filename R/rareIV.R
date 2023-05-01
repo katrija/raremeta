@@ -5,6 +5,13 @@
 #' on these models and their application in meta-analyses of rare events.
 #'
 #' @param x an object of class `"rareData"`.
+#' @param ai Data frame column to specify the number of events in group 1 (i.e., the treatment group).
+#' @param bi Data frame column to specify the number of non-events in group 1 (i.e., the treatment group).
+#' @param ci Data frame column to specify the number of events in group 2 (i.e., the control group).
+#' @param di Data frame column to specify number of non-events in group 2 (i.e., the control group).
+#' @param n1i Data frame column to specify the sample sizes in group 1 (i.e., the treatment group).
+#' @param n2i Data frame column to specify the sample sizes in group 2 (i.e., the control group).
+#' @param data Data frame.
 #' @param measure character string specifying the effect size or outcome measure to be used
 #' (either `"logOR"` for the log odds ratio, `"logRR"` for the log relative risk,
 #' or `"RD"` for the risk difference).
@@ -209,12 +216,21 @@
 #'
 #' @export
 #'
-rareIV <- function(x, measure, method, cc, ccval = 0.5, tccval, cccval, ccsum = 1,
+rareIV <- function(x, ai, bi, ci, di, n1i, n2i, data,
+                   measure, method, cc, ccval = 0.5, tccval, cccval, ccsum = 1,
                    ccto = "only0",
                    drop00 = TRUE, weighted = TRUE, weights,
                    level = 95,
                    test="z", digits = 4, verbose=FALSE, control,
                    ...){
+
+
+  ## argument checking ##
+
+  # defining an object of class 'raredata' if raw data is put in
+  if(missing(x)){
+    x <- rareDescribe(ai=ai, bi=bi, ci=ci, di=di, n1i=n1i, n2i=n2i, data=data)
+  }
 
   # check if x is an object of class rareData
   if(!inherits(x,"rareData")){

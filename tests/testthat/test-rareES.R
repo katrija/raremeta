@@ -61,3 +61,29 @@ test_that("compare to metafor::rma.uni() calculations",{
   expect_equal(x.rareES$vi,
                as.numeric(x.escalc$vi))
 })
+
+# checking equivalent ways of data input
+
+test_that("does not matter if data is put in as data frame or rareData-object",{
+  expect_equal(
+    rareES(x=x, measure="logOR", cc="constant"),
+    rareES(ai=ai, bi=bi, ci=ci, di=di, n1i=n1i, n2i=n2i, data=data,  measure="logOR", cc="constant")
+  )
+
+  expect_equal(
+    rareES(x=x, measure="logOR", cc="constant"),
+    rareES(ai=ai, ci=ci, n1i=n1i, n2i=n2i, data=data, measure="logOR", cc="constant")
+  )
+
+  expect_equal(
+    rareES(x=x, measure="logOR", cc="constant"),
+    rareES(ai=ai, ci=ci, di=di, n1i=n1i, data=data, measure="logOR", cc="constant")
+  )
+
+  expect_equal(
+    rareES(x=x, measure="logOR", cc="constant"),
+    rareES(ai=ai, bi=bi, ci=ci, di=di, data=data, measure="logOR", cc="constant")
+  )
+
+
+})
