@@ -544,9 +544,9 @@ rareIV <- function(x, ai, bi, ci, di, n1i, n2i, data,
     n1i.cc = n1i.cc,
     n2i.cc = n2i.cc,
     # continuity corrections:
-    tcc = attr(es, "tcc"),
-    ccc = attr(es, "ccc"),
-    cc.studies = attr(es, "ccstudies"),
+    tcc = es$tcc,
+    ccc = es$ccc,
+    cc.studies = es$ccstudies,
     # arguments:
     measure = measure,
     method = method,
