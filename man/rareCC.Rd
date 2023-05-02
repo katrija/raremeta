@@ -199,13 +199,7 @@ x <- rareDescribe(ai=miRosiglitazone, n1i=nRosiglitazone, ci=miControl, n2i=nCon
 x.constant <- rareCC(x)
 
 #applying the treatment-arm continuity correction with `ccsum = 0.1`
-<<<<<<< HEAD
-x.tacc <- rareCC(x, cc = "tacc", ccsum = 0.1)
-||||||| 09c5356
-x.tacc <- rareCC(x, cc = "tacc", measure = "logOR", method = "FE", ccsum = 0.1)
-=======
 x.tacc <- rareCC(x, cc = "tacc", ccsum = 0.1, measure = "logOR")
->>>>>>> 002bbf7b3861629eb0ed269627f9e31800d089a3
 
 #applying the empirical continuity correction for the log odds ratio for the fixed effects model
 x.empirical <- rareCC(x, cc = "empirical", measure = "logOR", method = "FE")
