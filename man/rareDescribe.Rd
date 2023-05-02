@@ -36,5 +36,6 @@ data <- data.frame(
   di = c(19, 17, 16, 20)
 )
 
-rareDescribe(ai = ai, bi = bi, ci = ci, di = di, data = data)
+desc <- rareDescribe(ai = ai, bi = bi, ci = ci, di = di, data = data)
+print(desc)
 }

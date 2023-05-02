@@ -22,7 +22,8 @@
 #'   di = c(19, 17, 16, 20)
 #' )
 #'
-#' rareDescribe(ai = ai, bi = bi, ci = ci, di = di, data = data)
+#' desc <- rareDescribe(ai = ai, bi = bi, ci = ci, di = di, data = data)
+#' print(desc)
 rareDescribe <- function(ai, bi, ci, di, n1i, n2i,
                          data) {
 
@@ -148,32 +149,40 @@ rareDescribe <- function(ai, bi, ci, di, n1i, n2i,
 
   # summary statistics:
   n1 <- c(
-    mean(n1i, na.rm = TRUE), stats::median(n1i, na.rm = TRUE),
+    mean(n1i, na.rm = TRUE),
+    stats::sd(n1i, na.rm = TRUE), stats::median(n1i, na.rm = TRUE),
     stats::quantile(n1i, c(0.25, 0.75), na.rm = TRUE),
-    min(n1i, na.rm = TRUE), max(n1i, na.rm = TRUE)
+    min(n1i, na.rm = TRUE), max(n1i, na.rm = TRUE),
+    stats::IQR(n1i, na.rm = TRUE)
   )
-  names(n1) <- c("mean", "median", "q25", "q75", "min", "max")
+  names(n1) <- c("mean", "sd", "median", "q25", "q75", "min", "max", "IQR")
 
   n2 <- c(
-    mean(n2i, na.rm = TRUE), stats::median(n2i, na.rm = TRUE),
+    mean(n2i, na.rm = TRUE),
+    stats::sd(n2i, na.rm = TRUE), stats::median(n2i, na.rm = TRUE),
     stats::quantile(n2i, c(0.25, 0.75), na.rm = TRUE),
-    min(n2i, na.rm = TRUE), max(n2i, na.rm = TRUE)
+    min(n2i, na.rm = TRUE), max(n2i, na.rm = TRUE),
+    stats::IQR(n2i, na.rm = TRUE)
   )
-  names(n2) <- c("mean", "median", "q25", "q75", "min", "max")
+  names(n2) <- c("mean", "sd", "median", "q25", "q75", "min", "max", "IQR")
 
   n <- c(
-    mean(ni, na.rm = TRUE), stats::median(ni, na.rm = TRUE),
+    mean(ni, na.rm = TRUE),
+    stats::sd(ni, na.rm = TRUE), stats::median(ni, na.rm = TRUE),
     stats::quantile(ni, c(0.25, 0.75), na.rm = TRUE),
-    min(ni, na.rm = TRUE), max(ni, na.rm = TRUE)
+    min(ni, na.rm = TRUE), max(ni, na.rm = TRUE),
+    stats::IQR(ni, na.rm = TRUE)
   )
-  names(n) <- c("mean", "median", "q25", "q75", "min", "max")
+  names(n) <- c("mean", "sd", "median", "q25", "q75", "min", "max", "IQR")
 
   nratio <- c(
-    mean(nratioi, na.rm = TRUE), stats::median(nratioi, na.rm = TRUE),
+    mean(nratioi, na.rm = TRUE),
+    stats::sd(nratioi, na.rm = TRUE), stats::median(nratioi, na.rm = TRUE),
     stats::quantile(nratioi, c(0.25, 0.75), na.rm = TRUE),
-    min(nratioi, na.rm = TRUE), max(nratioi, na.rm = TRUE)
+    min(nratioi, na.rm = TRUE), max(nratioi, na.rm = TRUE),
+    stats::IQR(nratioi, na.rm = TRUE)
   )
-  names(nratio) <- c("mean", "median", "q25", "q75", "min", "max")
+  names(nratio) <- c("mean", "sd", "median", "q25", "q75", "min", "max", "IQR")
 
   # relative frequencies:
   rf1i <- ai / n1i
@@ -182,22 +191,31 @@ rareDescribe <- function(ai, bi, ci, di, n1i, n2i,
   rfi <- (ai + ci) / ni
 
   rf1 <- c(
-    mean(rf1i, na.rm = TRUE), stats::median(rf1i, na.rm = TRUE),
-    min(rf1i, na.rm = TRUE), max(rf1i, na.rm = TRUE)
+    mean(rf1i, na.rm = TRUE), stats::sd(rf1i, na.rm = TRUE),
+    stats::median(rf1i, na.rm = TRUE),
+    stats::quantile(rf1i, c(0.25, 0.75), na.rm = TRUE),
+    min(rf1i, na.rm = TRUE), max(rf1i, na.rm = TRUE),
+    stats::IQR(rf1i, na.rm = TRUE)
   )
-  names(rf1) <- c("mean", "median", "min", "max")
+  names(rf1) <- c("mean", "sd", "median", "q25", "q75", "min", "max", "IQR")
 
   rf2 <- c(
-    mean(rf2i, na.rm = TRUE), stats::median(rf2i, na.rm = TRUE),
-    min(rf2i, na.rm = TRUE), max(rf2i, na.rm = TRUE)
+    mean(rf2i, na.rm = TRUE), stats::sd(rf2i, na.rm = TRUE),
+    stats::median(rf2i, na.rm = TRUE),
+    stats::quantile(rf2i, c(0.25, 0.75), na.rm = TRUE),
+    min(rf2i, na.rm = TRUE), max(rf2i, na.rm = TRUE),
+    stats::IQR(rf2i, na.rm = TRUE)
   )
-  names(rf2) <- c("mean", "median", "min", "max")
+  names(rf2) <- c("mean", "sd", "median", "q25", "q75", "min", "max", "IQR")
 
   rf <- c(
-    mean(rfi, na.rm = TRUE), stats::median(rfi, na.rm = TRUE),
-    min(rfi, na.rm = TRUE), max(rfi, na.rm = TRUE)
+    mean(rfi, na.rm = TRUE), stats::sd(rfi, na.rm = TRUE),
+    stats::median(rfi, na.rm = TRUE),
+    stats::quantile(rfi, c(0.25, 0.75), na.rm = TRUE),
+    min(rfi, na.rm = TRUE), max(rfi, na.rm = TRUE),
+    stats::IQR(rfi, na.rm = TRUE)
   )
-  names(rf) <- c("mean", "median", "min", "max")
+  names(rf) <- c("mean", "sd", "median", "q25", "q75", "min", "max", "IQR")
 
   krare <- sum(rfi <= 0.05 & rfi > 0.01, na.rm = TRUE)
   kveryrare <- sum(rfi <= 0.01, na.rm = TRUE)

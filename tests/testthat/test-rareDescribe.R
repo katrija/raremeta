@@ -62,11 +62,13 @@ test_that("rareDescribe returns errors and warning messages", {
 test_that("summaries are calculated correctly", {
   ni = data$n1i + data$n2i
   n <- c(
-    mean(ni, na.rm = TRUE), stats::median(ni, na.rm = TRUE),
+    mean(ni, na.rm = TRUE),
+    sd(ni, na.rm = TRUE), stats::median(ni, na.rm = TRUE),
     stats::quantile(ni, c(0.25, 0.75), na.rm = TRUE),
-    min(ni, na.rm = TRUE), max(ni, na.rm = TRUE)
+    min(ni, na.rm = TRUE), max(ni, na.rm = TRUE),
+    stats::IQR(ni, na.rm = TRUE)
   )
-  names(n) <- c("mean", "median", "q25", "q75", "min", "max")
+  names(n) <- c("mean", "sd", "median", "q25", "q75", "min", "max", "IQR")
   expect_equal(dataDesc$n, n)
 })
 
