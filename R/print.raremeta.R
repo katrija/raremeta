@@ -35,20 +35,22 @@ print.raremeta <- function(x, digits, ...){
     cat("\nDouble-zero studies were", drop00, "the analysis.", "\n")
 
     # Heterogeneity:
-    qpval <- ifelse(x$QEp < .001, "< .001", round(x$QEp, 3))
+    qpval <- ifelse(x$QEp < .0001, "< .0001", format(round(x$QEp, digits), nsmall = digits))
 
     cat("\nHeterogeneity: \n")
-    cat("\n", paste0("Q(df = ", x$k-1, ") = ", round(x$QE, digits), ", p-val ", qpval), "\n")
+    cat("\n", paste0("Q(df = ", x$k-1, ") = ", format(round(x$QE, digits), nsmall = digits), ", p-val ", qpval), "\n")
 
     if(is.element(x$method, c("CE", "EE", "FE"))){
       cat("\n",
-          "I^2 (total heterogeneity / total variability): ", round(x$I2, 2), " %", "\n"
+          "I^2 (total heterogeneity / total variability): ", format(round(x$I2, 2), nsmall = 2), " %", "\n"
       )
     }else{
       cat("\n",
-          "tau^2 (estimated amount of total heterogeneity):", round(x$tau2, digits), "\n",
-          "tau (square root of estimated tau^2 value):     ", round(sqrt(x$tau2), digits), "\n",
-          "I^2 (total heterogeneity / total variability):  ", round(x$I2, 2), " %", "\n"
+          "tau^2 (estimated amount of total heterogeneity):", format(round(x$tau2, digits), nsmall = digits,
+                                                                     scientific = FALSE), "\n",
+          "tau (square root of estimated tau^2 value):     ", format(round(sqrt(x$tau2), digits), nsmall = digits,
+                                                                     scientific = FALSE), "\n",
+          "I^2 (total heterogeneity / total variability):  ", format(round(x$I2, 2), nsmall = 2), " %", "\n"
       )
     }
 
@@ -56,9 +58,9 @@ print.raremeta <- function(x, digits, ...){
     signif <- stats::symnum(x$pval, corr=FALSE, na=FALSE,
                             cutpoints=c(0, 0.001, 0.01, 0.05, 0.1, 1), symbols = c("***", "**", "*", ".", " "))
 
-    res.table <- data.frame(round(as.numeric(x$beta), digits), round(x$se, digits),
-                            round(x$zval, digits), ifelse(x$pval < 0.001, "< .001", round(x$pval, 3)),
-                            round(x$ci.lb, digits), round(x$ci.ub, digits))
+    res.table <- format(data.frame(round(as.numeric(x$beta), digits), round(x$se, digits),
+                            round(x$zval, digits), ifelse(x$pval < 0.001, "< .001", round(x$pval, digits)),
+                            round(x$ci.lb, digits), round(x$ci.ub, digits)), nsmall = digits, scientific = FALSE)
     names(res.table) <- c(as.character(x$measure), "se", "zval", "pval",  "ci.lb", "ci.ub")
 
 
@@ -90,9 +92,9 @@ print.raremeta <- function(x, digits, ...){
     signif <- stats::symnum(x$pval, corr=FALSE, na=FALSE,
                             cutpoints=c(0, 0.001, 0.01, 0.05, 0.1, 1), symbols = c("***", "**", "*", ".", " "))
 
-    res.table <- data.frame(round(as.numeric(x$beta), digits), round(x$se, digits),
-                            round(x$zval, digits), ifelse(x$pval < 0.001, "< .001", round(x$pval, 3)),
-                            round(x$ci.lb, digits), round(x$ci.ub, digits))
+    res.table <- format(data.frame(round(as.numeric(x$beta), digits), round(x$se, digits),
+                            round(x$zval, digits), round(x$pval, digits),
+                            round(x$ci.lb, digits), round(x$ci.ub, digits)), nsmall = digits, scientific = FALSE)
     names(res.table) <- c(as.character(x$measure), "se", "zval", "pval",  "ci.lb", "ci.ub")
 
 
@@ -114,7 +116,7 @@ print.raremeta <- function(x, digits, ...){
     #cc <- ifelse(x$cc != "tacc", x$cc, "treatment-arm")
     #drop00 <- ifelse(x$drop00 == TRUE, "excluded from", "included in")
 
-    cat("Fixed-effects meta-analysis using the Peto's method:", "\n")
+    cat("Fixed-effects meta-analysis using Peto's method:", "\n")
 
     cat("\nNumber of studies:", x$k, "\n")
     #cat(paste0("\nContinuity correction: ", cc, ", applied to ", sum(x$cc.studies), " studies"))
@@ -124,9 +126,9 @@ print.raremeta <- function(x, digits, ...){
     signif <- stats::symnum(x$pval, corr=FALSE, na=FALSE,
                             cutpoints=c(0, 0.001, 0.01, 0.05, 0.1, 1), symbols = c("***", "**", "*", ".", " "))
 
-    res.table <- data.frame(round(as.numeric(x$beta), digits), round(x$se, digits),
-                            round(x$zval, digits), ifelse(x$pval < 0.001, "< .001", round(x$pval, 3)),
-                            round(x$ci.lb, digits), round(x$ci.ub, digits))
+    res.table <- format(data.frame(round(as.numeric(x$beta), digits), round(x$se, digits),
+                            round(x$zval, digits), round(x$pval, digits),
+                            round(x$ci.lb, digits), round(x$ci.ub, digits)), nsmall = digits, scientific = FALSE)
     names(res.table) <- c(as.character(x$measure), "se", "zval", "pval",  "ci.lb", "ci.ub")
 
 
@@ -163,8 +165,10 @@ print.raremeta <- function(x, digits, ...){
       cat("\nHeterogeneity: \n")
 
       cat("\n",
-          "sigma^2 (estimated variance of the intercepts):        ", round(x$sigma2[[1]][1], digits), "\n",
-          "sigma (estimated standard deviation of the intercepts):", round(sqrt(x$sigma2[[1]][1]), digits), "\n"
+          "sigma^2 (estimated variance of the intercepts):        ", format(round(x$sigma2[[1]][1], digits), nsmall = digits,
+                                                                            scientific = FALSE), "\n",
+          "sigma (estimated standard deviation of the intercepts):", format(round(sqrt(x$sigma2[[1]][1]), digits), nsmall = digits,
+                                                                            scientific = FALSE), "\n"
       )
 
     }
@@ -178,24 +182,24 @@ print.raremeta <- function(x, digits, ...){
       cat("\nHeterogeneity: \n")
 
       # Heterogeneity:
-      LRTp <- ifelse(x$LRT.pval < .001, "< .001", round(x$LRT.pval, 3))
-      cat("\n", paste0("LRT(df = ", x$LRT.df, ") = ", round(x$LRT.Chisq, digits), ", p-val ", LRTp), "\n")
+      LRTp <- ifelse(x$LRT.pval < .0001, "< .0001", format(round(x$LRT.pval, digits), nsmall = digits, scientitific = FALSE))
+      cat("\n", paste0("LRT(df = ", x$LRT.df, ") = ", format(round(x$LRT.Chisq, digits), nsmall = digits, scientific = FALSE), ", p-val ", LRTp), "\n")
 
 
       if(x$intercept == "random"){
         cat("\n",
-            "sigma^2 (estimated variance of the intercepts):        ", round(x$sigma2[[1]][1], digits), "\n",
-            "sigma (estimated standard deviation of the intercepts):", round(sqrt(x$sigma2[[1]][1]), digits), "\n"
+            "sigma^2 (estimated variance of the intercepts):        ", format(round(x$sigma2[[1]][1], digits), nsmall = digits, scientific = FALSE), "\n",
+            "sigma (estimated standard deviation of the intercepts):", format(round(sqrt(x$sigma2[[1]][1]), digits), nsmall = digits, scientific = FALSE), "\n"
         )
       }
 
       cat("\n",
-          "tau^2 (estimated variance of the effect sizes):        ", round(x$tau2, digits), "\n",
-          "tau (estimated standard deviation of the effect sizes):", round(sqrt(x$tau2), digits), "\n")
+          "tau^2 (estimated variance of the effect sizes):        ", format(round(x$tau2, digits), nsmall = digits, scientific = FALSE), "\n",
+          "tau (estimated standard deviation of the effect sizes):", format(round(sqrt(x$tau2), digits), nsmall = digits, scientific = FALSE), "\n")
 
       if(x$cor){
         cat("\n",
-            "Random-effects correlation: ", round(x$sigma2[[1]][2]/sqrt(x$sigma2[[1]][1]*x$sigma2[[1]][4]), digits), "\n")
+            "Random-effects correlation: ", format(round(x$sigma2[[1]][2]/sqrt(x$sigma2[[1]][1]*x$sigma2[[1]][4]), digits), nsmalL = digits, scientific = FALSE), "\n")
       }
 
     }
@@ -204,9 +208,9 @@ print.raremeta <- function(x, digits, ...){
     signif <- stats::symnum(x$pval, corr=FALSE, na=FALSE,
                             cutpoints=c(0, 0.001, 0.01, 0.05, 0.1, 1), symbols = c("***", "**", "*", ".", " "))
 
-    res.table <- data.frame(round(as.numeric(x$beta), digits), round(x$se, digits),
-                            round(x$zval, digits), ifelse(x$pval < 0.001, "< .001", round(x$pval, 3)),
-                            round(x$ci.lb, digits), round(x$ci.ub, digits))
+    res.table <- format(data.frame(round(as.numeric(x$beta), digits), round(x$se, digits),
+                            round(x$zval, digits), round(x$pval, digits),
+                            round(x$ci.lb, digits), round(x$ci.ub, digits)), nsmall = digits, scientific = FALSE)
     names(res.table) <- c("estimate", "se", "zval", "pval",  "ci.lb", "ci.ub")
     rownames(res.table) <- names(x$beta)
 
@@ -231,7 +235,7 @@ print.raremeta <- function(x, digits, ...){
 
     drop00 <- ifelse(x$drop00 == TRUE, "excluded from", "included in")
 
-    cat("Random-effects meta-analysis using the Beta-binomial Model:", "\n")
+    cat("Random-effects meta-analysis using the beta-binomial model:", "\n")
 
     cat("\nNumber of studies:", x$k, "\n")
     cat("\nDouble-zero studies were", drop00, "the analysis.", "\n")
@@ -239,17 +243,17 @@ print.raremeta <- function(x, digits, ...){
       cat("\nHeterogeneity: \n")
 
       # Heterogeneity:
-      LRTp <- ifelse(x$LRT.pval < .001, "< .001", round(x$LRT.pval, 3))
-      cat("\n", paste0("LRT(df = ", x$LRT.df, ") = ", round(x$LRT.Chisq, digits), ", p-val ", LRTp), "\n")
+      LRTp <- ifelse(x$LRT.pval < .0001, "< .0001", format(round(x$LRT.pval, digits), nsmall = digits, scientific = FALSE))
+      cat("\n", paste0("LRT(df = ", x$LRT.df, ") = ", format(round(x$LRT.Chisq, digits), nsmall = digits, scientific = FALSE), ", p-val ", LRTp), "\n")
 
       if(x$common_rho == TRUE){
         cat("\n",
-            "rho (estimated ICC): ", round(x$rho, digits), "\n"
+            "rho (estimated ICC): ", format(round(x$rho, digits), nsmall = digits, scientific = FALSE), "\n"
         )
       }else{
         cat("\n",
-            "rho (estimated ICC), group 1: ", round(x$rho[1], digits), "\n",
-            "rho (estimated ICC), group 2: ", round(x$rho[2], digits), "\n"
+            "rho (estimated ICC), group 1: ", format(round(x$rho[1], digits), nsmall = digits, scientific = FALSE), "\n",
+            "rho (estimated ICC), group 2: ", format(round(x$rho[2], digits), nsmall = digits, scientific = FALSE), "\n"
         )
       }
 
@@ -257,9 +261,9 @@ print.raremeta <- function(x, digits, ...){
     signif <- stats::symnum(x$pval, corr=FALSE, na=FALSE,
                             cutpoints=c(0, 0.001, 0.01, 0.05, 0.1, 1), symbols = c("***", "**", "*", ".", " "))
 
-    res.table <- data.frame(round(as.numeric(x$beta), digits), round(x$se, digits),
-                            round(x$zval, digits), ifelse(x$pval < 0.001, "< .001", round(x$pval, 3)),
-                            round(x$ci.lb, digits), round(x$ci.ub, digits))
+    res.table <- format(data.frame(round(as.numeric(x$beta), digits), round(x$se, digits),
+                            round(x$zval, digits), round(x$pval, digits),
+                            round(x$ci.lb, digits), round(x$ci.ub, digits)), nsmall = digits, scientific = FALSE)
     names(res.table) <- c("estimate", "se", "zval", "pval",  "ci.lb", "ci.ub")
     rownames(res.table) <- c("Intercept", x$measure)
 
