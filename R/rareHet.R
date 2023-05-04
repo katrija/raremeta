@@ -1,6 +1,13 @@
 #' Testing for between-study homogeneity in meta-analyses of rare events
 #'
-#' @param x an object of class `"rareData"`, or `"raremeta"`.
+#' @param x an object of class `"rareData"`.
+#' @param ai Data frame column to specify the number of events in group 1 (i.e., the treatment group).
+#' @param bi Data frame column to specify the number of non-events in group 1 (i.e., the treatment group).
+#' @param ci Data frame column to specify the number of events in group 2 (i.e., the control group).
+#' @param di Data frame column to specify number of non-events in group 2 (i.e., the control group).
+#' @param n1i Data frame column to specify the sample sizes in group 1 (i.e., the treatment group).
+#' @param n2i Data frame column to specify the sample sizes in group 2 (i.e., the control group).
+#' @param data Data frame.
 #' @param measure character string specifying the effect size or outcome measure to be used
 #' (either `"logOR"` for the log odds ratio, `"logRR"` for the log relative risk,
 #' or `"RD"` for the risk difference).
@@ -47,19 +54,30 @@
 #' (this option is available for `type = "score"` and `method = "cond"` or `method = "BD"`).
 #' @return a list including the value of the test statistic and the associated **p** value.
 #'
+#' ## Data input
+#' Data input can happen either through the parameter `x` (an object of type `rareData`)
+#' or through the parameters `ai`,`bi`,`ci`, `di`, `n1i`, `n2i`, `data` (columns of a dataframe).
+#' A `rareData` object can be produced from a data frame by applying the `rareDescribe()` function to it.
+#' The `rareDescribe()` function pre-processes the data frame and stores the information required by the `rareES()` function
+#' in a list. See `?rareDescribe` for more details.
+#'
 #' @references
 #' Zhang, C., Chen, M., & Wang, X. (2020). Statistical methods for quantifying between-study heterogeneity in meta-analysis
 #' with focus on rare binary events. Statistics and its interface, 13(4), 449. doi: 10.4310/sii.2020.v13.n4.a3
 #'
 #' @examples
-rareHet <- function(x, measure = "logOR", method = "FE",
+rareHet <- function(x, ai, bi, ci, di, n1i, n2i, data,
+                    measure = "logOR", method = "FE",
                     test = "q", type = "standard",
                     approx = FALSE,
                     cc, ccval = 0.5, tccval, cccval, ccsum = 1,
                     ccto = "only0", drop00 = TRUE) {
-  if (missing(x)) {
-    stop("x must be specified.")
+
+  # defining an object of class 'raredata' if raw data is put in
+  if(missing(x)){
+    x <- rareDescribe(ai=ai, bi=bi, ci=ci, di=di, n1i=n1i, n2i=n2i, data=data)
   }
+
 
   if (!is.element(class(x), c("rareData", "raremeta"))) {
     stop("x must be either of class 'rareData', or of class 'raremeta'.")
