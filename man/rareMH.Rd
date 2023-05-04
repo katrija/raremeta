@@ -7,21 +7,21 @@
 rareMH(x, ai, bi, ci, di, n1i, n2i, data, measure, level = 95, digits = 4)
 }
 \arguments{
-\item{x}{an object of class \code{"raredata"}}
+\item{x}{an object of class \code{"rareData"}.}
 
-\item{ai}{Data frame column to specify the number of events in group 1 (i.e., the treatment group).}
+\item{ai}{data frame column to specify the number of events in group 1 (i.e., the treatment group).}
 
-\item{bi}{Data frame column to specify the number of non-events in group 1 (i.e., the treatment group).}
+\item{bi}{data frame column to specify the number of non-events in group 1 (i.e., the treatment group).}
 
-\item{ci}{Data frame column to specify the number of events in group 2 (i.e., the control group).}
+\item{ci}{data frame column to specify the number of events in group 2 (i.e., the control group).}
 
-\item{di}{Data frame column to specify number of non-events in group 2 (i.e., the control group).}
+\item{di}{data frame column to specify number of non-events in group 2 (i.e., the control group).}
 
-\item{n1i}{Data frame column to specify the sample sizes in group 1 (i.e., the treatment group).}
+\item{n1i}{data frame column to specify the sample sizes in group 1 (i.e., the treatment group).}
 
-\item{n2i}{Data frame column to specify the sample sizes in group 2 (i.e., the control group).}
+\item{n2i}{data frame column to specify the sample sizes in group 2 (i.e., the control group).}
 
-\item{data}{Data frame.}
+\item{data}{data frame}
 
 \item{measure}{character string specifying the effect size or outcome measure to be used
 (either \code{"logOR"} for the log odds ratio, \code{"logRR"} for the log relative risk,
@@ -59,11 +59,11 @@ tables using Mantel-Haenszel type estimators.
 \section{Details}{
 \subsection{Data input}{
 
-Data input can happen either through the parameter \code{x} (an object of type \code{rareData})
-or through the parameters \code{ai},\code{bi},\code{ci}, \code{di}, \code{n1i}, \code{n2i}, \code{data} (columns of a dataframe). A \code{rareData} object
-can be produced from a data frame by applying the \code{rareDescribe()} function to it. The \code{rareDescribe()}
-function pre-processes the data frame and stores the information required by the \code{rareMH()} function
-in a list. See \code{?rareDescribe} for more details.
+Data input can happen either through the parameters \code{ai},\code{bi},\code{ci},\code{di},\code{n1i},\code{n2i} (columns of the data frame \code{data})
+or pre-processed throuth the parameter \code{x} (an object of type \code{rareData}).
+A \code{rareData} object can be produced from a data frame by applying the \code{rareDescribe()} function to it.
+The \code{rareDescribe()} function pre-processes the data frame and stores the information required by the \code{rareMH()} function in a list.
+See \code{?rareDescribe} for more details.
 }
 
 \subsection{Effect size measures}{

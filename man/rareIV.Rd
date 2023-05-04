@@ -35,19 +35,19 @@ rareIV(
 \arguments{
 \item{x}{an object of class \code{"rareData"}.}
 
-\item{ai}{Data frame column to specify the number of events in group 1 (i.e., the treatment group).}
+\item{ai}{data frame column to specify the number of events in group 1 (i.e., the treatment group).}
 
-\item{bi}{Data frame column to specify the number of non-events in group 1 (i.e., the treatment group).}
+\item{bi}{data frame column to specify the number of non-events in group 1 (i.e., the treatment group).}
 
-\item{ci}{Data frame column to specify the number of events in group 2 (i.e., the control group).}
+\item{ci}{data frame column to specify the number of events in group 2 (i.e., the control group).}
 
-\item{di}{Data frame column to specify number of non-events in group 2 (i.e., the control group).}
+\item{di}{data frame column to specify number of non-events in group 2 (i.e., the control group).}
 
-\item{n1i}{Data frame column to specify the sample sizes in group 1 (i.e., the treatment group).}
+\item{n1i}{data frame column to specify the sample sizes in group 1 (i.e., the treatment group).}
 
-\item{n2i}{Data frame column to specify the sample sizes in group 2 (i.e., the control group).}
+\item{n2i}{data frame column to specify the sample sizes in group 2 (i.e., the control group).}
 
-\item{data}{Data frame.}
+\item{data}{data frame}
 
 \item{measure}{character string specifying the effect size or outcome measure to be used
 (either \code{"logOR"} for the log odds ratio, \code{"logRR"} for the log relative risk,
@@ -164,10 +164,11 @@ on these models and their application in meta-analyses of rare events.
 \section{Details}{
 \subsection{Data input}{
 
-The main input of the \code{rareIV()} function is a so-called \code{rareData} object. A \code{rareData} object
-can be produced from a data frame by applying the \code{rareDescribe()} function to it. The \code{rareDescribe()}
-function pre-processes the data frame and stores the information required by the \code{rareIV()} function
-in a list. See \code{?rareDescribe} for more details.
+Data input can happen either through the parameters \code{ai},\code{bi},\code{ci},\code{di},\code{n1i},\code{n2i} (columns of the data frame \code{data})
+or pre-processed throuth the parameter \code{x} (an object of type \code{rareData}).
+A \code{rareData} object can be produced from a data frame by applying the \code{rareDescribe()} function to it.
+The \code{rareDescribe()} function pre-processes the data frame and stores the information required by the \code{rareIV()} function in a list.
+See \code{?rareDescribe} for more details.
 }
 
 \subsection{Effect size measures}{
@@ -190,7 +191,7 @@ studies for which two entries of the same column of the 2x2 table are zero.
 The function includes a variety of arguments to handle single-zero and double-zero studies. Per default,
 double-zero studies are currently excluded from the analysis (this behavior might be changed in the future).
 The inclusion of double-zero studies can be enforced by setting the argument \code{drop00} to \code{FALSE}.
-If the data include at least one single-zero study, the function throws an error if the user
+If the data includes at least one single-zero study, the function throws an error if the user
 did not specify whether or not a continuity correction shall be applied.
 By setting \code{cc = "none"}, any zero-studies (studies with at least one zero-cell)
 which remain in the data are excluded from the analysis. If it is desired that zero-studies are

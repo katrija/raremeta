@@ -4,13 +4,13 @@
 #'
 #'
 #' @param x an object of class `"rareData"`.
-#' @param ai Data frame column to specify the number of events in group 1 (i.e., the treatment group).
-#' @param bi Data frame column to specify the number of non-events in group 1 (i.e., the treatment group).
-#' @param ci Data frame column to specify the number of events in group 2 (i.e., the control group).
-#' @param di Data frame column to specify number of non-events in group 2 (i.e., the control group).
-#' @param n1i Data frame column to specify the sample sizes in group 1 (i.e., the treatment group).
-#' @param n2i Data frame column to specify the sample sizes in group 2 (i.e., the control group).
-#' @param data Data frame.
+#' @param ai data frame column to specify the number of events in group 1 (i.e., the treatment group).
+#' @param bi data frame column to specify the number of non-events in group 1 (i.e., the treatment group).
+#' @param ci data frame column to specify the number of events in group 2 (i.e., the control group).
+#' @param di data frame column to specify number of non-events in group 2 (i.e., the control group).
+#' @param n1i data frame column to specify the sample sizes in group 1 (i.e., the treatment group).
+#' @param n2i data frame column to specify the sample sizes in group 2 (i.e., the control group).
+#' @param data data frame.
 #' @param cc character string specifying the type of continuity corrections to be used
 #' (either `"constant"`, `"tacc"` or `"empirical"`). Default is "constant". See 'Details'.
 #' @param ccval scalar or numerical vector specifying the value of the continuity correction if
@@ -30,8 +30,8 @@
 #' observations from the treatment group and the continuity correction applied to the observations from
 #' the control group. Default is `ccsum = 1`. Currently, setting this argument to a different number only has
 #' an effect when `cc = "tacc"` or `cc = "empirical"`.
-#' @param ccto character string indicating to which studies the continuity correction should
-#' be applied. Either `"only0"`, for which the continuity correction is applied to all studies
+#' @param ccto character string indicating which studies the continuity correction should
+#' be applied to. Either `"only0"`, for which the continuity correction is applied to all studies
 #' for which the number of events is zero in at least one of the groups, `"all"`, for which the
 #' continuity correction is applied to all studies, or `"if0all"`, for which the continuity
 #' correction is applied to all studies if any of the individual studies has zero events in at
@@ -53,11 +53,11 @@
 #' @details
 #' # Details
 #' ## Data input
-#' Data input can happen either through the parameter `x` (an object of type `rareData`)
-#' or through the parameters `ai`,`bi`,`ci`, `di`, `n1i`, `n2i`, `data` (columns of a dataframe).
-#' A `rareData` object can be produced from a data frame by applying the `rareDescribe()` function to it. The `rareDescribe()`
-#' function pre-processes the data frame and stores the information required by the `rareCC()` function
-#' in a list. See `?rareDescribe` for more details.
+#' Data input can happen either through the parameters `ai`,`bi`,`ci`,`di`,`n1i`,`n2i` (columns of the data frame `data`)
+#' or pre-processed throuth the parameter `x` (an object of type `rareData`).
+#' A `rareData` object can be produced from a data frame by applying the `rareDescribe()` function to it.
+#' The `rareDescribe()` function pre-processes the data frame and stores the information required by the `rareCC()` function in a list.
+#' See `?rareDescribe` for more details.
 #'
 #' ## Types of continuity correction
 #' This function offers three kinds of continuity correction.

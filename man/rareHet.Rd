@@ -30,19 +30,19 @@ rareHet(
 \arguments{
 \item{x}{an object of class \code{"rareData"}.}
 
-\item{ai}{Data frame column to specify the number of events in group 1 (i.e., the treatment group).}
+\item{ai}{data frame column to specify the number of events in group 1 (i.e., the treatment group).}
 
-\item{bi}{Data frame column to specify the number of non-events in group 1 (i.e., the treatment group).}
+\item{bi}{data frame column to specify the number of non-events in group 1 (i.e., the treatment group).}
 
-\item{ci}{Data frame column to specify the number of events in group 2 (i.e., the control group).}
+\item{ci}{data frame column to specify the number of events in group 2 (i.e., the control group).}
 
-\item{di}{Data frame column to specify number of non-events in group 2 (i.e., the control group).}
+\item{di}{data frame column to specify number of non-events in group 2 (i.e., the control group).}
 
-\item{n1i}{Data frame column to specify the sample sizes in group 1 (i.e., the treatment group).}
+\item{n1i}{data frame column to specify the sample sizes in group 1 (i.e., the treatment group).}
 
-\item{n2i}{Data frame column to specify the sample sizes in group 2 (i.e., the control group).}
+\item{n2i}{data frame column to specify the sample sizes in group 2 (i.e., the control group).}
 
-\item{data}{Data frame.}
+\item{data}{data frame}
 
 \item{measure}{character string specifying the effect size or outcome measure to be used
 (either \code{"logOR"} for the log odds ratio, \code{"logRR"} for the log relative risk,

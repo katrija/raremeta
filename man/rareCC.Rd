@@ -27,19 +27,19 @@ rareCC(
 \arguments{
 \item{x}{an object of class \code{"rareData"}.}
 
-\item{ai}{Data frame column to specify the number of events in group 1 (i.e., the treatment group).}
+\item{ai}{data frame column to specify the number of events in group 1 (i.e., the treatment group).}
 
-\item{bi}{Data frame column to specify the number of non-events in group 1 (i.e., the treatment group).}
+\item{bi}{data frame column to specify the number of non-events in group 1 (i.e., the treatment group).}
 
-\item{ci}{Data frame column to specify the number of events in group 2 (i.e., the control group).}
+\item{ci}{data frame column to specify the number of events in group 2 (i.e., the control group).}
 
-\item{di}{Data frame column to specify number of non-events in group 2 (i.e., the control group).}
+\item{di}{data frame column to specify number of non-events in group 2 (i.e., the control group).}
 
-\item{n1i}{Data frame column to specify the sample sizes in group 1 (i.e., the treatment group).}
+\item{n1i}{data frame column to specify the sample sizes in group 1 (i.e., the treatment group).}
 
-\item{n2i}{Data frame column to specify the sample sizes in group 2 (i.e., the control group).}
+\item{n2i}{data frame column to specify the sample sizes in group 2 (i.e., the control group).}
 
-\item{data}{Data frame.}
+\item{data}{data frame.}
 
 \item{cc}{character string specifying the type of continuity corrections to be used
 (either \code{"constant"}, \code{"tacc"} or \code{"empirical"}). Default is "constant". See 'Details'.}
@@ -65,8 +65,8 @@ observations from the treatment group and the continuity correction applied to t
 the control group. Default is \code{ccsum = 1}. Currently, setting this argument to a different number only has
 an effect when \code{cc = "tacc"} or \code{cc = "empirical"}.}
 
-\item{ccto}{character string indicating to which studies the continuity correction should
-be applied. Either \code{"only0"}, for which the continuity correction is applied to all studies
+\item{ccto}{character string indicating which studies the continuity correction should
+be applied to. Either \code{"only0"}, for which the continuity correction is applied to all studies
 for which the number of events is zero in at least one of the groups, \code{"all"}, for which the
 continuity correction is applied to all studies, or \code{"if0all"}, for which the continuity
 correction is applied to all studies if any of the individual studies has zero events in at
@@ -116,11 +116,11 @@ Function to apply different kinds of continuity corrections to meta-analytic dat
 \section{Details}{
 \subsection{Data input}{
 
-Data input can happen either through the parameter \code{x} (an object of type \code{rareData})
-or through the parameters \code{ai},\code{bi},\code{ci}, \code{di}, \code{n1i}, \code{n2i}, \code{data} (columns of a dataframe).
-A \code{rareData} object can be produced from a data frame by applying the \code{rareDescribe()} function to it. The \code{rareDescribe()}
-function pre-processes the data frame and stores the information required by the \code{rareCC()} function
-in a list. See \code{?rareDescribe} for more details.
+Data input can happen either through the parameters \code{ai},\code{bi},\code{ci},\code{di},\code{n1i},\code{n2i} (columns of the data frame \code{data})
+or pre-processed throuth the parameter \code{x} (an object of type \code{rareData}).
+A \code{rareData} object can be produced from a data frame by applying the \code{rareDescribe()} function to it.
+The \code{rareDescribe()} function pre-processes the data frame and stores the information required by the \code{rareCC()} function in a list.
+See \code{?rareDescribe} for more details.
 }
 
 \subsection{Types of continuity correction}{

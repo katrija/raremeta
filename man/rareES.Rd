@@ -28,19 +28,19 @@ rareES(
 \arguments{
 \item{x}{an object of class \code{"rareData"}.}
 
-\item{ai}{Data frame column to specify the number of events in group 1 (i.e., the treatment group).}
+\item{ai}{data frame column to specify the number of events in group 1 (i.e., the treatment group).}
 
-\item{bi}{Data frame column to specify the number of non-events in group 1 (i.e., the treatment group).}
+\item{bi}{data frame column to specify the number of non-events in group 1 (i.e., the treatment group).}
 
-\item{ci}{Data frame column to specify the number of events in group 2 (i.e., the control group).}
+\item{ci}{data frame column to specify the number of events in group 2 (i.e., the control group).}
 
-\item{di}{Data frame column to specify number of non-events in group 2 (i.e., the control group).}
+\item{di}{data frame column to specify number of non-events in group 2 (i.e., the control group).}
 
-\item{n1i}{Data frame column to specify the sample sizes in group 1 (i.e., the treatment group).}
+\item{n1i}{data frame column to specify the sample sizes in group 1 (i.e., the treatment group).}
 
-\item{n2i}{Data frame column to specify the sample sizes in group 2 (i.e., the control group).}
+\item{n2i}{data frame column to specify the sample sizes in group 2 (i.e., the control group).}
 
-\item{data}{Data frame.}
+\item{data}{data frame.}
 
 \item{measure}{character string specifying the effect size or outcome measure to be used
 (either \code{"logOR"} for the log odds ratio, \code{"logRR"} for the log relative risk,
@@ -105,11 +105,11 @@ Calculate effect sizes for meta-analyses of rare events.
 \section{Details}{
 \subsection{Data input}{
 
-Data input can happen either through the parameter \code{x} (an object of type \code{rareData})
-or through the parameters \code{ai},\code{bi},\code{ci}, \code{di}, \code{n1i}, \code{n2i}, \code{data} (columns of a dataframe).
+Data input can happen either through the parameters \code{ai},\code{bi},\code{ci},\code{di},\code{n1i},\code{n2i} (columns of the data frame \code{data})
+or pre-processed throuth the parameter \code{x} (an object of type \code{rareData}).
 A \code{rareData} object can be produced from a data frame by applying the \code{rareDescribe()} function to it.
-The \code{rareDescribe()} function pre-processes the data frame and stores the information required by the \code{rareES()} function
-in a list. See \code{?rareDescribe} for more details.
+The \code{rareDescribe()} function pre-processes the data frame and stores the information required by the \code{rareES()} function in a list.
+See \code{?rareDescribe} for more details.
 }
 
 \subsection{Effect size measures}{
@@ -132,7 +132,7 @@ studies for which two entries of the same column of the 2x2 table are zero.
 The function includes a variety of arguments to handle single-zero and double-zero studies. Per default,
 double-zero studies are currently excluded from the analysis (this behavior might be changed in the future).
 The inclusion of double-zero studies can be enforced by setting the argument \code{drop00} to \code{FALSE}.
-If the data include at least one single-zero study, the function throws an error if the user
+If the data includes at least one single-zero study, the function throws an error if the user
 did not specify whether or not a continuity correction shall be applied.
 By setting \code{cc = "none"}, any zero-studies (studies with at least one zero-cell)
 which remain in the data are excluded from the analysis. If it is desired that zero-studies are
@@ -143,7 +143,7 @@ using the argument \code{ccto}. Per default, the constant value 0.5 (\code{cc = 
 all cells of the studies specified by \code{ccto}. This continuity correcton was desribed by Gart and Zweifel (1967).
 Alternative continuity corrections which were described by Sweeting et al. (2004) can be applied by setting \code{cc} to \code{"tacc"}
 (for the treatment-arm continuity correction), and to \code{"empirical"} for the empirical continuity correction.
-Per default sum of the corrections for treatment and control groups is set to \code{1}, but this can be changed by setting the
+Per default, the sum of the corrections for treatment and control groups is set to \code{1}, but this can be changed by setting the
 the argument \code{ccsum} to a different value.
 It is possible to set the continuity correction to a user-defined value (or a vector of user-defined values) using the
 argument \code{ccval} (if the value). If the user wants to specify different values for the treatment and the control group,

@@ -1,17 +1,17 @@
 #' Conduct a meta-analysis using the beta-binomial model
 #'
-#' Function to conduct a meta-analysis of a rare event using a beta-binomial model
+#' Function to conduct a meta-analysis of a rare event using a beta-binomial model.
 #' See below for more details on this model and its application in meta-analyses of
 #' rare events.
 #'
 #' @param x an object of class `"rareData"`.
-#' @param ai Data frame column to specify the number of events in group 1 (i.e., the treatment group).
-#' @param bi Data frame column to specify the number of non-events in group 1 (i.e., the treatment group).
-#' @param ci Data frame column to specify the number of events in group 2 (i.e., the control group).
-#' @param di Data frame column to specify number of non-events in group 2 (i.e., the control group).
-#' @param n1i Data frame column to specify the sample sizes in group 1 (i.e., the treatment group).
-#' @param n2i Data frame column to specify the sample sizes in group 2 (i.e., the control group).
-#' @param data Data frame.
+#' @param ai data frame column to specify the number of events in group 1 (i.e., the treatment group).
+#' @param bi data frame column to specify the number of non-events in group 1 (i.e., the treatment group).
+#' @param ci data frame column to specify the number of events in group 2 (i.e., the control group).
+#' @param di data frame column to specify number of non-events in group 2 (i.e., the control group).
+#' @param n1i data frame column to specify the sample sizes in group 1 (i.e., the treatment group).
+#' @param n2i data frame column to specify the sample sizes in group 2 (i.e., the control group).
+#' @param data data frame.
 #' @param measure character string specifying the effect size or outcome measure to be used
 #' (either `"logOR"` for the log odds ratio or `"logRR"` for the log relative risk).
 #' @param common_rho logical specifying whether a common intraclass correlations shall be assumed
@@ -35,11 +35,11 @@
 #' \loadmathjax{}
 #'
 #' ## Data input
-#' Data input can happen either through the parameter `x` (an object of type `rareData`)
-#' or through the parameters `ai`,`bi`,`ci`, `di`, `n1i`, `n2i`, `data` (columns of a dataframe).
+#' Data input can happen either through the parameters `ai`,`bi`,`ci`,`di`,`n1i`,`n2i` (columns of the data frame `data`)
+#' or pre-processed throuth the parameter `x` (an object of type `rareData`).
 #' A `rareData` object can be produced from a data frame by applying the `rareDescribe()` function to it.
-#' The `rareDescribe()` function pre-processes the data frame and stores the information required by the `rareES()` function
-#' in a list. See `?rareDescribe` for more details.
+#' The `rareDescribe()` function pre-processes the data frame and stores the information required by the `rareBetabin()` function in a list.
+#' See `?rareDescribe` for more details.
 #'
 #' ## Effect size measures
 #' The function includes different versions of the beta-binomial model (see Kuss (2014), for a description).

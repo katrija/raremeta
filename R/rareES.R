@@ -1,13 +1,13 @@
 #' Calculate effect sizes for meta-analyses of rare events.
 #'
 #' @param x an object of class `"rareData"`.
-#' @param ai Data frame column to specify the number of events in group 1 (i.e., the treatment group).
-#' @param bi Data frame column to specify the number of non-events in group 1 (i.e., the treatment group).
-#' @param ci Data frame column to specify the number of events in group 2 (i.e., the control group).
-#' @param di Data frame column to specify number of non-events in group 2 (i.e., the control group).
-#' @param n1i Data frame column to specify the sample sizes in group 1 (i.e., the treatment group).
-#' @param n2i Data frame column to specify the sample sizes in group 2 (i.e., the control group).
-#' @param data Data frame.
+#' @param ai data frame column to specify the number of events in group 1 (i.e., the treatment group).
+#' @param bi data frame column to specify the number of non-events in group 1 (i.e., the treatment group).
+#' @param ci data frame column to specify the number of events in group 2 (i.e., the control group).
+#' @param di data frame column to specify number of non-events in group 2 (i.e., the control group).
+#' @param n1i data frame column to specify the sample sizes in group 1 (i.e., the treatment group).
+#' @param n2i data frame column to specify the sample sizes in group 2 (i.e., the control group).
+#' @param data data frame.
 #' @param measure character string specifying the effect size or outcome measure to be used
 #' (either `"logOR"` for the log odds ratio, `"logRR"` for the log relative risk,
 #' or `"RD"` for the risk difference).
@@ -47,11 +47,12 @@
 #' @details
 #' # Details
 #' ## Data input
-#' Data input can happen either through the parameter `x` (an object of type `rareData`)
-#' or through the parameters `ai`,`bi`,`ci`, `di`, `n1i`, `n2i`, `data` (columns of a dataframe).
+#' Data input can happen either through the parameters `ai`,`bi`,`ci`,`di`,`n1i`,`n2i` (columns of the data frame `data`)
+#' or pre-processed throuth the parameter `x` (an object of type `rareData`).
 #' A `rareData` object can be produced from a data frame by applying the `rareDescribe()` function to it.
-#' The `rareDescribe()` function pre-processes the data frame and stores the information required by the `rareES()` function
-#' in a list. See `?rareDescribe` for more details.
+#' The `rareDescribe()` function pre-processes the data frame and stores the information required by the `rareES()` function in a list.
+#' See `?rareDescribe` for more details.
+#'
 #' ## Effect size measures
 #' The function includes methods for calculating log odds ratios, log risk ratios, and risk differences.
 #' The effect size measure can be specified using the `measure` argument. The respective effect size,
@@ -69,7 +70,7 @@
 #' The function includes a variety of arguments to handle single-zero and double-zero studies. Per default,
 #' double-zero studies are currently excluded from the analysis (this behavior might be changed in the future).
 #' The inclusion of double-zero studies can be enforced by setting the argument `drop00` to `FALSE`.
-#' If the data include at least one single-zero study, the function throws an error if the user
+#' If the data includes at least one single-zero study, the function throws an error if the user
 #' did not specify whether or not a continuity correction shall be applied.
 #' By setting `cc = "none"`, any zero-studies (studies with at least one zero-cell)
 #' which remain in the data are excluded from the analysis. If it is desired that zero-studies are
@@ -80,7 +81,7 @@
 #' all cells of the studies specified by `ccto`. This continuity correcton was desribed by Gart and Zweifel (1967).
 #' Alternative continuity corrections which were described by Sweeting et al. (2004) can be applied by setting `cc` to `"tacc"`
 #' (for the treatment-arm continuity correction), and to `"empirical"` for the empirical continuity correction.
-#' Per default sum of the corrections for treatment and control groups is set to `1`, but this can be changed by setting the
+#' Per default, the sum of the corrections for treatment and control groups is set to `1`, but this can be changed by setting the
 #' the argument `ccsum` to a different value.
 #' It is possible to set the continuity correction to a user-defined value (or a vector of user-defined values) using the
 #' argument `ccval` (if the value). If the user wants to specify different values for the treatment and the control group,

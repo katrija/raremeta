@@ -1,13 +1,13 @@
 #' Testing for between-study homogeneity in meta-analyses of rare events
 #'
 #' @param x an object of class `"rareData"`.
-#' @param ai Data frame column to specify the number of events in group 1 (i.e., the treatment group).
-#' @param bi Data frame column to specify the number of non-events in group 1 (i.e., the treatment group).
-#' @param ci Data frame column to specify the number of events in group 2 (i.e., the control group).
-#' @param di Data frame column to specify number of non-events in group 2 (i.e., the control group).
-#' @param n1i Data frame column to specify the sample sizes in group 1 (i.e., the treatment group).
-#' @param n2i Data frame column to specify the sample sizes in group 2 (i.e., the control group).
-#' @param data Data frame.
+#' @param ai data frame column to specify the number of events in group 1 (i.e., the treatment group).
+#' @param bi data frame column to specify the number of non-events in group 1 (i.e., the treatment group).
+#' @param ci data frame column to specify the number of events in group 2 (i.e., the control group).
+#' @param di data frame column to specify number of non-events in group 2 (i.e., the control group).
+#' @param n1i data frame column to specify the sample sizes in group 1 (i.e., the treatment group).
+#' @param n2i data frame column to specify the sample sizes in group 2 (i.e., the control group).
+#' @param data data frame
 #' @param measure character string specifying the effect size or outcome measure to be used
 #' (either `"logOR"` for the log odds ratio, `"logRR"` for the log relative risk,
 #' or `"RD"` for the risk difference).
