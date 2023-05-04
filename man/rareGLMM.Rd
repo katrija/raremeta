@@ -6,6 +6,13 @@
 \usage{
 rareGLMM(
   x,
+  ai,
+  bi,
+  ci,
+  di,
+  n1i,
+  n2i,
+  data,
   measure,
   intercept = "fixed",
   slope = "random",
@@ -23,6 +30,20 @@ rareGLMM(
 }
 \arguments{
 \item{x}{an object of class \code{"rareData"}.}
+
+\item{ai}{data frame column to specify the number of events in group 1 (i.e., the treatment group).}
+
+\item{bi}{data frame column to specify the number of non-events in group 1 (i.e., the treatment group).}
+
+\item{ci}{data frame column to specify the number of events in group 2 (i.e., the control group).}
+
+\item{di}{data frame column to specify number of non-events in group 2 (i.e., the control group).}
+
+\item{n1i}{data frame column to specify the sample sizes in group 1 (i.e., the treatment group).}
+
+\item{n2i}{data frame column to specify the sample sizes in group 2 (i.e., the control group).}
+
+\item{data}{data frame.}
 
 \item{measure}{character string specifying the effect size or outcome measure to be used
 (either \code{"logOR"} for the log odds ratio or \code{"logRR"} for the log relative risk). See below for more details.}
@@ -105,10 +126,11 @@ models and their application in meta-analyses of rare events.
 \loadmathjax{}
 \subsection{Data input}{
 
-The main input of the \code{rareGLMM()} function is a so-called \code{rareData} object. A \code{rareData} object
-can be produced from a data frame by applying the \code{rareDescribe()} function to it. The \code{rareDescribe()}
-function pre-processes the data frame and stores the information required by the \code{rareIV()} function
-in a list. See \code{?rareDescribe} for more details.
+Data input can happen either through the parameters \code{ai},\code{bi},\code{ci},\code{di},\code{n1i},\code{n2i} (columns of the data frame \code{data})
+or pre-processed throuth the parameter \code{x} (an object of type \code{rareData}).
+A \code{rareData} object can be produced from a data frame by applying the \code{rareDescribe()} function to it.
+The \code{rareDescribe()} function pre-processes the data frame and stores the information required by the \code{rareGLMM()} function in a list.
+See \code{?rareDescribe} for more details.
 }
 
 \subsection{Effect size measures}{

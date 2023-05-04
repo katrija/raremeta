@@ -6,6 +6,13 @@
 #' models and their application in meta-analyses of rare events.
 #'
 #' @param x an object of class `"rareData"`.
+#' @param ai data frame column to specify the number of events in group 1 (i.e., the treatment group).
+#' @param bi data frame column to specify the number of non-events in group 1 (i.e., the treatment group).
+#' @param ci data frame column to specify the number of events in group 2 (i.e., the control group).
+#' @param di data frame column to specify number of non-events in group 2 (i.e., the control group).
+#' @param n1i data frame column to specify the sample sizes in group 1 (i.e., the treatment group).
+#' @param n2i data frame column to specify the sample sizes in group 2 (i.e., the control group).
+#' @param data data frame.
 #' @param measure character string specifying the effect size or outcome measure to be used
 #' (either `"logOR"` for the log odds ratio or `"logRR"` for the log relative risk). See below for more details.
 #' @param intercept character string specifying whether to fit a model with fixed, study-specific
@@ -43,10 +50,11 @@
 #' \loadmathjax{}
 #'
 #' ## Data input
-#' The main input of the `rareGLMM()` function is a so-called `rareData` object. A `rareData` object
-#' can be produced from a data frame by applying the `rareDescribe()` function to it. The `rareDescribe()`
-#' function pre-processes the data frame and stores the information required by the `rareIV()` function
-#' in a list. See `?rareDescribe` for more details.
+#' Data input can happen either through the parameters `ai`,`bi`,`ci`,`di`,`n1i`,`n2i` (columns of the data frame `data`)
+#' or pre-processed throuth the parameter `x` (an object of type `rareData`).
+#' A `rareData` object can be produced from a data frame by applying the `rareDescribe()` function to it.
+#' The `rareDescribe()` function pre-processes the data frame and stores the information required by the `rareGLMM()` function in a list.
+#' See `?rareDescribe` for more details.
 #'
 #' ## Effect size measures
 #' The function includes different versions of the generalized linear (mixed) model. The regression equation
@@ -142,13 +150,21 @@
 #'
 #' @export
 #' @import mathjaxr
-rareGLMM <- function(x, measure,
+rareGLMM <- function(x, ai, bi, ci, di, n1i, n2i, data, measure,
                      intercept = "fixed", slope = "random", conditional = FALSE,
                      cor = FALSE, coding = 1 / 2,
                      drop00 = FALSE,
                      level = 95,
                      test = "z", digits = 4, verbose = FALSE, control,
                      ...) {
+
+  ## argument checking ##
+
+  # defining an object of class 'raredata' if raw data is put in
+  if(missing(x)){
+    x <- rareDescribe(ai=ai, bi=bi, ci=ci, di=di, n1i=n1i, n2i=n2i, data=data)
+  }
+
   # check if x is an object of class rareData
   if (!inherits(x, "rareData")) {
     stop("x must be an object of class 'rareData'. See ?rareDescribe for more details.")
