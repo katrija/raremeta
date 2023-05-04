@@ -28,9 +28,10 @@
 #' \loadmathjax{}
 #'
 #' ## Data input
-#' The main input of the `rareGLMM()` function is a so-called `rareData` object. A `rareData` object
-#' can be produced from a data frame by applying the `rareDescribe()` function to it. The `rareDescribe()`
-#' function pre-processes the data frame and stores the information required by the `rareIV()` function
+#' Data input can happen either through the parameter `x` (an object of type `rareData`)
+#' or through the parameters `ai`,`bi`,`ci`, `di`, `n1i`, `n2i`, `data` (columns of a dataframe).
+#' A `rareData` object can be produced from a data frame by applying the `rareDescribe()` function to it.
+#' The `rareDescribe()` function pre-processes the data frame and stores the information required by the `rareES()` function
 #' in a list. See `?rareDescribe` for more details.
 #'
 #' ## Effect size measures
@@ -109,12 +110,18 @@
 #'
 #' @export
 #'
-rareBetabin <- function(x, measure,
+rareBetabin <- function(x, ai, bi, ci, di, n1i, n2i, data, measure,
                         common_rho = TRUE,
                         drop00 = FALSE,
                         level = 95,
                         test = "z", digits = 4, verbose = FALSE, control,
                         ...) {
+
+  # defining an object of class 'raredata' if raw data is put in
+  if(missing(x)){
+    x <- rareDescribe(ai=ai, bi=bi, ci=ci, di=di, n1i=n1i, n2i=n2i, data=data)
+  }
+
   # check if x is an object of class rareData
   if (!inherits(x, "rareData")) {
     stop("x must be an object of class 'rareData'. See ?rareDescribe for more details.")

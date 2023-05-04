@@ -6,6 +6,13 @@
 \usage{
 rareBetabin(
   x,
+  ai,
+  bi,
+  ci,
+  di,
+  n1i,
+  n2i,
+  data,
   measure,
   common_rho = TRUE,
   drop00 = FALSE,
@@ -84,9 +91,10 @@ rare events.
 \loadmathjax{}
 \subsection{Data input}{
 
-The main input of the \code{rareGLMM()} function is a so-called \code{rareData} object. A \code{rareData} object
-can be produced from a data frame by applying the \code{rareDescribe()} function to it. The \code{rareDescribe()}
-function pre-processes the data frame and stores the information required by the \code{rareIV()} function
+Data input can happen either through the parameter \code{x} (an object of type \code{rareData})
+or through the parameters \code{ai},\code{bi},\code{ci}, \code{di}, \code{n1i}, \code{n2i}, \code{data} (columns of a dataframe).
+A \code{rareData} object can be produced from a data frame by applying the \code{rareDescribe()} function to it.
+The \code{rareDescribe()} function pre-processes the data frame and stores the information required by the \code{rareES()} function
 in a list. See \code{?rareDescribe} for more details.
 }
 
