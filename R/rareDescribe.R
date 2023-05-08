@@ -27,24 +27,6 @@
 rareDescribe <- function(ai, bi, ci, di, n1i, n2i,
                          data) {
 
-  # check if all arguments are given - function needs ai, n1i, ci, n2i or ai, bi, ci, di
-  # if it is given, check if it is integer
-  if (missing(ai)) {
-    stop("ai must be specified.")
-  }
-
-  if (missing(bi) & missing(n1i)) {
-    stop("bi or n1i must be specified.")
-  }
-
-  if (missing(ci)) {
-    stop("ci must be specified.")
-  }
-
-  if (missing(di) & missing(n2i)) {
-    stop("di or n2i must be specified.")
-  }
-
   mf <- match.call()
 
   mf.ai <- mf[[match("ai", names(mf))]]
@@ -60,6 +42,24 @@ rareDescribe <- function(ai, bi, ci, di, n1i, n2i,
   di <- eval(mf.di, data)
   n1i <- eval(mf.n1i, data)
   n2i <- eval(mf.n2i, data)
+
+  # check if all arguments are given - function needs ai, n1i, ci, n2i or ai, bi, ci, di
+  # if it is given, check if it is integer
+  if (is.null(ai)) {
+    stop("ai must be specified.")
+  }
+
+  if (is.null(bi) & is.null(n1i)) {
+    stop("bi or n1i must be specified.")
+  }
+
+  if (is.null(ci)) {
+    stop("ci must be specified.")
+  }
+
+  if (is.null(di) & is.null(n2i)) {
+    stop("di or n2i must be specified.")
+  }
 
 
   # check if data is a data frame. If not: stop

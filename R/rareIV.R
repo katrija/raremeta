@@ -231,6 +231,24 @@ rareIV <- function(x, ai, bi, ci, di, n1i, n2i, data,
 
   # defining an object of class 'raredata' if raw data is put in
   if(missing(x)){
+    if(missing(data))stop("Data must be specified via the argument 'x' or the argument 'data'.")
+
+    mf <- match.call()
+
+    mf.ai <- mf[[match("ai", names(mf))]]
+    mf.bi <- mf[[match("bi", names(mf))]]
+    mf.ci <- mf[[match("ci", names(mf))]]
+    mf.di <- mf[[match("di", names(mf))]]
+    mf.n1i <- mf[[match("n1i", names(mf))]]
+    mf.n2i <- mf[[match("n2i", names(mf))]]
+
+    ai <- eval(mf.ai, data)
+    bi <- eval(mf.bi, data)
+    ci <- eval(mf.ci, data)
+    di <- eval(mf.di, data)
+    n1i <- eval(mf.n1i, data)
+    n2i <- eval(mf.n2i, data)
+
     x <- rareDescribe(ai=ai, bi=bi, ci=ci, di=di, n1i=n1i, n2i=n2i, data=data)
   }
 
