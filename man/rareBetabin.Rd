@@ -158,16 +158,28 @@ di = c(19, 17, 16, 20)
 )
 
 # estimating the log relative risk assuming common intraclass correlations
-mRR <- rareBetabin(ai=ai, bi=bi, ci=ci, di=di, data=data, measure="logRR", common_rho=TRUE)
-mRR
+mRR <- rareBetabin(ai=ai, bi=bi, ci=ci, di=di, data=data, measure="logRR", common_rho=TRUE)#'
 
-
-# estimating the log odds ratio assuming differing intraclass correlations
-# data is pre-processed by use of the `rareDescribe()` function
-
+# estimate the log odds ratio assuming differing intraclass correlations
+# (data is pre-processed by use of the `rareDescribe()` function)
 x   <- rareDescribe(ai=ai, bi=bi, ci=ci, di=di, data=data)
 mOR <- rareBetabin(x, measure="logOR", common_rho=FALSE)
-mOR
+
+--------------------------------------------------------
+An analogous analysis on the the Nissen 2007 dataset
+--------------------------------------------------------
+
+# indtroduce the data
+data("dat.nissen2007")
+d <- dat.nissen2007
+
+# estimating the log relative risk assuming common intraclass correlations
+mRR <- rareBetabin(ai=miRosiglitazone, ci=miControl, n1i=nRosiglitazone, n2i=nControl, data=d, measure="logRR", common_rho=TRUE)#'
+
+# estimate the log odds ratio assuming differing intraclass correlations
+# (data is pre-processed by use of the `rareDescribe()` function)
+x   <- rareDescribe(ai=miRosiglitazone, ci=miControl, n1i=nRosiglitazone, n2i=nControl, data=d)
+mOR <- rareBetabin(x, measure="logOR", common_rho=FALSE)
 }
 \references{
 Kuss, O. (2014). Statistical methods for meta-analyses including information from studies
