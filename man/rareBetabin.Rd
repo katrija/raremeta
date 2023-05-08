@@ -97,7 +97,7 @@ the unrestricted and restricted likelihood.
 }
 }
 \description{
-Function to conduct a meta-analysis of a rare event using a beta-binomial model.
+Function to conduct a meta-analysis of a rare events using a beta-binomial model.
 See below for more details on this model and its application in meta-analyses of
 rare events.
 }
@@ -149,6 +149,7 @@ the results to the original scale.
 }
 \examples{
 
+# indtroduce the data
 data <- data.frame(
 ai = c(0, 3, 2, 0),
 bi = c(20, 18, 15, 19),
@@ -156,10 +157,17 @@ ci = c(1, 4, 0, 0),
 di = c(19, 17, 16, 20)
 )
 
-x <- rareDescribe(ai = ai, bi = bi, ci = ci, di = di, data = data)
+# estimating the log relative risk assuming common intraclass correlations
+mRR <- rareBetabin(ai=ai, bi=bi, ci=ci, di=di, data=data, measure="logRR", common_rho=TRUE)
+mRR
 
-rareBetabin(x, measure = "logOR", common_rho = TRUE)
 
+# estimating the log odds ratio assuming differing intraclass correlations
+# data is pre-processed by use of the `rareDescribe()` function
+
+x   <- rareDescribe(ai=ai, bi=bi, ci=ci, di=di, data=data)
+mOR <- rareBetabin(x, measure="logOR", common_rho=FALSE)
+mOR
 }
 \references{
 Kuss, O. (2014). Statistical methods for meta-analyses including information from studies
