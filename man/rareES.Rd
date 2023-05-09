@@ -161,7 +161,7 @@ calculation of the sampling variances.
 
 \examples{
 
-# introducting a dataset
+# introducing a dataset
 data(dat.nissen2007)
 d <- dat.nissen2007
 

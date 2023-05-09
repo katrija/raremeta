@@ -191,7 +191,7 @@ Q-statistic estimator are described in Viechtbauer (2021).
 }
 
 \examples{
-# introducting a data set
+# introducing a data set
 data("dat.nissen2007")
 d <- dat.nissen2007
 

@@ -97,7 +97,7 @@ For a summary of the implemented estimators see e.g. sections 9.2-9.4 of Jewell
 }
 
 \examples{
-# introducting a data set
+# introducing a data set
 data(dat.nissen2007)
 d <- dat.nissen2007
 

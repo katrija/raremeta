@@ -185,7 +185,7 @@ the case, i.e. \code{cor = FALSE}.
 }
 \examples{
 
-# introducting a dataset
+# introducing a dataset
 data(dat.nissen2007)
 d <- dat.nissen2007
 

@@ -76,7 +76,7 @@ Data comes in form of event counts in form of 2x2 contingency tables.\tabular{lr
 }
 
 \examples{
-# introducting a data set
+# introducing a data set
 data(dat.nissen2007)
 d <- dat.nissen2007
 
