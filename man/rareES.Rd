@@ -77,9 +77,8 @@ continuity correction is applied to all studies, or \code{"if0all"}, for which t
 correction is applied to all studies if any of the individual studies has zero events in at
 least one of the groups.}
 
-\item{drop00}{logical indicating whether double-zero studies (i.e., studies with no events or
-only events in both groups) should be excluded when calculating the outcome measufit for the
-individual studies.}
+\item{drop00}{logical indicating whether double-zero studies (i.e., studies with no events or only events in both groups)
+should be excluded prior to calculating the studies' effect sizes and sampling variances.}
 
 \item{method}{Needs to be specified when \code{cc = "empirical"}. Meta-analytic method to be used when
 determining the prior used for the empirical continuity correction. Current default is \code{method = "FE"}.
@@ -105,8 +104,9 @@ Calculate effect sizes for meta-analyses of rare events.
 \section{Details}{
 \subsection{Data input}{
 
-Data input can happen either through the parameters \code{ai},\code{bi},\code{ci},\code{di},\code{n1i},\code{n2i} (columns of the data frame \code{data})
-or pre-processed throuth the parameter \code{x} (an object of type \code{rareData}).
+The data input can be specified either through the arguments \code{ai},\code{bi},\code{ci},\code{di},\code{n1i}, and \code{n2i} (columns of the data frame \code{data})
+or through the argument \code{x}, which takes an object that results from applying the \code{rareDescribe()} function to the data
+(i.e., the input for argument \code{x} must be an object of type \code{rareData}).
 A \code{rareData} object can be produced from a data frame by applying the \code{rareDescribe()} function to it.
 The \code{rareDescribe()} function pre-processes the data frame and stores the information required by the \code{rareES()} function in a list.
 See \code{?rareDescribe} for more details.
@@ -161,18 +161,23 @@ calculation of the sampling variances.
 
 \examples{
 
-# initializing the dataset
+# introducting a dataset
 data(dat.nissen2007)
 d <- dat.nissen2007
 
-# estimating logarithmised odds ratios after the default continuity correction of 0.5
-d.OR <- rareES(ai=miRosiglitazone, ci=miControl, n1i=nRosiglitazone, n2i=nControl, data=d, measure="logOR", cc="constant")
-d.OR
 
-# estimating logarithmised odds ratios after the default continuity correction of 0.5 on pre-processed data
+# estimating the log odds ratios with the default continuity correction of 0.5
+d.RR <- rareES(ai=miRosiglitazone, ci=miControl, n1i=nRosiglitazone, n2i=nControl, data=d, measure="logRR", cc="constant")
+d.RR$yi
+
+# estimating logarithmised odds ratios with the empirical continuity correction
+d.OR <- rareES(ai=miRosiglitazone, ci=miControl, n1i=nRosiglitazone, n2i=nControl, data=d, measure="logRR", cc="empirical")
+d.OR$yi
+
+# same analysis with pre-processed data
 x <- rareDescribe(ai=miRosiglitazone, ci=miControl, n1i=nRosiglitazone, n2i=nControl, data=d)
-x.OR <- rareES(x, measure="logOR", cc="constant")
-x.OR
+x.OR <- rareES(x, measure="logOR", cc="empirical")
+x.OR$yi
 }
 \references{
 Gart, John J, and James R Zweifel. 1967. On the bias of various estimators of the logit and

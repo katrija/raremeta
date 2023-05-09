@@ -95,17 +95,17 @@ continuity correction is applied to all studies, or \code{"if0all"}, for which t
 correction is applied to all studies if any of the individual studies has zero events in at
 least one of the groups.}
 
-\item{drop00}{logical indicating whether double-zero studies (i.e., studies with no events or
-only events in both groups) should be excluded when calculating the outcome measufit for the
-individual studies.
+\item{drop00}{logical indicating whether double-zero studies (i.e., studies with no events or only events in both groups)
+should be excluded prior to calculating the studies' effect sizes and sampling variances.
 (this option is available for \code{type = "score"} and \code{method = "cond"} or \code{method = "BD"}).}
 }
 \value{
 a list including the value of the test statistic and the associated \strong{p} value.
 \subsection{Data input}{
 
-Data input can happen either through the parameter \code{x} (an object of type \code{rareData})
-or through the parameters \code{ai},\code{bi},\code{ci}, \code{di}, \code{n1i}, \code{n2i}, \code{data} (columns of a dataframe).
+The data input can be specified either through the arguments \code{ai},\code{bi},\code{ci},\code{di},\code{n1i}, and \code{n2i} (columns of the data frame \code{data})
+or through the argument \code{x}, which takes an object that results from applying the \code{rareDescribe()} function to the data
+(i.e., the input for argument \code{x} must be an object of type \code{rareData}).
 A \code{rareData} object can be produced from a data frame by applying the \code{rareDescribe()} function to it.
 The \code{rareDescribe()} function pre-processes the data frame and stores the information required by the \code{rareES()} function
 in a list. See \code{?rareDescribe} for more details.
@@ -113,6 +113,20 @@ in a list. See \code{?rareDescribe} for more details.
 }
 \description{
 Testing for between-study homogeneity in meta-analyses of rare events
+}
+\examples{
+# introducing a data set
+data(dat.nissen2007)
+d <- dat.nissen2007
+
+# testing for between-study homogeneity in the fixed effects model
+rareHet(ai=miRosiglitazone, ci=miControl, n1i=nRosiglitazone, n2i=nControl, data=d, measure="logOR", method="FE", cc="constant")
+
+# same analysis with pre-processed data
+x <- rareDescribe(ai=miRosiglitazone, ci=miControl, n1i=nRosiglitazone, n2i=nControl, data=d)
+rareHet(x, measure="logOR", method="FE", cc="constant")
+
+
 }
 \references{
 Zhang, C., Chen, M., & Wang, X. (2020). Statistical methods for quantifying between-study heterogeneity in meta-analysis

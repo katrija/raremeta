@@ -72,8 +72,8 @@ continuity correction is applied to all studies, or \code{"if0all"}, for which t
 correction is applied to all studies if any of the individual studies has zero events in at
 least one of the groups.}
 
-\item{drop00}{logical indicating whether double-zero studies (i.e., studies with no events or
-only events in both groups) should be excluded from the dataset.}
+\item{drop00}{logical indicating whether double-zero studies (i.e., studies with no events or only events in both groups)
+should be excluded prior to calculating the studies' effect sizes and sampling variances.}
 
 \item{measure}{character string specifying the effect size or outcome measure to be used
 (either \code{"logOR"} for the log odds ratio, \code{"logRR"} for the log relative risk,
@@ -116,8 +116,9 @@ Function to apply different kinds of continuity corrections to meta-analytic dat
 \section{Details}{
 \subsection{Data input}{
 
-Data input can happen either through the parameters \code{ai},\code{bi},\code{ci},\code{di},\code{n1i},\code{n2i} (columns of the data frame \code{data})
-or pre-processed throuth the parameter \code{x} (an object of type \code{rareData}).
+The data input can be specified either through the arguments \code{ai},\code{bi},\code{ci},\code{di},\code{n1i}, and \code{n2i} (columns of the data frame \code{data})
+or through the argument \code{x}, which takes an object that results from applying the \code{rareDescribe()} function to the data
+(i.e., the input for argument \code{x} must be an object of type \code{rareData}).
 A \code{rareData} object can be produced from a data frame by applying the \code{rareDescribe()} function to it.
 The \code{rareDescribe()} function pre-processes the data frame and stores the information required by the \code{rareCC()} function in a list.
 See \code{?rareDescribe} for more details.
@@ -190,7 +191,7 @@ Q-statistic estimator are described in Viechtbauer (2021).
 }
 
 \examples{
-# initializing a data set
+# introducting a data set
 data("dat.nissen2007")
 d <- dat.nissen2007
 
@@ -206,22 +207,9 @@ d.tacc
 d.emp <- rareCC(ai=miRosiglitazone, n1i=nRosiglitazone, ci=miControl, n2i=nControl, data= d, cc = "empirical", measure = "logOR", method = "FE")
 d.emp
 
-------------------------------------------------------------------------------------------
-An equivalent analysis through input of pre-processed data
-------------------------------------------------------------------------------------------
+# same analysis with pre-processed data
 x <- rareDescribe(ai=miRosiglitazone, n1i=nRosiglitazone, ci=miControl, n2i=nControl, data= d)
-
-#applying the default continuity correction (i.e. cc = "constant" with ccval = 0.5)
-x.constant <- rareCC(x)
-x.constant
-
-#applying the treatment-arm continuity correction with `ccsum = 0.1`
-x.tacc <- rareCC(x, cc = "tacc", ccsum = 0.1, measure = "logOR")
-x.tacc
-
-#applying the empirical continuity correction for the log odds ratio for the fixed effects model
-x.emp <- rareCC(x, cc = "empirical", measure = "logOR", method = "FE")
-x.emp
+x.emp <- rareCC(x, cc="empirical", measure="logOR", method="FE")
 
 }
 \references{

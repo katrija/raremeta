@@ -29,13 +29,13 @@ Function to compute descriptives based on the 2x2 tables of the individual studi
 for meta-analytic rare event data.
 }
 \examples{
-data <- data.frame(
-  ai = c(0, 3, 2, 0),
-  bi = c(20, 18, 15, 19),
-  ci = c(1, 4, 0, 0),
-  di = c(19, 17, 16, 20)
-)
+# introducing the data
+data(dat.nissen2007)
+d <- dat.nissen2007
 
-desc <- rareDescribe(ai = ai, bi = bi, ci = ci, di = di, data = data)
-print(desc)
+# pre-processing the data for further usage
+x <- rareDescribe(ai=miRosiglitazone, ci=miControl, n1i=nRosiglitazone, n2i=nControl, data=d)
+x
+
+
 }

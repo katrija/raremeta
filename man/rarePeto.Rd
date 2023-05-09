@@ -55,8 +55,9 @@ Effect size is the log odds ratio estimated from event counts in form of
 \section{Details}{
 \subsection{Data input}{
 
-Data input can happen either through the parameters \code{ai},\code{bi},\code{ci},\code{di},\code{n1i},\code{n2i} (columns of the data frame \code{data})
-or pre-processed throuth the parameter \code{x} (an object of type \code{rareData}).
+The data input can be specified either through the arguments \code{ai},\code{bi},\code{ci},\code{di},\code{n1i}, and \code{n2i} (columns of the data frame \code{data})
+or through the argument \code{x}, which takes an object that results from applying the \code{rareDescribe()} function to the data
+(i.e., the input for argument \code{x} must be an object of type \code{rareData}).
 A \code{rareData} object can be produced from a data frame by applying the \code{rareDescribe()} function to it.
 The \code{rareDescribe()} function pre-processes the data frame and stores the information required by the \code{rarePeto()} function in a list.
 See \code{?rareDescribe} for more details.
@@ -75,15 +76,15 @@ Data comes in form of event counts in form of 2x2 contingency tables.\tabular{lr
 }
 
 \examples{
-data <- data.frame(
-ai = c(0, 3, 2, 0),
-bi = c(20, 18, 15, 19),
-ci = c(1, 4, 0, 0),
-di = c(19, 17, 16, 20)
-)
+# introducting a data set
+data(dat.nissen2007)
+d <- dat.nissen2007
 
-x <- rareDescribe(ai = ai, bi = bi, ci = ci, di = di, data = data)
+# meta analysis using Peto's method
+rarePeto(ai=miRosiglitazone, ci=miControl, n1i=nRosiglitazone, n2i=nControl, data=d)
 
+# same analysis with pre-processed data
+x <- rareDescribe(ai=miRosiglitazone, ci=miControl, n1i=nRosiglitazone, n2i=nControl, data=d)
 rarePeto(x)
 
 }
