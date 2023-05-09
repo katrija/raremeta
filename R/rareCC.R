@@ -134,24 +134,41 @@
 #'
 #'
 #'
-
-#'
 #' @export
 #'
 #' @examples
-#' #initializing a data set
+#' # initializing a data set
 #' data("dat.nissen2007")
 #' d <- dat.nissen2007
+#'
+#' # applying the default continuity correction (i.e. cc = "constant" with ccval = 0.5)
+#' d.constant <- rareCC(ai=miRosiglitazone, n1i=nRosiglitazone, ci=miControl, n2i=nControl, data= d)
+#' d.constant
+#'
+#' # applying the treatment-arm continuity correction with the correction in the treatment group and the control group summing up to 0.1
+#' d.tacc <- rareCC(ai=miRosiglitazone, n1i=nRosiglitazone, ci=miControl, n2i=nControl, data= d, cc = "tacc", ccsum = 0.1, measure = "logOR")
+#' d.tacc
+#'
+#' #applying the empirical continuity correction for the log odds ratio for the fixed effects model
+#' d.emp <- rareCC(ai=miRosiglitazone, n1i=nRosiglitazone, ci=miControl, n2i=nControl, data= d, cc = "empirical", measure = "logOR", method = "FE")
+#' d.emp
+#'
+#' ------------------------------------------------------------------------------------------
+#' An equivalent analysis through input of pre-processed data
+#' ------------------------------------------------------------------------------------------
 #' x <- rareDescribe(ai=miRosiglitazone, n1i=nRosiglitazone, ci=miControl, n2i=nControl, data= d)
 #'
 #' #applying the default continuity correction (i.e. cc = "constant" with ccval = 0.5)
 #' x.constant <- rareCC(x)
+#' x.constant
 #'
 #' #applying the treatment-arm continuity correction with `ccsum = 0.1`
 #' x.tacc <- rareCC(x, cc = "tacc", ccsum = 0.1, measure = "logOR")
+#' x.tacc
 #'
 #' #applying the empirical continuity correction for the log odds ratio for the fixed effects model
-#' x.empirical <- rareCC(x, cc = "empirical", measure = "logOR", method = "FE")
+#' x.emp <- rareCC(x, cc = "empirical", measure = "logOR", method = "FE")
+#' x.emp
 #'
 #' @references
 #' Borenstein, M., Hedges, L. V., Higgins, J. P., & Rothstein, H. R. (2021). Introduction to meta-analysis.

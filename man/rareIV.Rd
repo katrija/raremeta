@@ -269,6 +269,28 @@ Currently, the results of the test for residual heterogeneity are obtained from 
 }
 }
 
+\examples{
+# initializing the data
+data(dat.nissen2007)
+d <- dat.nissen2007
+
+# estimating the log relative risk in the fixed-effects model
+rareIV(ai=miRosiglitazone, ci=miControl, n1i=nRosiglitazone, n2i=nControl, data=d, measure="logOR", method="FE", cc="constant")
+
+# estimating the log relative risk in a random effects-model
+rareIV(ai=miRosiglitazone, ci=miControl, n1i=nRosiglitazone, n2i=nControl, data=d, measure="logRR", method="DL", cc="constant")
+
+-------------------------------------------------------------------------
+# Analogous analysis on pre-processed data
+-------------------------------------------------------------------------
+x <- rareDescribe(ai=miRosiglitazone, ci=miControl, n1i=nRosiglitazone, n2i=nControl, data=d)
+# estimating the log relative risk in the fixed-effects model
+rareIV(x, measure="logOR", method="FE", cc="constant")
+
+# estimating the log relative risk in a random effects-model
+rareIV(x, measure="logRR", method="DL", cc="constant")
+
+}
 \references{
 Borenstein, M., Hedges, L. V., Higgins, J. P., & Rothstein, H. R. (2021). Introduction to meta-analysis.
 John Wiley & Sons.
