@@ -48,15 +48,15 @@
 #' continuity correction is applied to all studies, or `"if0all"`, for which the continuity
 #' correction is applied to all studies if any of the individual studies has zero events in at
 #' least one of the groups.
-#' @param drop00 logical indicating whether double-zero studies (i.e., studies with no events or
-#' only events in both groups) should be excluded when calculating the outcome measufit for the
-#' individual studies.
+#' @param drop00 logical indicating whether double-zero studies (i.e., studies with no events or only events in both groups)
+#' should be excluded prior to calculating the studies' effect sizes and sampling variances.
 #' (this option is available for `type = "score"` and `method = "cond"` or `method = "BD"`).
 #' @return a list including the value of the test statistic and the associated **p** value.
 #'
 #' ## Data input
-#' Data input can happen either through the parameter `x` (an object of type `rareData`)
-#' or through the parameters `ai`,`bi`,`ci`, `di`, `n1i`, `n2i`, `data` (columns of a dataframe).
+#' The data input can be specified either through the arguments `ai`,`bi`,`ci`,`di`,`n1i`, and `n2i` (columns of the data frame `data`)
+#' or through the argument `x`, which takes an object that results from applying the `rareDescribe()` function to the data
+#' (i.e., the input for argument `x` must be an object of type `rareData`).
 #' A `rareData` object can be produced from a data frame by applying the `rareDescribe()` function to it.
 #' The `rareDescribe()` function pre-processes the data frame and stores the information required by the `rareES()` function
 #' in a list. See `?rareDescribe` for more details.
@@ -66,6 +66,18 @@
 #' with focus on rare binary events. Statistics and its interface, 13(4), 449. doi: 10.4310/sii.2020.v13.n4.a3
 #'
 #' @examples
+#' # introducing a data set
+#' data(dat.nissen2007)
+#' d <- dat.nissen2007
+#'
+#' # testing for between-study homogeneity in the fixed effects model
+#' rareHet(ai=miRosiglitazone, ci=miControl, n1i=nRosiglitazone, n2i=nControl, data=d, measure="logOR", method="FE", cc="constant")
+#'
+#' # same analysis with pre-processed data
+#' x <- rareDescribe(ai=miRosiglitazone, ci=miControl, n1i=nRosiglitazone, n2i=nControl, data=d)
+#' rareHet(x, measure="logOR", method="FE", cc="constant")
+#'
+#'
 rareHet <- function(x, ai, bi, ci, di, n1i, n2i, data,
                     measure = "logOR", method = "FE",
                     test = "q", type = "standard",

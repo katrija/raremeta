@@ -24,8 +24,9 @@
 #' @details
 #' # Details
 #' ## Data input
-#' Data input can happen either through the parameters `ai`,`bi`,`ci`,`di`,`n1i`,`n2i` (columns of the data frame `data`)
-#' or pre-processed throuth the parameter `x` (an object of type `rareData`).
+#' The data input can be specified either through the arguments `ai`,`bi`,`ci`,`di`,`n1i`, and `n2i` (columns of the data frame `data`)
+#' or through the argument `x`, which takes an object that results from applying the `rareDescribe()` function to the data
+#' (i.e., the input for argument `x` must be an object of type `rareData`).
 #' A `rareData` object can be produced from a data frame by applying the `rareDescribe()` function to it.
 #' The `rareDescribe()` function pre-processes the data frame and stores the information required by the `rareMH()` function in a list.
 #' See `?rareDescribe` for more details.
@@ -68,6 +69,18 @@
 #' * `ai`, `bi`, `ci`, `di`: original entries of the 2x2 tables for all studies.
 #' * `ni`, `n1i`, `n2i`: original total and group sample sizes.
 #' * ...
+#'
+#' @examples
+#' # introducing a data set
+#' data(dat.nissen2007)
+#' d <- dat.nissen2007
+#'
+#' # meta analysis of the log odds ratio using the Mantel-Haenszel method
+#' rareMH(ai=miRosiglitazone, ci=miControl, n1i=nRosiglitazone, n2i=nControl, data=d, measure="logOR")
+#'
+#' # same analysis with pre-processed data
+#' x <- rareDescribe(ai=miRosiglitazone, ci=miControl, n1i=nRosiglitazone, n2i=nControl, data=d)
+#' rareMH(x, measure="logOR")
 #'
 #' @references
 #' Mantel, N., & Haenszel, W. (1959).
