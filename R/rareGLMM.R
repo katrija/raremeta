@@ -442,6 +442,9 @@ rareGLMM <- function(x, ai, bi, ci, di, n1i, n2i, data, measure,
 
   if(conditional == TRUE){
 
+    llFE <- LRT.Chisq <- LRT.df <- LRT.pval <- NA
+    sigma2 <- singular <- NA
+
     if(measure == "logOR" && approx == FALSE){
 
       if(intercept == "fixed"){
@@ -456,7 +459,10 @@ rareGLMM <- function(x, ai, bi, ci, di, n1i, n2i, data, measure,
           stop("Unable to fit model.")
         }
 
+        conv <- ifelse(fit$convergence == 0, TRUE, FALSE)
+
         beta <- fit$par
+        tau2 <- NA
 
         hessian <- numDeriv::hessian(.negllnchg, fit$par, ai = ai, bi = bi, ci = ci, di = di, intercept = "fixed")
         vb <- try(solve(hessian), silent = TRUE)
@@ -473,6 +479,15 @@ rareGLMM <- function(x, ai, bi, ci, di, n1i, n2i, data, measure,
           ci.lb <- beta - zcrit * se
           ci.ub <- beta + zcrit * se
         }
+
+        llML <- -fit$objective
+        p <- 1
+        X <- as.matrix(rep(1, length(ai)))
+
+        #AICc <- -2 * llML + 2 * (p + 1) * max(2 * length(ai), p + 3) / (max(length(ai), 3) - p)
+        fit.stats <- rbind(llML, NA, NA, NA, NA )
+        rownames(fit.stats) <- c("llML", "dev", "AIC", "BIC", "AICc")
+        colnames(fit.stats) <- c("ML")
 
 
       }
@@ -496,11 +511,13 @@ rareGLMM <- function(x, ai, bi, ci, di, n1i, n2i, data, measure,
           stop("Unable to fit model.")
         }
 
+        conv <- ifelse(fitML$convergence == 0, TRUE, FALSE)
+
         beta <- fitML$par[1]
         tau2 <- fitML$par[2]
 
         hessian <- numDeriv::hessian(.negllnchg, fitML$par, ai = ai, bi = bi, ci = ci, di = di, intercept = "random")
-        vb <- try(solve(hessian), silent = TRUE)
+        vb <- as.matrix(stats::vcov(fitML))
 
         if(inherits(vb, "try-error")){
           warning("Standard errors could not be obtained.")
@@ -515,10 +532,15 @@ rareGLMM <- function(x, ai, bi, ci, di, n1i, n2i, data, measure,
           ci.ub <- beta + zcrit * se
         }
 
+        llML <- -fitML$objective
+
         if(inherits(fitFE, "try-error")){
           warning("Unable to fit fixed-effects model")
         }else{
-
+          llFE <- -fitFE$objective
+          LRT.Chisq <- as.numeric(2 * (llML - llFE))
+          LRT.df <- length(fitML$par)-length(fitFE$par)
+          LRT.pval <- stats::pchisq(LRT.Chisq, df = LRT.df, lower.tail = FALSE)
         }
       }
 
@@ -531,23 +553,102 @@ rareGLMM <- function(x, ai, bi, ci, di, n1i, n2i, data, measure,
 
       if(intercept == "fixed"){
 
-        fit <- stats::glm(cbind(ai, mi-ai)~1, offset = off,
-                          family = binomial(link = "logit"))
+        fit <- try(stats::glm(cbind(ai, ci)~1, offset = off,
+                          family = binomial(link = "logit")), silent = TRUE)
+
+        if(inherits(fit, "try-error")){
+          stop("Unable to fit model.")
+        }
+
+        conv <- fit$converged
+
+        beta <- fit$coefficients
+        tau2 <- NA
+
+        vb <- as.matrix(stats::vcov(fit))
+
+        if(inherits(vb, "try-error")){
+          warning("Standard errors could not be obtained.")
+          se <- zval <- pval <- zcrit <- ci.lb <- ci.ub <- NA
+        }else{
+          se <- sqrt(diag(vb))[1]
+          zval <- beta/se
+          pval <- 2 * stats::pnorm(abs(zval), lower.tail = FALSE)
+
+          zcrit <- stats::qnorm(1 - level / 2)
+          ci.lb <- beta - zcrit * se
+          ci.ub <- beta + zcrit * se
+        }
+
+        llML <- stats::logLik(fit)
+
+        X <- stats::model.matrix(fit)
+        p <- ifelse(all(X[1, ] == 1), ncol(X) - 1, ncol(X))
+
+        AICc <- -2 * llML + 2 * (p + 1) * max(2 * length(ai), p + 3) / (max(length(ai), 3) - p)
+        fit.stats <- rbind(llML, stats::deviance(fit), stats::AIC(fit), stats::BIC(fit), AICc)
+        rownames(fit.stats) <- c("llML", "dev", "AIC", "BIC", "AICc")
+        colnames(fit.stats) <- c("ML")
+      }
 
       }
 
       if(intercept == "random"){
         study <- 1:length(ai)
 
-        fitFE <- stats::glm(cbind(ai, mi-ai)~1, offset = off,
-                            family = binomial(link = "logit"))
+        fitFE <- try(stats::glm(cbind(ai, ci)~1, offset = off,
+                            family = binomial(link = "logit")), silent = TRUE)
 
-        fitML <- lme4::glmer(cbind(ai, mi-ai)~1+(1|study), offset = off,
-                             family = binomial(link = "logit"))
+        fitML <- try(lme4::glmer(cbind(ai, ci)~1+(1|study), offset = off,
+                             family = binomial(link = "logit")), silent = TRUE)
+
+        if(inherits(fitML, "try-error")){
+          stop("Unable to fit model.")
+        }
+
+        conv <- ifelse(fitML@optinfo$conv$opt == 0, TRUE, FALSE)
+
+        beta <- lme4::fixef(fitML)
+        sigma2 <- lme4::VarCorr(fitML)
+        tau2 <- sigma2[[1]][1]
+
+        vb <- as.matrix(stats::vcov(fitML))
+
+        if(inherits(vb, "try-error")){
+          warning("Standard errors could not be obtained.")
+          se <- zval <- pval <- zcrit <- ci.lb <- ci.ub <- NA
+        }else{
+          se <- sqrt(diag(vb))[1]
+          zval <- beta/se
+          pval <- 2 * stats::pnorm(abs(zval), lower.tail = FALSE)
+
+          zcrit <- stats::qnorm(1 - level / 2)
+          ci.lb <- beta - zcrit * se
+          ci.ub <- beta + zcrit * se
+        }
+
+        llML <- stats::logLik(fitML)
+
+        X <- stats::model.matrix(fitML)
+        p <- ifelse(all(X[1, ] == 1), ncol(X) - 1, ncol(X))
+
+        AICc <- -2 * llML + 2 * (p + 1) * max(2 * length(ai), p + 3) / (max(length(ai), 3) - p)
+        fit.stats <- rbind(llML, stats::deviance(fitML), stats::AIC(fitML), stats::BIC(fitML), AICc)
+        rownames(fit.stats) <- c("llML", "dev", "AIC", "BIC", "AICc")
+        colnames(fit.stats) <- c("ML")
+
+        if(inherits(fitFE, "try-error")){
+          warning("Unable to fit fixed-effects model")
+        }else{
+          llFE <- stats::logLik(fitFE)
+          LRT.Chisq <- as.numeric(2 * (llML - llFE))
+          LRT.df <- attributes(llML)$df - attributes(llFE)$df
+          LRT.pval <- stats::pchisq(LRT.Chisq, df = LRT.df, lower.tail = FALSE)
+        }
 
       }
     }
-  }
+
 
   # make results list
   # UNDER CONSTRUCTION
@@ -609,6 +710,7 @@ rareGLMM <- function(x, ai, bi, ci, di, n1i, n2i, data, measure,
     intercept = intercept,
     slope = slope,
     conditional = conditional,
+    approx = approx,
     coding = coding,
     cor = cor,
     drop00 = drop00,
