@@ -34,9 +34,8 @@
 #' option implies equal variances in the two groups. Values closer to 0 imply a larger variance in the
 #' control group (group 2), while values closer to 1 imply a larger variance in the treatment group (group 1).
 #' See below for more details.
-#' @param drop00 logical indicating whether double-zero studies (i.e., studies with no events or
-#' only events in both groups) should be excluded when calculating the outcome measufit for the
-#' individual studies.
+#' @param drop00 logical indicating whether double-zero studies (i.e., studies with no events or only events in both groups)
+#' should be excluded prior to calculating the studies' effect sizes and sampling variances.
 #' @param level numeric between 0 and 100 specifying the confidence interval level (the default is 95).
 #' @param test character string specifying how test statistics and confidence intervals for the
 #' fixed effects should be computed (currently, only `"z"`, for Wald-type tests is available).
@@ -52,8 +51,9 @@
 #' \loadmathjax{}
 #'
 #' ## Data input
-#' Data input can happen either through the parameters `ai`,`bi`,`ci`,`di`,`n1i`,`n2i` (columns of the data frame `data`)
-#' or pre-processed throuth the parameter `x` (an object of type `rareData`).
+#' The data input can be specified either through the arguments `ai`,`bi`,`ci`,`di`,`n1i`, and `n2i` (columns of the data frame `data`)
+#' or through the argument `x`, which takes an object that results from applying the `rareDescribe()` function to the data
+#' (i.e., the input for argument `x` must be an object of type `rareData`).
 #' A `rareData` object can be produced from a data frame by applying the `rareDescribe()` function to it.
 #' The `rareDescribe()` function pre-processes the data frame and stores the information required by the `rareGLMM()` function in a list.
 #' See `?rareDescribe` for more details.
@@ -139,16 +139,16 @@
 #'
 #' @examples
 #'
-#' data <- data.frame(
-#' ai = c(0, 3, 2, 0),
-#' bi = c(20, 18, 15, 19),
-#' ci = c(1, 4, 0, 0),
-#' di = c(19, 17, 16, 20)
-#' )
+#' # introducing a dataset
+#' data(dat.nissen2007)
+#' d <- dat.nissen2007
 #'
+#' # GLMM for the log odds ratio with fixed intercept
+#' rareGLMM(ai=miRosiglitazone, ci=miControl, n1i=nRosiglitazone, n2i=nControl, data=d, measure="logOR", intercept="fixed")
+#'
+#' # same analysis with pre-processed data
 #' x <- rareDescribe(ai = ai, bi = bi, ci = ci, di = di, data = data)
-#'
-#' rareGLMM(x, measure = "logOR", intercept = "random", slope = "random")
+#' rareGLMM(x, measure="logOR", intercept="fixed")
 #'
 #' @export
 #' @import mathjaxr

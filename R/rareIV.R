@@ -44,9 +44,8 @@
 #' continuity correction is applied to all studies, or `"if0all"`, for which the continuity
 #' correction is applied to all studies if any of the individual studies has zero events in at
 #' least one of the groups.
-#' @param drop00 logical indicating whether double-zero studies (i.e., studies with no events or
-#' only events in both groups) should be excluded when calculating the outcome measufit for the
-#' individual studies.
+#' @param drop00 logical indicating whether double-zero studies (i.e., studies with no events or only events in both groups)
+#' should be excluded prior to calculating the studies' effect sizes and sampling variances.
 #' @param weighted logical specifying whether weighted (default) or unweighted estimation of the pooled
 #' effect size should be used.
 #' @param weights numeric specifying user-defined weights to be used when fitting the model.
@@ -66,8 +65,9 @@
 #' @details
 #' # Details
 #' ## Data input
-#' Data input can happen either through the parameters `ai`,`bi`,`ci`,`di`,`n1i`,`n2i` (columns of the data frame `data`)
-#' or pre-processed throuth the parameter `x` (an object of type `rareData`).
+#' The data input can be specified either through the arguments `ai`,`bi`,`ci`,`di`,`n1i`, and `n2i` (columns of the data frame `data`)
+#' or through the argument `x`, which takes an object that results from applying the `rareDescribe()` function to the data
+#' (i.e., the input for argument `x` must be an object of type `rareData`).
 #' A `rareData` object can be produced from a data frame by applying the `rareDescribe()` function to it.
 #' The `rareDescribe()` function pre-processes the data frame and stores the information required by the `rareIV()` function in a list.
 #' See `?rareDescribe` for more details.
@@ -192,7 +192,7 @@
 #' * ...
 #'
 #' @examples
-#' # initializing the data
+#' # introducing a data set
 #' data(dat.nissen2007)
 #' d <- dat.nissen2007
 #'
@@ -202,15 +202,10 @@
 #' # estimating the log relative risk in a random effects-model
 #' rareIV(ai=miRosiglitazone, ci=miControl, n1i=nRosiglitazone, n2i=nControl, data=d, measure="logRR", method="DL", cc="constant")
 #'
-#' -------------------------------------------------------------------------
-#' # Analogous analysis on pre-processed data
-#' -------------------------------------------------------------------------
+#' # same analysis with pre-processed data
 #' x <- rareDescribe(ai=miRosiglitazone, ci=miControl, n1i=nRosiglitazone, n2i=nControl, data=d)
-#' # estimating the log relative risk in the fixed-effects model
-#' rareIV(x, measure="logOR", method="FE", cc="constant")
-#'
-#' # estimating the log relative risk in a random effects-model
 #' rareIV(x, measure="logRR", method="DL", cc="constant")
+#'
 #'
 #' @references
 #' Borenstein, M., Hedges, L. V., Higgins, J. P., & Rothstein, H. R. (2021). Introduction to meta-analysis.

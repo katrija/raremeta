@@ -74,9 +74,8 @@ option implies equal variances in the two groups. Values closer to 0 imply a lar
 control group (group 2), while values closer to 1 imply a larger variance in the treatment group (group 1).
 See below for more details.}
 
-\item{drop00}{logical indicating whether double-zero studies (i.e., studies with no events or
-only events in both groups) should be excluded when calculating the outcome measufit for the
-individual studies.}
+\item{drop00}{logical indicating whether double-zero studies (i.e., studies with no events or only events in both groups)
+should be excluded prior to calculating the studies' effect sizes and sampling variances.}
 
 \item{level}{numeric between 0 and 100 specifying the confidence interval level (the default is 95).}
 
@@ -130,8 +129,9 @@ models and their application in meta-analyses of rare events.
 \loadmathjax{}
 \subsection{Data input}{
 
-Data input can happen either through the parameters \code{ai},\code{bi},\code{ci},\code{di},\code{n1i},\code{n2i} (columns of the data frame \code{data})
-or pre-processed throuth the parameter \code{x} (an object of type \code{rareData}).
+The data input can be specified either through the arguments \code{ai},\code{bi},\code{ci},\code{di},\code{n1i}, and \code{n2i} (columns of the data frame \code{data})
+or through the argument \code{x}, which takes an object that results from applying the \code{rareDescribe()} function to the data
+(i.e., the input for argument \code{x} must be an object of type \code{rareData}).
 A \code{rareData} object can be produced from a data frame by applying the \code{rareDescribe()} function to it.
 The \code{rareDescribe()} function pre-processes the data frame and stores the information required by the \code{rareGLMM()} function in a list.
 See \code{?rareDescribe} for more details.
@@ -189,16 +189,16 @@ the case, i.e. \code{cor = FALSE}.
 }
 \examples{
 
-data <- data.frame(
-ai = c(0, 3, 2, 0),
-bi = c(20, 18, 15, 19),
-ci = c(1, 4, 0, 0),
-di = c(19, 17, 16, 20)
-)
+# introducing a dataset
+data(dat.nissen2007)
+d <- dat.nissen2007
 
+# GLMM for the log odds ratio with fixed intercept
+rareGLMM(ai=miRosiglitazone, ci=miControl, n1i=nRosiglitazone, n2i=nControl, data=d, measure="logOR", intercept="fixed")
+
+# same analysis with pre-processed data
 x <- rareDescribe(ai = ai, bi = bi, ci = ci, di = di, data = data)
-
-rareGLMM(x, measure = "logOR", intercept = "random", slope = "random")
+rareGLMM(x, measure="logOR", intercept="fixed")
 
 }
 \references{

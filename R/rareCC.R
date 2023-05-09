@@ -36,8 +36,8 @@
 #' continuity correction is applied to all studies, or `"if0all"`, for which the continuity
 #' correction is applied to all studies if any of the individual studies has zero events in at
 #' least one of the groups.
-#' @param drop00 logical indicating whether double-zero studies (i.e., studies with no events or
-#' only events in both groups) should be excluded from the dataset.
+#' @param drop00 logical indicating whether double-zero studies (i.e., studies with no events or only events in both groups)
+#' should be excluded prior to calculating the studies' effect sizes and sampling variances.
 #' @param measure character string specifying the effect size or outcome measure to be used
 #' (either `"logOR"` for the log odds ratio, `"logRR"` for the log relative risk,
 #' or `"RD"` for the risk difference). Important when selecting continuity corrections dependent
@@ -53,8 +53,9 @@
 #' @details
 #' # Details
 #' ## Data input
-#' Data input can happen either through the parameters `ai`,`bi`,`ci`,`di`,`n1i`,`n2i` (columns of the data frame `data`)
-#' or pre-processed throuth the parameter `x` (an object of type `rareData`).
+#' The data input can be specified either through the arguments `ai`,`bi`,`ci`,`di`,`n1i`, and `n2i` (columns of the data frame `data`)
+#' or through the argument `x`, which takes an object that results from applying the `rareDescribe()` function to the data
+#' (i.e., the input for argument `x` must be an object of type `rareData`).
 #' A `rareData` object can be produced from a data frame by applying the `rareDescribe()` function to it.
 #' The `rareDescribe()` function pre-processes the data frame and stores the information required by the `rareCC()` function in a list.
 #' See `?rareDescribe` for more details.
@@ -137,7 +138,7 @@
 #' @export
 #'
 #' @examples
-#' # initializing a data set
+#' # introducing a data set
 #' data("dat.nissen2007")
 #' d <- dat.nissen2007
 #'
@@ -153,22 +154,9 @@
 #' d.emp <- rareCC(ai=miRosiglitazone, n1i=nRosiglitazone, ci=miControl, n2i=nControl, data= d, cc = "empirical", measure = "logOR", method = "FE")
 #' d.emp
 #'
-#' ------------------------------------------------------------------------------------------
-#' An equivalent analysis through input of pre-processed data
-#' ------------------------------------------------------------------------------------------
+#' # same analysis with pre-processed data
 #' x <- rareDescribe(ai=miRosiglitazone, n1i=nRosiglitazone, ci=miControl, n2i=nControl, data= d)
-#'
-#' #applying the default continuity correction (i.e. cc = "constant" with ccval = 0.5)
-#' x.constant <- rareCC(x)
-#' x.constant
-#'
-#' #applying the treatment-arm continuity correction with `ccsum = 0.1`
-#' x.tacc <- rareCC(x, cc = "tacc", ccsum = 0.1, measure = "logOR")
-#' x.tacc
-#'
-#' #applying the empirical continuity correction for the log odds ratio for the fixed effects model
-#' x.emp <- rareCC(x, cc = "empirical", measure = "logOR", method = "FE")
-#' x.emp
+#' x.emp <- rareCC(x, cc="empirical", measure="logOR", method="FE")
 #'
 #' @references
 #' Borenstein, M., Hedges, L. V., Higgins, J. P., & Rothstein, H. R. (2021). Introduction to meta-analysis.

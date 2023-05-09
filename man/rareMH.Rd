@@ -59,8 +59,9 @@ tables using Mantel-Haenszel type estimators.
 \section{Details}{
 \subsection{Data input}{
 
-Data input can happen either through the parameters \code{ai},\code{bi},\code{ci},\code{di},\code{n1i},\code{n2i} (columns of the data frame \code{data})
-or pre-processed throuth the parameter \code{x} (an object of type \code{rareData}).
+The data input can be specified either through the arguments \code{ai},\code{bi},\code{ci},\code{di},\code{n1i}, and \code{n2i} (columns of the data frame \code{data})
+or through the argument \code{x}, which takes an object that results from applying the \code{rareDescribe()} function to the data
+(i.e., the input for argument \code{x} must be an object of type \code{rareData}).
 A \code{rareData} object can be produced from a data frame by applying the \code{rareDescribe()} function to it.
 The \code{rareDescribe()} function pre-processes the data frame and stores the information required by the \code{rareMH()} function in a list.
 See \code{?rareDescribe} for more details.
@@ -95,6 +96,19 @@ For a summary of the implemented estimators see e.g. sections 9.2-9.4 of Jewell
 }
 }
 
+\examples{
+# introducing a data set
+data(dat.nissen2007)
+d <- dat.nissen2007
+
+# meta analysis of the log odds ratio using the Mantel-Haenszel method
+rareMH(ai=miRosiglitazone, ci=miControl, n1i=nRosiglitazone, n2i=nControl, data=d, measure="logOR")
+
+# same analysis with pre-processed data
+x <- rareDescribe(ai=miRosiglitazone, ci=miControl, n1i=nRosiglitazone, n2i=nControl, data=d)
+rareMH(x, measure="logOR")
+
+}
 \references{
 Mantel, N., & Haenszel, W. (1959).
 Statistical aspects of the analysis of data from retrospective studies of disease.

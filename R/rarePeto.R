@@ -20,8 +20,9 @@
 #' @details
 #' # Details
 #' ## Data input
-#' Data input can happen either through the parameters `ai`,`bi`,`ci`,`di`,`n1i`,`n2i` (columns of the data frame `data`)
-#' or pre-processed throuth the parameter `x` (an object of type `rareData`).
+#' The data input can be specified either through the arguments `ai`,`bi`,`ci`,`di`,`n1i`, and `n2i` (columns of the data frame `data`)
+#' or through the argument `x`, which takes an object that results from applying the `rareDescribe()` function to the data
+#' (i.e., the input for argument `x` must be an object of type `rareData`).
 #' A `rareData` object can be produced from a data frame by applying the `rareDescribe()` function to it.
 #' The `rareDescribe()` function pre-processes the data frame and stores the information required by the `rarePeto()` function in a list.
 #' See `?rareDescribe` for more details.
@@ -62,15 +63,15 @@
 #' @export
 #'
 #' @examples
-#' data <- data.frame(
-#' ai = c(0, 3, 2, 0),
-#' bi = c(20, 18, 15, 19),
-#' ci = c(1, 4, 0, 0),
-#' di = c(19, 17, 16, 20)
-#' )
+#' # introducing a data set
+#' data(dat.nissen2007)
+#' d <- dat.nissen2007
 #'
-#' x <- rareDescribe(ai = ai, bi = bi, ci = ci, di = di, data = data)
+#' # meta analysis using Peto's method
+#' rarePeto(ai=miRosiglitazone, ci=miControl, n1i=nRosiglitazone, n2i=nControl, data=d)
 #'
+#' # same analysis with pre-processed data
+#' x <- rareDescribe(ai=miRosiglitazone, ci=miControl, n1i=nRosiglitazone, n2i=nControl, data=d)
 #' rarePeto(x)
 #'
 rarePeto <- function(x, ai, bi, ci, di, n1i, n2i, data, level = 95, digits = 4){

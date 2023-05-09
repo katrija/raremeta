@@ -36,9 +36,8 @@
 #' continuity correction is applied to all studies, or `"if0all"`, for which the continuity
 #' correction is applied to all studies if any of the individual studies has zero events in at
 #' least one of the groups.
-#' @param drop00 logical indicating whether double-zero studies (i.e., studies with no events or
-#' only events in both groups) should be excluded when calculating the outcome measufit for the
-#' individual studies.
+#' @param drop00 logical indicating whether double-zero studies (i.e., studies with no events or only events in both groups)
+#' should be excluded prior to calculating the studies' effect sizes and sampling variances.
 #' @param method Needs to be specified when `cc = "empirical"`. Meta-analytic method to be used when
 #' determining the prior used for the empirical continuity correction. Current default is `method = "FE"`.
 #' See Sweeting et al. (2004) for details.
@@ -47,8 +46,9 @@
 #' @details
 #' # Details
 #' ## Data input
-#' Data input can happen either through the parameters `ai`,`bi`,`ci`,`di`,`n1i`,`n2i` (columns of the data frame `data`)
-#' or pre-processed throuth the parameter `x` (an object of type `rareData`).
+#' The data input can be specified either through the arguments `ai`,`bi`,`ci`,`di`,`n1i`, and `n2i` (columns of the data frame `data`)
+#' or through the argument `x`, which takes an object that results from applying the `rareDescribe()` function to the data
+#' (i.e., the input for argument `x` must be an object of type `rareData`).
 #' A `rareData` object can be produced from a data frame by applying the `rareDescribe()` function to it.
 #' The `rareDescribe()` function pre-processes the data frame and stores the information required by the `rareES()` function in a list.
 #' See `?rareDescribe` for more details.
@@ -113,18 +113,23 @@
 #'
 #' @examples
 #'
-#' # initializing the dataset
+#' # introducing a dataset
 #' data(dat.nissen2007)
 #' d <- dat.nissen2007
 #'
-#' # estimating logarithmised odds ratios after the default continuity correction of 0.5
-#' d.OR <- rareES(ai=miRosiglitazone, ci=miControl, n1i=nRosiglitazone, n2i=nControl, data=d, measure="logOR", cc="constant")
-#' d.OR
 #'
-#' # estimating logarithmised odds ratios after the default continuity correction of 0.5 on pre-processed data
+#' # estimating the log odds ratios with the default continuity correction of 0.5
+#' d.RR <- rareES(ai=miRosiglitazone, ci=miControl, n1i=nRosiglitazone, n2i=nControl, data=d, measure="logRR", cc="constant")
+#' d.RR$yi
+#'
+#' # estimating logarithmised odds ratios with the empirical continuity correction
+#' d.OR <- rareES(ai=miRosiglitazone, ci=miControl, n1i=nRosiglitazone, n2i=nControl, data=d, measure="logRR", cc="empirical")
+#' d.OR$yi
+#'
+#' # same analysis with pre-processed data
 #' x <- rareDescribe(ai=miRosiglitazone, ci=miControl, n1i=nRosiglitazone, n2i=nControl, data=d)
-#' x.OR <- rareES(x, measure="logOR", cc="constant")
-#' x.OR
+#' x.OR <- rareES(x, measure="logOR", cc="empirical")
+#' x.OR$yi
 rareES <- function(x, ai, bi, ci, di, n1i, n2i, data,
                    measure, cc = "none", ccval = 0.5, tccval, cccval, ccsum = 1,
                    ccto = "only0", drop00 = TRUE,

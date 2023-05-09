@@ -17,9 +17,8 @@
 #' @param common_rho logical specifying whether a common intraclass correlations shall be assumed
 #' for the two groups (`TRUE`), or whether the intraclass correlation shall be allowed
 #' to differ between the two groups (`FALSE`). See below for more detail.s
-#' @param drop00 logical indicating whether double-zero studies (i.e., studies with no events or
-#' only events in both groups) should be excluded when calculating the outcome measufit for the
-#' individual studies.
+#' @param drop00 logical indicating whether double-zero studies (i.e., studies with no events or only events in both groups)
+#' should be excluded prior to calculating the studies' effect sizes and sampling variances.
 #' @param level numeric between 0 and 100 specifying the confidence interval level (the default is 95).
 #' @param test character string specifying how test statistics and confidence intervals for the
 #' fixed effects should be computed (currently, only `"z"`, for Wald-type tests is available).
@@ -35,8 +34,8 @@
 #' \loadmathjax{}
 #'
 #' ## Data input
-#' Data input can happen either through the parameters `ai`,`bi`,`ci`,`di`,`n1i`,`n2i` (columns of the data frame `data`)
-#' or pre-processed throuth the parameter `x` (an object of type `rareData`).
+#' The data input can be specified either through the arguments `ai`,`bi`,`ci`,`di`,`n1i`, and `n2i` (columns of the data frame `data`) or through the argument `x`,
+#' which takes an object that results from applying the `rareDescribe()` function to the data (i.e., the input for argument `x` must be an object of type `rareData`).
 #' A `rareData` object can be produced from a data frame by applying the `rareDescribe()` function to it.
 #' The `rareDescribe()` function pre-processes the data frame and stores the information required by the `rareBetabin()` function in a list.
 #' See `?rareDescribe` for more details.
@@ -104,37 +103,20 @@
 #'
 #' @examples
 #'
-#' # indtroduce the data
-#' data <- data.frame(
-#' ai = c(0, 3, 2, 0),
-#' bi = c(20, 18, 15, 19),
-#' ci = c(1, 4, 0, 0),
-#' di = c(19, 17, 16, 20)
-#' )
-#'
-#' # estimating the log relative risk assuming common intraclass correlations
-#' mRR <- rareBetabin(ai=ai, bi=bi, ci=ci, di=di, data=data, measure="logRR", common_rho=TRUE)#'
-#'
-#' # estimate the log odds ratio assuming differing intraclass correlations
-#' # (data is pre-processed by use of the `rareDescribe()` function)
-#' x   <- rareDescribe(ai=ai, bi=bi, ci=ci, di=di, data=data)
-#' mOR <- rareBetabin(x, measure="logOR", common_rho=FALSE)
-#'
-#' --------------------------------------------------------
-#' An analogous analysis on the the Nissen 2007 dataset
-#' --------------------------------------------------------
-#'
-#' # indtroduce the data
-#' data("dat.nissen2007")
+#' # indtroducing the data
+#' data(dat.nissen2007)
 #' d <- dat.nissen2007
 #'
 #' # estimating the log relative risk assuming common intraclass correlations
-#' mRR <- rareBetabin(ai=miRosiglitazone, ci=miControl, n1i=nRosiglitazone, n2i=nControl, data=d, measure="logRR", common_rho=TRUE)#'
+#' rareBetabin(ai=miRosiglitazone, ci=miControl, n1i=nRosiglitazone, n2i=nControl, data=d, measure="logRR", common_rho=TRUE)
 #'
-#' # estimate the log odds ratio assuming differing intraclass correlations
-#' # (data is pre-processed by use of the `rareDescribe()` function)
-#' x   <- rareDescribe(ai=miRosiglitazone, ci=miControl, n1i=nRosiglitazone, n2i=nControl, data=d)
-#' mOR <- rareBetabin(x, measure="logOR", common_rho=FALSE)
+#' # estimatint the log odds ratio assuming differing intraclass correlations
+#' rareBetabin(ai=miRosiglitazone, ci=miControl, n1i=nRosiglitazone, n2i=nControl, data=d, measure="logOR", common_rho=FALSE)
+#'
+#' # same analysis with pre-processed data
+#' x <- rareDescribe(ai=miRosiglitazone, ci=miControl, n1i=nRosiglitazone, n2i=nControl, data=d)
+#' rareBetabin(x, measure="logOR", common_rho=FALSE)
+#'
 #' @export
 #'
 rareBetabin <- function(x, ai, bi, ci, di, n1i, n2i, data, measure,
