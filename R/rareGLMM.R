@@ -462,6 +462,8 @@ rareGLMM <- function(x, ai, bi, ci, di, n1i, n2i, data, measure,
         conv <- ifelse(fit$convergence == 0, TRUE, FALSE)
 
         beta <- fit$par
+        names(beta) <- measure
+
         tau2 <- NA
 
         hessian <- numDeriv::hessian(.negllnchg, fit$par, ai = ai, bi = bi, ci = ci, di = di, intercept = "fixed")
@@ -514,10 +516,12 @@ rareGLMM <- function(x, ai, bi, ci, di, n1i, n2i, data, measure,
         conv <- ifelse(fitML$convergence == 0, TRUE, FALSE)
 
         beta <- fitML$par[1]
+        names(beta) <- measure
+
         tau2 <- fitML$par[2]
 
         hessian <- numDeriv::hessian(.negllnchg, fitML$par, ai = ai, bi = bi, ci = ci, di = di, intercept = "random")
-        vb <- as.matrix(stats::vcov(fitML))
+        vb <- try(solve(hessian), silent = TRUE)
 
         if(inherits(vb, "try-error")){
           warning("Standard errors could not be obtained.")
@@ -563,6 +567,8 @@ rareGLMM <- function(x, ai, bi, ci, di, n1i, n2i, data, measure,
         conv <- fit$converged
 
         beta <- fit$coefficients
+        names(beta) <- measure
+
         tau2 <- NA
 
         vb <- as.matrix(stats::vcov(fit))
@@ -591,7 +597,6 @@ rareGLMM <- function(x, ai, bi, ci, di, n1i, n2i, data, measure,
         colnames(fit.stats) <- c("ML")
       }
 
-      }
 
       if(intercept == "random"){
         study <- 1:length(ai)
@@ -609,6 +614,8 @@ rareGLMM <- function(x, ai, bi, ci, di, n1i, n2i, data, measure,
         conv <- ifelse(fitML@optinfo$conv$opt == 0, TRUE, FALSE)
 
         beta <- lme4::fixef(fitML)
+        names(beta) <- measure
+
         sigma2 <- lme4::VarCorr(fitML)
         tau2 <- sigma2[[1]][1]
 
@@ -648,7 +655,7 @@ rareGLMM <- function(x, ai, bi, ci, di, n1i, n2i, data, measure,
 
       }
     }
-
+  }
 
   # make results list
   # UNDER CONSTRUCTION
