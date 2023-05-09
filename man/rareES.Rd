@@ -161,16 +161,18 @@ calculation of the sampling variances.
 
 \examples{
 
-data <- data.frame(
-ai = c(0, 3, 2, 0),
-bi = c(20, 18, 15, 19),
-ci = c(1, 4, 0, 0),
-di = c(19, 17, 16, 20)
-)
+# initializing the dataset
+data(dat.nissen2007)
+d <- dat.nissen2007
 
-x <- rareDescribe(ai = ai, bi = bi, ci = ci, di = di, data = data)
+# estimating logarithmised odds ratios after the default continuity correction of 0.5
+d.OR <- rareES(ai=miRosiglitazone, ci=miControl, n1i=nRosiglitazone, n2i=nControl, data=d, measure="logOR", cc="constant")
+d.OR
 
-rareES(x, measure = "logOR", cc = "constant", ccval = 0.5)
+# estimating logarithmised odds ratios after the default continuity correction of 0.5 on pre-processed data
+x <- rareDescribe(ai=miRosiglitazone, ci=miControl, n1i=nRosiglitazone, n2i=nControl, data=d)
+x.OR <- rareES(x, measure="logOR", cc="constant")
+x.OR
 }
 \references{
 Gart, John J, and James R Zweifel. 1967. On the bias of various estimators of the logit and
