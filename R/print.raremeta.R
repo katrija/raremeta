@@ -149,60 +149,93 @@ print.raremeta <- function(x, digits, ...){
 
     drop00 <- ifelse(x$drop00 == TRUE, "excluded from", "included in")
 
-    if(x$slope == "fixed" & x$intercept == "fixed"){
-      cat("Fixed-effects meta-analysis using the Generalised Linear Model (GLM):", "\n")
+    if(x$conditional == FALSE){
+      if(x$slope == "fixed" & x$intercept == "fixed"){
+        cat("Fixed-effects meta-analysis using the Generalised Linear Model (GLM):", "\n")
 
-      cat("\nNumber of studies:", x$k, "\n")
-      cat("\nDouble-zero studies were", drop00, "the analysis.", "\n")
+        cat("\nNumber of studies:", x$k, "\n")
+        cat("\nDouble-zero studies were", drop00, "the analysis.", "\n")
+      }
+
+      if(x$slope == "fixed" & x$intercept == "random"){
+        cat("Fixed-effects meta-analysis using the Generalised Linear Mixed Model (GLMM):", "\n")
+
+        cat("\nNumber of studies:", x$k, "\n")
+        cat("\nDouble-zero studies were", drop00, "the analysis.", "\n")
+
+        cat("\nHeterogeneity: \n")
+
+        cat("\n",
+            "sigma^2 (estimated variance of the intercepts):        ", format(round(x$sigma2[[1]][1], digits), nsmall = digits,
+                                                                              scientific = FALSE), "\n",
+            "sigma (estimated standard deviation of the intercepts):", format(round(sqrt(x$sigma2[[1]][1]), digits), nsmall = digits,
+                                                                              scientific = FALSE), "\n"
+        )
+
+      }
+
+      if(x$slope == "random"){
+        cat("Random-effects meta-analysis using the Generalised Linear Mixed Model (GLMM):", "\n")
+
+        cat("\nNumber of studies:", x$k, "\n")
+        cat("\nDouble-zero studies were", drop00, "the analysis.", "\n")
+
+        cat("\nHeterogeneity: \n")
+
+        # Heterogeneity:
+        LRTp <- ifelse(x$LRT.pval < .0001, "< .0001", format(round(x$LRT.pval, digits), nsmall = digits, scientitific = FALSE))
+        cat("\n", paste0("LRT(df = ", x$LRT.df, ") = ", format(round(x$LRT.Chisq, digits), nsmall = digits, scientific = FALSE), ", p-val ", LRTp), "\n")
+
+
+        if(x$intercept == "random"){
+          cat("\n",
+              "sigma^2 (estimated variance of the intercepts):        ", format(round(x$sigma2[[1]][1], digits), nsmall = digits, scientific = FALSE), "\n",
+              "sigma (estimated standard deviation of the intercepts):", format(round(sqrt(x$sigma2[[1]][1]), digits), nsmall = digits, scientific = FALSE), "\n"
+          )
+        }
+
+        cat("\n",
+            "tau^2 (estimated variance of the effect sizes):        ", format(round(x$tau2, digits), nsmall = digits, scientific = FALSE), "\n",
+            "tau (estimated standard deviation of the effect sizes):", format(round(sqrt(x$tau2), digits), nsmall = digits, scientific = FALSE), "\n")
+
+        if(x$cor){
+          cat("\n",
+              "Random-effects correlation: ", format(round(x$sigma2[[1]][2]/sqrt(x$sigma2[[1]][1]*x$sigma2[[1]][4]), digits), nsmalL = digits, scientific = FALSE), "\n")
+        }
+
+      }
     }
 
-    if(x$slope == "fixed" & x$intercept == "random"){
-      cat("Fixed-effects meta-analysis using the Generalised Linear Mixed Model (GLMM):", "\n")
+    if(x$conditional == TRUE){
 
-      cat("\nNumber of studies:", x$k, "\n")
-      cat("\nDouble-zero studies were", drop00, "the analysis.", "\n")
+      if(x$intercept == "fixed"){
+        cat("Fixed-effects meta-analysis using the Conditional Generalised Linear Mixed Model (GLMM):", "\n")
 
-      cat("\nHeterogeneity: \n")
-
-      cat("\n",
-          "sigma^2 (estimated variance of the intercepts):        ", format(round(x$sigma2[[1]][1], digits), nsmall = digits,
-                                                                            scientific = FALSE), "\n",
-          "sigma (estimated standard deviation of the intercepts):", format(round(sqrt(x$sigma2[[1]][1]), digits), nsmall = digits,
-                                                                            scientific = FALSE), "\n"
-      )
-
-    }
-
-    if(x$slope == "random"){
-      cat("Random-effects meta-analysis using the Generalised Linear Mixed Model (GLMM):", "\n")
-
-      cat("\nNumber of studies:", x$k, "\n")
-      cat("\nDouble-zero studies were", drop00, "the analysis.", "\n")
-
-      cat("\nHeterogeneity: \n")
-
-      # Heterogeneity:
-      LRTp <- ifelse(x$LRT.pval < .0001, "< .0001", format(round(x$LRT.pval, digits), nsmall = digits, scientitific = FALSE))
-      cat("\n", paste0("LRT(df = ", x$LRT.df, ") = ", format(round(x$LRT.Chisq, digits), nsmall = digits, scientific = FALSE), ", p-val ", LRTp), "\n")
-
+        cat("\nNumber of studies:", x$k, "\n")
+        cat("\nDouble-zero studies were", drop00, "the analysis.", "\n")
+      }
 
       if(x$intercept == "random"){
+        cat("Random-effects meta-analysis using the Conditional Generalised Linear Mixed Model (GLMM):", "\n")
+
+        cat("\nNumber of studies:", x$k, "\n")
+        cat("\nDouble-zero studies were", drop00, "the analysis.", "\n")
+
+        cat("\nHeterogeneity: \n")
+
+        # Heterogeneity:
+        LRTp <- ifelse(x$LRT.pval < .0001, "< .0001", format(round(x$LRT.pval, digits), nsmall = digits, scientitific = FALSE))
+        cat("\n", paste0("LRT(df = ", x$LRT.df, ") = ", format(round(x$LRT.Chisq, digits), nsmall = digits, scientific = FALSE), ", p-val ", LRTp), "\n")
+
         cat("\n",
-            "sigma^2 (estimated variance of the intercepts):        ", format(round(x$sigma2[[1]][1], digits), nsmall = digits, scientific = FALSE), "\n",
-            "sigma (estimated standard deviation of the intercepts):", format(round(sqrt(x$sigma2[[1]][1]), digits), nsmall = digits, scientific = FALSE), "\n"
-        )
+            "tau^2 (estimated variance of the effect sizes):        ", format(round(x$tau2, digits), nsmall = digits, scientific = FALSE), "\n",
+            "tau (estimated standard deviation of the effect sizes):", format(round(sqrt(x$tau2), digits), nsmall = digits, scientific = FALSE), "\n")
+
       }
 
-      cat("\n",
-          "tau^2 (estimated variance of the effect sizes):        ", format(round(x$tau2, digits), nsmall = digits, scientific = FALSE), "\n",
-          "tau (estimated standard deviation of the effect sizes):", format(round(sqrt(x$tau2), digits), nsmall = digits, scientific = FALSE), "\n")
-
-      if(x$cor){
-        cat("\n",
-            "Random-effects correlation: ", format(round(x$sigma2[[1]][2]/sqrt(x$sigma2[[1]][1]*x$sigma2[[1]][4]), digits), nsmalL = digits, scientific = FALSE), "\n")
-      }
 
     }
+
 
     # Model results:
     signif <- stats::symnum(x$pval, corr=FALSE, na=FALSE,
