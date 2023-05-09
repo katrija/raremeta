@@ -19,7 +19,9 @@ Imports:
     lme4,
     metafor,
     numDeriv,
-    mathjaxr
+    mathjaxr,
+    MCMCpack,
+    BiasedUrn
 RdMacros:
     mathjaxr
 Depends: 
