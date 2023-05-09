@@ -22,8 +22,10 @@
 #' fixed-effects model, while a model with a random slope is a model with heterogeneous effects, that is, a
 #' random effects model. See below for more details.
 #' @param conditional logical specifying whether to estimate a conditional generalized linear mixed model.
-#' Default is `FALSE`. Conditional models are not implemented yet and specifying `conditional = TRUE` will
-#' yield an error.
+#' Default is `FALSE`.
+#' @param approx logical specifying whether to use the approximate version of the conditional generalized linear
+#' mixed model (i.e., the conditional binomial model). Only relevant when `conditional = TRUE` and `measure = "logOR`.
+#' Default is `FALSE`. See below for more details.
 #' @param cor logical specifying whether random effects should be modeled as correlated or uncorrelated.
 #' Default is `cor = FALSE`. This argument is only relevant if `intercept = "random"` and `slope = "random"`.
 #' See below for more details.
@@ -151,7 +153,7 @@
 #' @export
 #' @import mathjaxr
 rareGLMM <- function(x, ai, bi, ci, di, n1i, n2i, data, measure,
-                     intercept = "fixed", slope = "random", conditional = FALSE,
+                     intercept = "fixed", slope = "random", conditional = FALSE, approx = FALSE,
                      cor = FALSE, coding = 1 / 2,
                      drop00 = FALSE,
                      level = 95,
@@ -266,175 +268,286 @@ rareGLMM <- function(x, ai, bi, ci, di, n1i, n2i, data, measure,
 
   dataLong$groupRE <- ifelse(dataLong$group == 1, coding, coding-1)
 
-  # Define family --------------------------------------------------------------
-  if (measure == "logOR") {
-    fam <- stats::binomial(link = "logit")
-  }
+  if(conditional == FALSE){
+    # Define family --------------------------------------------------------------
+    if (measure == "logOR") {
+      fam <- stats::binomial(link = "logit")
+    }
 
-  if (measure == "logRR") {
-    fam <- stats::poisson(link = "log")
-  }
+    if (measure == "logRR") {
+      fam <- stats::poisson(link = "log")
+    }
 
-  # Define model formula -------------------------------------------------------
-  if (measure == "logOR") {
-    if (intercept == "random" & slope == "random" & conditional == FALSE) {
-      if (cor == FALSE) {
-        m <- cbind(y, n - y) ~ 1 + group + (1 + groupRE || id)
-        mFE <- cbind(y, n - y) ~ 1 + group + (1 | id)
-      } else {
-        m <- cbind(y, n - y) ~ 1 + group + (1 + groupRE | id)
-        mFE <- cbind(y, n - y) ~ 1 + group + (1 | id)
+    # Define model formula -------------------------------------------------------
+    if (measure == "logOR") {
+      if (intercept == "random" & slope == "random" & conditional == FALSE) {
+        if (cor == FALSE) {
+          m <- cbind(y, n - y) ~ 1 + group + (1 + groupRE || id)
+          mFE <- cbind(y, n - y) ~ 1 + group + (1 | id)
+        } else {
+          m <- cbind(y, n - y) ~ 1 + group + (1 + groupRE | id)
+          mFE <- cbind(y, n - y) ~ 1 + group + (1 | id)
+        }
+      }
+
+      if (intercept == "fixed" & slope == "random" & conditional == FALSE) {
+        m <- cbind(y, n - y) ~ -1 + id + group + (0 + groupRE | id)
+        mFE <- cbind(y, n - y) ~ -1 + id + group
+      }
+
+      if (intercept == "random" & slope == "fixed" & conditional == FALSE) {
+        m <- cbind(y, n - y) ~ 1 + group + (1 | id)
+      }
+
+      if (intercept == "fixed" & slope == "fixed" & conditional == FALSE) {
+        m <- cbind(y, n - y) ~ -1 + id + group
       }
     }
 
-    if (intercept == "fixed" & slope == "random" & conditional == FALSE) {
-      m <- cbind(y, n - y) ~ -1 + id + group + (0 + groupRE | id)
-      mFE <- cbind(y, n - y) ~ -1 + id + group
-    }
+    if (measure == "logRR") {
+      if (intercept == "random" & slope == "random" & conditional == FALSE) {
+        if (cor == FALSE) {
+          m <- y ~ 1 + group + offset(log(n)) + (1 + groupRE || id)
+          mFE <- y ~ 1 + group + offset(log(n)) + (1 | id)
+        } else {
+          m <- y ~ 1 + group + offset(log(n)) + (1 + groupRE | id)
+          mFE <- y ~ 1 + group + offset(log(n)) + (1 | id)
+        }
+      }
 
-    if (intercept == "random" & slope == "fixed" & conditional == FALSE) {
-      m <- cbind(y, n - y) ~ 1 + group + (1 | id)
-    }
+      if (intercept == "fixed" & slope == "random" & conditional == FALSE) {
+        m <- y~ -1 + id + group + offset(log(n)) + (0 + groupRE | id)
+        mFE <- y~ -1 + id + group + offset(log(n))
+      }
 
-    if (intercept == "fixed" & slope == "fixed" & conditional == FALSE) {
-      m <- cbind(y, n - y) ~ -1 + id + group
-    }
-  }
+      if (intercept == "random" & slope == "fixed" & conditional == FALSE) {
+        m <- y~1 + group + offset(log(n)) + (1 | id)
+      }
 
-  if (measure == "logRR") {
-    if (intercept == "random" & slope == "random" & conditional == FALSE) {
-      if (cor == FALSE) {
-        m <- y ~ 1 + group + offset(log(n)) + (1 + groupRE || id)
-        mFE <- y ~ 1 + group + offset(log(n)) + (1 | id)
-      } else {
-        m <- y ~ 1 + group + offset(log(n)) + (1 + groupRE | id)
-        mFE <- y ~ 1 + group + offset(log(n)) + (1 | id)
+      if (intercept == "fixed" & slope == "fixed" & conditional == FALSE) {
+        m <- y~ -1 + id + group + offset(log(n))
       }
     }
 
-    if (intercept == "fixed" & slope == "random" & conditional == FALSE) {
-      m <- y~ -1 + id + group + offset(log(n)) + (0 + groupRE | id)
-      mFE <- y~ -1 + id + group + offset(log(n))
-    }
-
-    if (intercept == "random" & slope == "fixed" & conditional == FALSE) {
-      m <- y~1 + group + offset(log(n)) + (1 | id)
-    }
-
-    if (intercept == "fixed" & slope == "fixed" & conditional == FALSE) {
-      m <- y~ -1 + id + group + offset(log(n))
-    }
-  }
-
-  # Fit ML model ---------------------------------------------------------------
-  if (intercept == "fixed" & slope == "fixed") {
-    fitML <- try(
-      stats::glm(m,
-      data = dataLong,
-      family = fam
-      ), silent = TRUE
-    )
-  } else {
-    fitML <- try(
-      lme4::glmer(m,
-      data = dataLong,
-      family = fam
-      ), silent = TRUE
-    )
-  }
-
-  if(inherits(fitML, "try-error")){
-    stop("Unable to fit model.")
-  }
-
-  llML <- stats::logLik(fitML)
-
-  # Fit FE model ---------------------------------------------------------------
-  llFE <- LRT.Chisq <- LRT.df <- LRT.pval <- NA
-
-  if (slope == "random") {
-    if (intercept == "fixed") {
-      fitFE <- try(
-        stats::glm(mFE,
-        data = dataLong,
-        family = fam
+    # Fit ML model ---------------------------------------------------------------
+    if (intercept == "fixed" & slope == "fixed") {
+      fitML <- try(
+        stats::glm(m,
+                   data = dataLong,
+                   family = fam
         ), silent = TRUE
       )
     } else {
-      fitFE <- try(
-        lme4::glmer(mFE,
-        data = dataLong,
-        family = fam
+      fitML <- try(
+        lme4::glmer(m,
+                    data = dataLong,
+                    family = fam
         ), silent = TRUE
       )
     }
 
-    if(inherits(fitFE, "try-error")){
-      warning("Unable to fit fixed-effects model.")
-    }else{
-      llFE <- stats::logLik(fitFE)
+    if(inherits(fitML, "try-error")){
+      stop("Unable to fit model.")
+    }
 
-      # if(intercept == "fixed"){
-      #   llML <- llFE-0.5*stats::deviance(fitML)
-      # }
+    llML <- stats::logLik(fitML)
 
-      LRT.Chisq <- as.numeric(2 * (llML - llFE))
-      LRT.df <- attributes(llML)$df - attributes(llFE)$df
-      LRT.pval <- stats::pchisq(LRT.Chisq, df = LRT.df, lower.tail = FALSE)
+    # Fit FE model ---------------------------------------------------------------
+    llFE <- LRT.Chisq <- LRT.df <- LRT.pval <- NA
+
+    if (slope == "random") {
+      if (intercept == "fixed") {
+        fitFE <- try(
+          stats::glm(mFE,
+                     data = dataLong,
+                     family = fam
+          ), silent = TRUE
+        )
+      } else {
+        fitFE <- try(
+          lme4::glmer(mFE,
+                      data = dataLong,
+                      family = fam
+          ), silent = TRUE
+        )
+      }
+
+      if(inherits(fitFE, "try-error")){
+        warning("Unable to fit fixed-effects model.")
+      }else{
+        llFE <- stats::logLik(fitFE)
+
+        # if(intercept == "fixed"){
+        #   llML <- llFE-0.5*stats::deviance(fitML)
+        # }
+
+        LRT.Chisq <- as.numeric(2 * (llML - llFE))
+        LRT.df <- attributes(llML)$df - attributes(llFE)$df
+        LRT.pval <- stats::pchisq(LRT.Chisq, df = LRT.df, lower.tail = FALSE)
+      }
+    }
+
+
+
+    # Output generation ----------------------------------------------------------
+
+    if (inherits(fitML, "glmerMod") & slope == "random") {
+      beta <- lme4::fixef(fitML)
+      vb <- as.matrix(stats::vcov(fitML))
+      sigma2 <- lme4::VarCorr(fitML)
+      tau2 <- sigma2[[length(sigma2)]][1]
+
+      singular <- lme4::isSingular(fitML)
+      conv <- ifelse(fitML@optinfo$conv$opt == 0, TRUE, FALSE)
+    }
+
+    if (inherits(fitML, "glmerMod") & slope == "fixed") {
+      beta <- lme4::fixef(fitML)
+      vb <- as.matrix(stats::vcov(fitML))
+      sigma2 <- lme4::VarCorr(fitML)
+      tau2 <- 0
+
+      singular <- lme4::isSingular(fitML)
+      conv <- ifelse(fitML@optinfo$conv$opt == 0, TRUE, FALSE)
+    }
+
+    if (inherits(fitML, "glm")) {
+      beta <- fitML$coefficients
+      vb <- as.matrix(stats::vcov(fitML))
+      sigma2 <- NA
+      tau2 <- 0
+
+      conv <- fitML$converged
+      singular <- NA
+    }
+
+
+    se <- sqrt(diag(vb))
+
+    zval <- beta / se
+    pval <- 2 * stats::pnorm(abs(zval), lower.tail = FALSE)
+
+    zcrit <- stats::qnorm(1 - level / 2)
+    ci.lb <- beta - zcrit * se
+    ci.ub <- beta + zcrit * se
+
+    X <- stats::model.matrix(fitML)
+    p <- ifelse(all(X[1, ] == 1), ncol(X) - 1, ncol(X))
+
+    AICc <- -2 * llML + 2 * (p + 1) * max(2 * nrow(dataLong), p + 3) / (max(nrow(dataLong), 3) - p)
+    fit.stats <- rbind(llML, stats::deviance(fitML), stats::AIC(fitML), stats::BIC(fitML), AICc)
+    rownames(fit.stats) <- c("llML", "dev", "AIC", "BIC", "AICc")
+    colnames(fit.stats) <- c("ML")
+  }
+
+  if(conditional == TRUE){
+
+    if(measure == "logOR" && approx == FALSE){
+
+      if(intercept == "fixed"){
+
+        fitMH <- rareMH(x, measure = "logOR")
+        parms <- c(fitMH$beta)
+
+        fit <- try(stats::nlminb(parms, objective = .negllnchg, gradient = NULL, hessian = NULL,
+                                 ai = ai, bi = bi, ci = ci, di = di, intercept = "fixed"), silent = TRUE)
+
+        if(inherits(fit, "try-error")){
+          stop("Unable to fit model.")
+        }
+
+        beta <- fit$par
+
+        hessian <- numDeriv::hessian(.negllnchg, fit$par, ai = ai, bi = bi, ci = ci, di = di, intercept = "fixed")
+        vb <- try(solve(hessian), silent = TRUE)
+
+        if(inherits(vb, "try-error")){
+          warning("Standard errors could not be obtained.")
+          se <- zval <- pval <- zcrit <- ci.lb <- ci.ub <- NA
+        }else{
+          se <- sqrt(diag(vb))
+          zval <- beta/se
+          pval <- 2 * stats::pnorm(abs(zval), lower.tail = FALSE)
+
+          zcrit <- stats::qnorm(1 - level / 2)
+          ci.lb <- beta - zcrit * se
+          ci.ub <- beta + zcrit * se
+        }
+
+
+      }
+
+
+      if(intercept == "random"){
+
+        fitMH <- rareMH(x, measure = "logOR")
+        parms <- c(fitMH$beta)
+
+        fitFE <- try(stats::nlminb(parms, objective = .negllnchg, gradient = NULL, hessian = NULL,
+                                   ai = ai, bi = bi, ci = ci, di = di, intercept = "fixed"), silent = TRUE)
+
+        fitIV <- rareIV(x, measure = "logOR", method = "IPM", cc = "constant", ccval = 0.5, ccto = "all", drop00 = FALSE)
+        parms <- c(fitMH$beta, fitIV$tau2)
+
+        fitML <- try(stats::nlminb(start = parms, objective = .negllnchg,
+                                   ai = ai, bi = bi, ci = ci, di = di, intercept = "random"), silent = TRUE)
+
+        if(inherits(fitML, "try-error")){
+          stop("Unable to fit model.")
+        }
+
+        beta <- fitML$par[1]
+        tau2 <- fitML$par[2]
+
+        hessian <- numDeriv::hessian(.negllnchg, fitML$par, ai = ai, bi = bi, ci = ci, di = di, intercept = "random")
+        vb <- try(solve(hessian), silent = TRUE)
+
+        if(inherits(vb, "try-error")){
+          warning("Standard errors could not be obtained.")
+          se <- zval <- pval <- zcrit <- ci.lb <- ci.ub <- NA
+        }else{
+          se <- sqrt(diag(vb))[1]
+          zval <- beta/se
+          pval <- 2 * stats::pnorm(abs(zval), lower.tail = FALSE)
+
+          zcrit <- stats::qnorm(1 - level / 2)
+          ci.lb <- beta - zcrit * se
+          ci.ub <- beta + zcrit * se
+        }
+
+        if(inherits(fitFE, "try-error")){
+          warning("Unable to fit fixed-effects model")
+        }else{
+
+        }
+      }
+
+
+    }
+
+    if(measure == "logRR" || approx == TRUE){
+
+      off <- log(n1i/n2i)
+
+      if(intercept == "fixed"){
+
+        fit <- stats::glm(cbind(ai, mi-ai)~1, offset = off,
+                          family = binomial(link = "logit"))
+
+      }
+
+      if(intercept == "random"){
+        study <- 1:length(ai)
+
+        fitFE <- stats::glm(cbind(ai, mi-ai)~1, offset = off,
+                            family = binomial(link = "logit"))
+
+        fitML <- lme4::glmer(cbind(ai, mi-ai)~1+(1|study), offset = off,
+                             family = binomial(link = "logit"))
+
+      }
     }
   }
-
-
-
-  # Output generation ----------------------------------------------------------
-
-  if (inherits(fitML, "glmerMod") & slope == "random") {
-    beta <- lme4::fixef(fitML)
-    vb <- as.matrix(stats::vcov(fitML))
-    sigma2 <- lme4::VarCorr(fitML)
-    tau2 <- sigma2[[length(sigma2)]][1]
-
-    singular <- lme4::isSingular(fitML)
-    conv <- ifelse(fitML@optinfo$conv$opt == 0, TRUE, FALSE)
-  }
-
-  if (inherits(fitML, "glmerMod") & slope == "fixed") {
-    beta <- lme4::fixef(fitML)
-    vb <- as.matrix(stats::vcov(fitML))
-    sigma2 <- lme4::VarCorr(fitML)
-    tau2 <- 0
-
-    singular <- lme4::isSingular(fitML)
-    conv <- ifelse(fitML@optinfo$conv$opt == 0, TRUE, FALSE)
-  }
-
-  if (inherits(fitML, "glm")) {
-    beta <- fitML$coefficients
-    vb <- as.matrix(stats::vcov(fitML))
-    sigma2 <- NA
-    tau2 <- 0
-
-    conv <- fitML$converged
-    singular <- NA
-  }
-
-
-  se <- sqrt(diag(vb))
-
-  zval <- beta / se
-  pval <- 2 * stats::pnorm(abs(zval), lower.tail = FALSE)
-
-  zcrit <- stats::qnorm(1 - level / 2)
-  ci.lb <- beta - zcrit * se
-  ci.ub <- beta + zcrit * se
-
-  X <- stats::model.matrix(fitML)
-  p <- ifelse(all(X[1, ] == 1), ncol(X) - 1, ncol(X))
-
-  AICc <- -2 * llML + 2 * (p + 1) * max(2 * nrow(dataLong), p + 3) / (max(nrow(dataLong), 3) - p)
-  fit.stats <- rbind(llML, stats::deviance(fitML), stats::AIC(fitML), stats::BIC(fitML), AICc)
-  rownames(fit.stats) <- c("llML", "dev", "AIC", "BIC", "AICc")
-  colnames(fit.stats) <- c("ML")
 
   # make results list
   # UNDER CONSTRUCTION

@@ -17,6 +17,7 @@ rareGLMM(
   intercept = "fixed",
   slope = "random",
   conditional = FALSE,
+  approx = FALSE,
   cor = FALSE,
   coding = 1/2,
   drop00 = FALSE,
@@ -57,8 +58,11 @@ fixed-effects model, while a model with a random slope is a model with heterogen
 random effects model. See below for more details.}
 
 \item{conditional}{logical specifying whether to estimate a conditional generalized linear mixed model.
-Default is \code{FALSE}. Conditional models are not implemented yet and specifying \code{conditional = TRUE} will
-yield an error.}
+Default is \code{FALSE}.}
+
+\item{approx}{logical specifying whether to use the approximate version of the conditional generalized linear
+mixed model (i.e., the conditional binomial model). Only relevant when \code{conditional = TRUE} and \verb{measure = "logOR}.
+Default is \code{FALSE}. See below for more details.}
 
 \item{cor}{logical specifying whether random effects should be modeled as correlated or uncorrelated.
 Default is \code{cor = FALSE}. This argument is only relevant if \code{intercept = "random"} and \code{slope = "random"}.
