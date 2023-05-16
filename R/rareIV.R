@@ -246,6 +246,7 @@ rareIV <- function(x, ai, bi, ci, di, n1i, n2i, data,
 
   ## argument checking ##
 
+
   # defining an object of class 'raredata' if raw data is put in
   if(missing(x)){
     if(missing(data))stop("Data must be specified via the argument 'x' or the argument 'data'.")
@@ -304,8 +305,9 @@ rareIV <- function(x, ai, bi, ci, di, n1i, n2i, data,
   n1i <- x$n1i
   n2i <- x$n2i
 
-  # check if cc is specified (in case there are zero-studies)
-  if(any(c(ai,bi,ci,di) == 0) & missing(cc)){
+  # check if cc is specified
+  # (in case there are zero-studies and continuity correction was not applied beforehand)
+  if(any(c(ai,bi,ci,di) == 0) & is.null(x$cc) & missing(cc)){
     stop("Some studies have zero events. \n
          You must specify the 'cc' argument to determine how they are handled.\n
          In case you want to exclude all zero-studies, set 'cc' equal to 'none'.")
