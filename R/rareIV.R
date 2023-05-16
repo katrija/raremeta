@@ -419,7 +419,6 @@ rareIV <- function(x, ai, bi, ci, di, n1i, n2i, data,
     test = "knha"
   }
 
-  mf <- match.call()
 
   if(missing(cc)){
     cc = "none"
@@ -525,6 +524,7 @@ rareIV <- function(x, ai, bi, ci, di, n1i, n2i, data,
   }
 
 
+  mf <- match.call()
 
   # make results list
   # UNDER CONSTRUCTION
