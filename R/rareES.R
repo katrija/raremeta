@@ -165,9 +165,11 @@ rareES <- function(x, ai, bi, ci, di, n1i, n2i, data,
     stop("x must be an object of class 'rareData'. See ?rareDescribe for more details.")
   }
 
-  #other argument checks are done through 'rareCC()'
+
+
 
   # apply continuity correction (put cc = "none" if not needed)
+  # more argument checks are done inside 'rareCC()'
   x <- rareCC(x, cc = cc, ccval = ccval, tccval = tccval, cccval = cccval,
               ccsum = ccsum, ccto = ccto, drop00 = drop00, measure = measure)
 

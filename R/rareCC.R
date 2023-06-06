@@ -276,7 +276,6 @@ rareCC <- function(x, ai, bi, ci, di, n1i, n2i, data,
     }
   }
 
-
   # check if measure argument is specified (if needed)
   if(cc == "empirical" && missing(measure)){
     stop("To apply the the empirical continuity correction, the 'measure' argument must be specified.")
@@ -348,9 +347,7 @@ rareCC <- function(x, ai, bi, ci, di, n1i, n2i, data,
     }
 
 
-
-
-  ## specify studies to be continuity corrected ##
+  # specify studies to be continuity corrected
 
   ccstudies <- rep(FALSE, length(ai))
 
@@ -367,7 +364,7 @@ rareCC <- function(x, ai, bi, ci, di, n1i, n2i, data,
     ccstudies <- rep(TRUE, length(ai))
   }
 
-  ## calculate the continuity correction ##
+  # calculate the continuity correction
 
   tcc <- rep(0,length(ai))
   ccc <- rep(0,length(ci))
@@ -440,7 +437,7 @@ rareCC <- function(x, ai, bi, ci, di, n1i, n2i, data,
                      cc = cc, ccto = ccto, drop00 = drop00, ccstudies = ccstudies,
                      ccc = ccc, tcc = tcc, ccval = ccval, remove = remove), x)
 
-  #report measure and method argument used in 'empirical'continuity correction
+  #report measure and method argument used in 'empirical' continuity correction
   if(cc == "empirical"){
     out <- append(out, list(method.cc = method, measure.cc = measure))
   }

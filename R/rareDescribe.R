@@ -67,7 +67,7 @@ rareDescribe <- function(ai, bi, ci, di, n1i, n2i,
     stop("Argument 'data' must be a data frame.")
   }
 
-  # check if all variables are not negative
+  # check if all variables are non negative
   if (any(c(ai, bi, ci, di, n1i, n2i) < 0, na.rm = TRUE)) {
     stop("Arguments must not be negative.")
   }
@@ -87,18 +87,17 @@ rareDescribe <- function(ai, bi, ci, di, n1i, n2i,
     }
   }
 
-
-
   if (!is.null(ci) & !is.null(di) & !is.null(n2i)) {
     if (any(ci + di != n2i, na.rm = TRUE)) {
       stop("ci and di must add up to n2i.")
     }
   }
 
-  # in case n1i (n2i) is given, but bi (di) not, calculate bi (di)
+  # in case n1i (n2i) is given, but bi (di) is not, calculate bi (di)
   if (!is.null(n1i) & is.null(bi)) {
     bi <- n1i - ai
   }
+
   if (!is.null(n2i) & is.null(di)) {
     di <- n2i - ci
   }
