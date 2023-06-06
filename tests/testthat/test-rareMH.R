@@ -225,22 +225,22 @@ test_that("does not matter if data is put in as data frame or rareData-object",{
 
   k <- which(names(rareMH(x=x, measure = "logOR")) == "call")
 
-  expect_equal(
+  expect_identical(
     rareMH(x=x, measure = "logOR")[-k],
     rareMH(ai=ai, bi=bi, ci=ci, di=di, n1i=n1i, n2i=n2i, data=data, measure = "logOR")[-k],
   )
 
-  expect_equal(
+  expect_identical(
     rareMH(x=x, measure = "logOR")[-k],
     rareMH(ai=ai, ci=ci, n1i=n1i, n2i=n2i, data=data, measure = "logOR")[-k]
   )
 
-  expect_equal(
+  expect_identical(
     rareMH(x=x, measure = "logOR")[-k],
     rareMH(ai=ai, ci=ci, di=di, n1i=n1i, data=data, measure = "logOR")[-k]
   )
 
-  expect_equal(
+  expect_identical(
     rareMH(x=x, measure = "logOR")[-k],
     rareMH(ai=ai, bi=bi, ci=ci, di=di, data=data, measure = "logOR")[-k]
   )

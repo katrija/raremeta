@@ -165,22 +165,22 @@ test_that("does not matter if data is put in as data frame or rareData-object",{
 
   k <- which(names(rareIV(x=x, measure = "logOR", method = "FE", cc = "constant")) == "call")
 
-  expect_equal(
+  expect_identical(
     rareIV(x=x, measure = "logOR", method = "FE", cc = "constant")[-k],
     rareIV(ai=ai, bi=bi, ci=ci, di=di, n1i=n1i, n2i=n2i, data=data, measure = "logOR", method = "FE", cc = "constant")[-k],
   )
 
-  expect_equal(
+  expect_identical(
     rareIV(x=x, measure = "logOR", method = "FE", cc = "constant")[-k],
     rareIV(ai=ai, ci=ci, n1i=n1i, n2i=n2i, data=data, measure = "logOR", method = "FE", cc = "constant")[-k]
   )
 
-  expect_equal(
+  expect_identical(
     rareIV(x=x, measure = "logOR", method = "FE", cc = "constant")[-k],
     rareIV(ai=ai, ci=ci, di=di, n1i=n1i, data=data, measure = "logOR", method = "FE", cc = "constant")[-k]
   )
 
-  expect_equal(
+  expect_identical(
     rareIV(x=x, measure = "logOR", method = "FE", cc = "constant")[-k],
     rareIV(ai=ai, bi=bi, ci=ci, di=di, data=data, measure = "logOR", method = "FE", cc = "constant")[-k]
   )
