@@ -236,7 +236,7 @@
 #' @export
 #'
 rareIV <- function(x, ai, bi, ci, di, n1i, n2i, data,
-                   measure, method, cc, ccval = 0.5, tccval, cccval, ccsum = 1,
+                   measure, method, cc = "none", ccval = 0.5, tccval, cccval, ccsum = 1,
                    ccto = "only0",
                    drop00 = TRUE, weighted = TRUE, weights,
                    level = 95,
@@ -269,6 +269,8 @@ rareIV <- function(x, ai, bi, ci, di, n1i, n2i, data,
 
     x <- rareDescribe(ai=ai, bi=bi, ci=ci, di=di, n1i=n1i, n2i=n2i, data=data)
   }
+
+
 
   # check if x is an object of class rareData
   if(!inherits(x,"rareData")){
@@ -421,10 +423,6 @@ rareIV <- function(x, ai, bi, ci, di, n1i, n2i, data,
     test = "knha"
   }
 
-
-  if(missing(cc)){
-    cc = "none"
-  }
 
   # check whether tccval and cccval are specified; if not, set them to ccval:
   if(missing(tccval)){
