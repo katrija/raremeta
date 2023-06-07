@@ -213,6 +213,11 @@ rareCC <- function(x, ai, bi, ci, di, n1i, n2i, data,
     stop("x must be an object of class 'rareData'. See ?rareDescribe for more details.")
   }
 
+  # check if x was already continuity corrected
+  if(!is.null(x$cc)){
+    stop("This dataset was already continuity corrected before.")
+  }
+
   # extract counts and sample sizes
   ai <- x$ai
   bi <- x$bi

@@ -168,11 +168,12 @@ rareES <- function(x, ai, bi, ci, di, n1i, n2i, data,
 
 
 
-  # apply continuity correction (put cc = "none" if not needed)
+  # apply continuity correction (if not already done)
   # more argument checks are done inside 'rareCC()'
+  if(is.null(x$cc)){
   x <- rareCC(x, cc = cc, ccval = ccval, tccval = tccval, cccval = cccval,
               ccsum = ccsum, ccto = ccto, drop00 = drop00, measure = measure)
-
+  }
   # extract counts and sample sizes
   ai.cc   <- x$ai.cc
   bi.cc   <- x$bi.cc
