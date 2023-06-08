@@ -1,6 +1,5 @@
 # testing using datasets from metadat
 library("metadat")
-library("dplyr")
 
 # load packages
 data(dat.anand1999,
@@ -13,7 +12,10 @@ data(dat.anand1999,
      dat.hartmannboyce2018,
      dat.yusuf1985)
 
-# Introducing continuity correction before and during the workflow
+###
+#INTRODUCTING CONTINUITY CORRECTIN AT DIFFERENT STAGES OF THE WORKFLOW
+###
+
 # we compare different ways of fitting the same model on the same dataset and compare results
 
 ## random effects meta analysis with REML-heterogeneity estimator and
@@ -60,3 +62,27 @@ test_that("rareIV works the same with the application of the continuity correcti
 })
 
 
+
+###
+#TESTING FOR THE SIGN ERROR IN 'rarePeto'
+###
+
+library(metafor)
+d <- dat.axfors2021
+d <- data.frame(ai = d$hcq_arm_event, n1i = d$hcq_arm_total, ci = d$control_arm_event, n2i = d$control_arm_total)
+
+fit1 <- rarePeto(ai = hcq_arm_event, n1i = hcq_arm_total, ci = control_arm_event, n2i = control_arm_total, data = dat.axfors2021)
+
+fit2 <- rma.peto(ai = hcq_arm_event, n1i = hcq_arm_total, ci = control_arm_event, n2i = control_arm_total, data = dat.axfors2021)
+
+# comparison
+
+test_that("rarePeto and rma.peto calculate the same values", {
+  expect_identical(
+    fit1[c("b","se","zval","pval","ci.lb","ci.ub")],
+    fit2[c("b","se","zval","pval","ci.lb","ci.ub")]
+  )
+})
+
+# returns NAs bc of integer overflow.
+# Solution: in 'rarePeto()' line 134 onwards, change the integers by calling 'as.numeric()' or 'as.double()'

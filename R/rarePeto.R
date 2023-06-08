@@ -138,6 +138,11 @@ rarePeto <- function(x, ai, bi, ci, di, n1i, n2i, data, level = 95, digits = 4){
 
   quant <- stats::qnorm((100-level)/200)
 
+  if(sumVi == 0){
+    stop("The data does not allow for the application of this method.
+           See e.g. ?rareCC() for possible continuity corrections.")
+  }
+
   beta  <- sum((ci-Ai*(n1i/ni)))/sumVi
   se    <- sqrt(1/sumVi)
   zval  <- beta / se
