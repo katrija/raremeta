@@ -131,8 +131,8 @@ rarePeto <- function(x, ai, bi, ci, di, n1i, n2i, data, level = 95, digits = 4){
   # calculating log(OR) estimate via O-E statistic
   measure <- "logOR"
 
-  Ai    <- ai + ci
-  Bi    <- bi + di
+  Ai    <- as.numeric(ai + ci)
+  Bi    <- as.numeric(bi + di)
   Vi    <- (Ai * Bi * n1i * n2i) / (ni^2 *(ni - 1))
   sumVi <- sum(Vi)
 
