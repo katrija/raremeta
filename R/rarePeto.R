@@ -139,11 +139,12 @@ rarePeto <- function(x, ai, bi, ci, di, n1i, n2i, data, level = 95, digits = 4){
   quant <- stats::qnorm((100-level)/200)
 
   if(sumVi == 0){
-    stop("The data does not allow for the application of this method.
-           See e.g. ?rareCC() for possible continuity corrections.")
+    stop("The data does not allow for the application of this method.\n
+          There was no occurence of one of the outcomes in all of the studies.\n
+          See e.g. ?rareCC() for possible continuity corrections.")
   }
 
-  beta  <- sum((ci-Ai*(n1i/ni)))/sumVi
+  beta  <- sum((ai-Ai*(n1i/ni)))/sumVi
   se    <- sqrt(1/sumVi)
   zval  <- beta / se
   pval  <- 2*stats::pnorm(abs(zval), lower.tail=FALSE)
