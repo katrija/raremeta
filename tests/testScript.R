@@ -13,7 +13,7 @@ data(dat.anand1999,
      dat.yusuf1985)
 
 ###
-#INTRODUCTING CONTINUITY CORRECTIN AT DIFFERENT STAGES OF THE WORKFLOW
+#1. INTRODUCTING CONTINUITY CORRECTIN AT DIFFERENT STAGES OF THE WORKFLOW
 ###
 
 # we compare different ways of fitting the same model on the same dataset and compare results
@@ -64,10 +64,12 @@ test_that("rareIV works the same with the application of the continuity correcti
 
 
 ###
-#TESTING FOR THE SIGN ERROR IN 'rarePeto'
+#3. TESTING FOR THE SIGN ERROR IN 'rarePeto'
 ###
 
 library(metafor)
+
+## 3.1
 d <- dat.axfors2021
 d <- data.frame(ai = d$hcq_arm_event, n1i = d$hcq_arm_total, ci = d$control_arm_event, n2i = d$control_arm_total)
 
@@ -84,5 +86,27 @@ test_that("rarePeto and rma.peto calculate the same values", {
   )
 })
 
-# returns NAs bc of integer overflow.
-# Solution: in 'rarePeto()' line 134 onwards, change the integers by calling 'as.numeric()' or 'as.double()'
+# introduced as.numeric to prevent integer overflow?
+
+## 3.2 same analysis, different dataset
+d <- dat.cannon2006
+d <- data.frame(ai = d$ep1t, n1i = d$nt, ci = d$ep1c, n2i = d$nc)
+
+fit1 <- rarePeto(ai = ep1t, n1i = nt, ci = ep1c, n2i = nc, data = dat.cannon2006)
+
+fit2 <- rma.peto(ai = ep1t, n1i = nt, ci = ep1c, n2i = nc, data = dat.cannon2006, to = "none")
+
+# comparison
+
+test_that("rarePeto and rma.peto calculate the same values", {
+  expect_identical(
+    fit1[c("b","se","zval","pval","ci.lb","ci.ub")],
+    fit2[c("b","se","zval","pval","ci.lb","ci.ub")]
+  )
+})
+
+# has different values because of different way of calculating the products
+# ?solution: copy Viechtbauers representation?
+
+
+
