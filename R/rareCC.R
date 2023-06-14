@@ -424,6 +424,11 @@ rareCC <- function(x, ai, bi, ci, di, n1i, n2i, data,
   ci.cc <- ci+ccc
   di.cc <- di+ccc
 
+  if(any(ai.cc == 0 | bi.cc == 0 | ci.cc == 0 |di.cc == 0)){
+    stop("There can not be studies with no event in either of the cells after the application of the continuity correction. \n
+      See '?rareCC()' for more options.")
+  }
+
   ## adding description of continuity corrected data ##
 
   data.cc <- data.frame(ai.cc = ai.cc, bi.cc = bi.cc, ci.cc = ci.cc, di.cc = di.cc)
@@ -451,6 +456,4 @@ rareCC <- function(x, ai, bi, ci, di, n1i, n2i, data,
   return(out)
 
 }
-
-
 
