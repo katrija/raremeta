@@ -108,5 +108,107 @@ test_that("rarePeto and rma.peto calculate the same values", {
 # has different values because of different way of calculating the products
 # ?solution: copy Viechtbauers representation?
 
+# Collins1985 example:
 
+dat <- data.frame(
+  ai = dat.collins1985a$b.xti,
+  n1i = dat.collins1985a$nti,
+  ci = dat.collins1985a$b.xci,
+  n2i = dat.collins1985a$nci
+)
 
+rareIV(ai = ai, n1i = n1i, ci = ci, n2i = n2i, data = dat,
+       measure = "logOR", method = "REML")
+# missing values warning has to be reformatted
+
+rareIV(ai = ai, n1i = n1i, ci = ci, n2i = n2i, data = dat,
+       measure = "logOR", method = "REML",
+       cc = "constant", ccto = "only0")
+# missing values are not handled well
+
+dat <- dat[-which(is.na(dat$ai)),]
+dat
+
+fit1 <- rareIV(ai = ai, n1i = n1i, ci = ci, n2i = n2i, data = dat,
+       measure = "logOR", method = "REML",
+       cc = "constant", ccto = "only0")
+
+fit2 <- rma(ai = ai, n1i = n1i, ci = ci, n2i = n2i, data = dat,
+    measure = "OR", method = "REML", drop00 = TRUE)
+
+fit1$ai
+fit1$ai.cc
+
+dat_c <- dat
+
+dat_c[which(dat$ai == 0),] <- dat_c[which(dat$ai == 0),] + 0.1
+fit1  <- rareIV(ai = ai, n1i = n1i, ci = ci, n2i = n2i, data = dat_c,
+               measure = "logOR", method = "REML",
+               cc = "none")
+fit1
+fit1$ai.cc
+fit1$ai
+
+fit2 <- rma(ai = ai, n1i = n1i, ci = ci, n2i = n2i, data = dat_c,
+            measure = "OR", method = "REML", drop00 = TRUE)
+fit2
+
+fit3 <- rareIV(ai = ai, n1i = n1i, ci = ci, n2i = n2i, data = dat,
+               measure = "logOR", method = "REML",
+               cc = "constant", cccval = 2, tccval = 3, ccto = "all")
+fit3$ai.cc
+fit3$ai
+fit3$ci.cc
+fit3$ci
+
+fit4 <- rareIV(ai = ai, n1i = n1i, ci = ci, n2i = n2i, data = dat,
+               measure = "logOR", method = "REML",
+               cc = "constant", cccval = -5, tccval = -20, ccto = "all")
+
+dat_cc <- rareCC(ai = ai, n1i = n1i, ci = ci, n2i = n2i, data = dat,
+                 measure = "logOR", cc = "empirical", method = "DL")
+dat_cc
+# Ist der Output fuer dat_cc so passend? => ggf. eher sinnvoll,
+# hier Info zur Kontinuitaetskorrektur zu geben
+# (welche; wie viele Studien wurden korrigiert)
+
+dat_nocc <-  rareDescribe(ai = ai, n1i = n1i, ci = ci, n2i = n2i, data = dat)
+
+rarePeto(dat_cc)
+rarePeto(dat_nocc)
+
+rma.peto(ai = ai, n1i = n1i, ci = ci, n2i = n2i,
+         data = dat)
+
+rareMH(dat_cc, measure = "logOR")
+rareMH(dat_nocc, measure = "logOR")
+
+rma.mh(ai = ai, n1i = n1i, ci = ci, n2i = n2i,
+       data = dat, drop00 = FALSE)
+
+# rarePeto und rareMH nutzen die nicht-korrigierten ais, cis usw. (?)
+# => ist i.O., sollte nur irgendwo deutlich gemacht werden
+
+dat0 <- dat
+dat0$ci <- 0
+
+rareMH(ai = ai, n1i = n1i, ci = ci, n2i = n2i, data = dat0,
+       measure = "logOR")
+# Fehlermeldung etwas kryptisch - es wird nicht klar, warum die Daten nicht geeignet sind
+# Kontinuitaetskorrekturen sollten auch in rareMH verfuegbar sein (aber nicht der Default)
+# (das wird manchmal gemacht)
+
+rarePeto(ai = ai, n1i = n1i, ci = ci, n2i = n2i, data = dat00)
+
+dat00 <- dat0
+dat00$ai <- 0
+
+rarePeto(ai = ai, n1i = n1i, ci = ci, n2i = n2i, data = dat00)
+# Fehlermeldung tritt erst auf, wenn das Outcome in beiden Gruppen in allen Studien 0 ist
+# (sollte auch so sein (?).
+# Vorschlag: Fehlermeldung umformulieren zu "All studies are double-zero studies -
+# no estimation possible."
+
+rareBetabin(ai = ai, n1i = n1i, ci = ci, n2i = n2i, data = dat,
+            measure = "logOR")
+warnings()
