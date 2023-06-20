@@ -60,15 +60,15 @@
 #'
 #' ## Effect size measures
 #' The function includes different versions of the generalized linear (mixed) model. The regression equation
-#' for the of all these models can be expressed as
+#' for the fixed-effects model (GLM) can be expressed as
 #'
 #' \mjseqn{g(\pi_{ij}) = \alpha_i + \theta \cdot x_{ij}},
 #'
-#' for the fixed-effects model (GLM) and
+#' and the model equation for the random-effects model (GLMM) can be expressed as
 #'
 #' \mjseqn{g(\pi_{ij}) = \alpha_i+ \theta \cdot x_{ij} + \epsilon_{i} \cdot z_{ij}},
 #'
-#' for the random-effects model (GLMM), where \mjseqn{i = 1, ..., k } is the study index and \mjseqn{j = 1, 2} is the group index,
+#' where \mjseqn{i = 1, ..., k } is the study index and \mjseqn{j = 1, 2} is the group index,
 #' \mjseqn{x_{i1} = 1}, \mjseqn{x_{i2} = 0}, and \mjseqn{z_{ij}} is defined by the `coding` argument.
 #' Specifically, for `coding = z`, \mjseqn{z_{i1} = z} and \mjseqn{z_{i2} = z-1}. Default is \mjseqn{z = 1/2}.
 #' `coding = 1` corresponds to Models 2 and 4 in Jackson et al. (2017), and `coding = 1/2` corresponds to Models 3 and 5 in
@@ -139,7 +139,7 @@
 #'
 #' @examples
 #'
-#' # introducing a dataset
+#' # load a dataset
 #' data(dat.nissen2007)
 #' d <- dat.nissen2007
 #'

@@ -82,7 +82,7 @@ entries of the study's 2x2 table:\tabular{lrr}{
 
 \subsection{Mantel-Haenszel type estimators}{
 
-A prominent class of estimators for the common effect size under the the equal-efects model
+A prominent class of estimators for the common effect size under the the equal-effects model
 was proposed by Mantel and Haenszel in 1959.
 Mantel-Haenszel type estimators are particularly useful in meta-analysis of rare
 events.
@@ -97,7 +97,7 @@ For a summary of the implemented estimators see e.g. sections 9.2-9.4 of Jewell
 }
 
 \examples{
-# introducing a data set
+# load a data set
 data(dat.nissen2007)
 d <- dat.nissen2007
 

@@ -63,7 +63,7 @@
 #' @export
 #'
 #' @examples
-#' # introducing a data set
+#' # load a data set
 #' data(dat.nissen2007)
 #' d <- dat.nissen2007
 #'

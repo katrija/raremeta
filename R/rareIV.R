@@ -192,14 +192,14 @@
 #' * ...
 #'
 #' @examples
-#' # introducing a data set
+#' # load a data set
 #' data(dat.nissen2007)
 #' d <- dat.nissen2007
 #'
-#' # estimating the log relative risk in the fixed-effects model
+#' # estimate the log relative risk in the fixed-effects model
 #' rareIV(ai=miRosiglitazone, ci=miControl, n1i=nRosiglitazone, n2i=nControl, data=d, measure="logOR", method="FE", cc="constant")
 #'
-#' # estimating the log relative risk in a random effects-model
+#' # estimate the log relative risk in a random effects-model
 #' rareIV(ai=miRosiglitazone, ci=miControl, n1i=nRosiglitazone, n2i=nControl, data=d, measure="logRR", method="DL", cc="constant")
 #'
 #' # same analysis with pre-processed data

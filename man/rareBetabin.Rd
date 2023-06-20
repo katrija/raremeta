@@ -148,14 +148,14 @@ the results to the original scale.
 }
 \examples{
 
-# indtroducing the data
+# load a data set
 data(dat.nissen2007)
 d <- dat.nissen2007
 
-# estimating the log relative risk assuming common intraclass correlations
+# estimate the log relative risk assuming a common intraclass correlations
 rareBetabin(ai=miRosiglitazone, ci=miControl, n1i=nRosiglitazone, n2i=nControl, data=d, measure="logRR", common_rho=TRUE)
 
-# estimatint the log odds ratio assuming differing intraclass correlations
+# estimate the log odds ratio assuming group-specific intraclass correlations
 rareBetabin(ai=miRosiglitazone, ci=miControl, n1i=nRosiglitazone, n2i=nControl, data=d, measure="logOR", common_rho=FALSE)
 
 # same analysis with pre-processed data

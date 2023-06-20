@@ -43,7 +43,7 @@
 #' |group2 (control)   | ci    | di      |
 #'
 #' ## Mantel-Haenszel type estimators
-#' A prominent class of estimators for the common effect size under the the equal-efects model
+#' A prominent class of estimators for the common effect size under the the equal-effects model
 #' was proposed by Mantel and Haenszel in 1959.
 #' Mantel-Haenszel type estimators are particularly useful in meta-analysis of rare
 #' events.
@@ -71,7 +71,7 @@
 #' * ...
 #'
 #' @examples
-#' # introducing a data set
+#' # load a data set
 #' data(dat.nissen2007)
 #' d <- dat.nissen2007
 #'
