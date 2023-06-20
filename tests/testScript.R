@@ -209,6 +209,43 @@ rarePeto(ai = ai, n1i = n1i, ci = ci, n2i = n2i, data = dat00)
 # Vorschlag: Fehlermeldung umformulieren zu "All studies are double-zero studies -
 # no estimation possible."
 
+
+# Alternative models -----------------------------------------------------------
+
+# Betabin:
 rareBetabin(ai = ai, n1i = n1i, ci = ci, n2i = n2i, data = dat,
             measure = "logOR")
-warnings()
+
+# GLMM, fixed intercepts:
+rareGLMM(ai = ai, n1i = n1i, ci = ci, n2i = n2i,
+         data = dat, measure = "logOR")
+
+rma.glmm(ai = ai, n1i = n1i, ci = ci, n2i = n2i, data = dat,
+         measure = "OR")
+
+
+# GLMM, random intercept:
+rareGLMM(ai = ai, n1i = n1i, ci = ci, n2i = n2i,
+         data = dat, measure = "logOR", intercept = "random",
+         slope = "random")
+
+rma.glmm(ai = ai, n1i = n1i, ci = ci, n2i = n2i, data = dat,
+         measure = "OR", model = "UM.RS")
+# results differ - find out why!
+
+rareGLMM(ai = ai, n1i = n1i, ci = ci, n2i = n2i,
+         data = dat, measure = "logOR", intercept = "random",
+         slope = "random", drop00 = TRUE)
+# apparently the results differ because rma.glmm per default drops dz studies
+# NB: we currently use a different type of LRT compared to rma.glmm -
+# which one makes more sense?
+
+# Hypergeometric-normal model:
+rareGLMM(ai = ai, n1i = n1i, ci = ci, n2i = n2i,
+         data = dat, measure = "logOR", intercept = "random",
+         slope = "random", conditional = TRUE)
+# Q: is p calculated correctly (currently, tau2 is not taken into account)
+# apparently se is not correct - find out why
+
+rma_nchg <- rma.glmm(ai = ai, n1i = n1i, ci = ci, n2i = n2i,
+         data = dat, measure = "OR", model = "CM.EL")
