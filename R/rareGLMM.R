@@ -537,6 +537,12 @@ rareGLMM <- function(x, ai, bi, ci, di, n1i, n2i, data, measure,
         }
 
         llML <- -fitML$objective
+        p <- 1
+        X <- as.matrix(rep(1, length(ai)))
+
+        fit.stats <- rbind(llML, NA, NA, NA, NA )
+        rownames(fit.stats) <- c("llML", "dev", "AIC", "BIC", "AICc")
+        colnames(fit.stats) <- c("ML")
 
         if(inherits(fitFE, "try-error")){
           warning("Unable to fit fixed-effects model")
