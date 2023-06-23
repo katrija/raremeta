@@ -20,6 +20,40 @@
 #' @param level numeric between 0 and 100 specifying the confidence interval level (the default is 95).
 #' @param digits integer specifying the number of decimal places to which the printed results
 #' should be rounded (if unspecified, the default is 4).
+#' @param correct logical specifying whether the data shall be continuity corrected before application of `rareMH()`. Default is `FALSE`
+#' @param cc character string specifying the type of continuity corrections to be used.
+#' (either `"constant"`, `"tacc"` or `"empirical"`). Default is `"constant"`.
+#' @param ccval scalar or numerical vector specifying the value of the continuity correction if
+#' `cc = "constant"`. Must be a scalar or a vector of length equal to the number of studies.
+#' Default is `ccval = 0.5`. If a scalar is specified, the value is added to all studies for
+#' which the number of events is zero in at least one of the groups. This behavior can be changed
+#' using the argument `ccto`. `ccval` is overwritten by tccval and cccval if both arguments are specified.
+#' @param tccval scalar or numerical vector specifying the value of the continuity correction
+#' applied to the observations from the treatment group (group 1) if `cc = "constant"`. Must be a scalar or a vector
+#' of length equal to the number of studies. If `cc = "constant"` and `tccval` is not specified, `tccval` is
+#' set to the value of `ccval` internally.
+#' @param cccval scalar or numerical vector specifying the value of the continuity correction
+#' applied to the observations from the control group (group 2) if `cc = "constant"`. Must be a scalar or a vector
+#' of length equal to the number of studies. If `cc = "constant"` and `cccval` is not specified, `cccval` is
+#' set to the value of `ccval` internally.
+#' @param ccsum numeric value specifying the value of the sum of the continuity correction applied to the
+#' observations from the treatment group and the continuity correction applied to the observations from
+#' the control group. Default is `ccsum = 1`. Currently, setting this argument to a different number only has
+#' an effect when `cc = "tacc"` or `cc = "empirical"`.
+#' @param ccto character string indicating to which studies the continuity correction should
+#' be applied. Either `"only0"`, for which the continuity correction is applied to all studies
+#' for which the number of events is zero in at least one of the groups, `"all"`, for which the
+#' continuity correction is applied to all studies, or `"if0all"`, for which the continuity
+#' correction is applied to all studies if any of the individual studies has zero events in at
+#' least one of the groups.
+#' @param method character string specifying whether a fixed- or a random-effects model should be fitted when
+#' calculating the empirical and treatment-arm continuity correction. See ´?rareCC()´ for more details.
+#' A fixed-effects model is fitted when using `method = "FE"` . A random-effects model is fitted
+#' by setting `method` equal to one of the following: `"DL"`, `"HE"`, `"SJ"`, `"ML"`, `"REML"`, `"EB"`, `"HS"`,
+#' `"PM"`, `"IPM"`, `"GENQ"`, `"PMM"` or `"GENQM"`.
+#' @param drop00 logical indicating whether double-zero studies (i.e., studies with no events or only events in both groups)
+#' should be excluded prior to calculating the studies' effect sizes and sampling variances.
+
 #'
 #' @details
 #' # Details
@@ -102,7 +136,9 @@
 #'
 
 rareMH <- function(x, ai, bi, ci, di, n1i, n2i, data,
-                   measure, level = 95,  digits = 4){
+                   measure, level = 95,  digits = 4,
+                   correct = FALSE, cc = "constant", ccval = 0.5, tccval, cccval,
+                   ccsum = 1, ccto = "only0", method = "FE"){
 
   ## argument checking ##
 
@@ -157,7 +193,24 @@ rareMH <- function(x, ai, bi, ci, di, n1i, n2i, data,
 
   mf <- match.call()
 
+  # continuity correction if wanted
   # extract counts and sample sizes
+  if(!is.logical(correct)) stop("argument 'correct' must be a logical")
+
+  if(correct == TRUE){
+
+    x <- rareCC(x, cc = cc, ccval = ccval, tccval = tccval, cccval = cccval,
+                ccsum = ccsum, ccto = ccto, measure = measure, method = method)
+
+    ai  <- x$ai.cc
+    bi  <- x$bi.cc
+    ci  <- x$ci.cc
+    di  <- x$di.cc
+    n1i <- x$n1i.cc
+    n2i <- x$n2i.cc
+    ni  <- n1i + n2i
+
+  }else{
   ai  <- x$ai
   bi  <- x$bi
   ci  <- x$ci
@@ -165,6 +218,9 @@ rareMH <- function(x, ai, bi, ci, di, n1i, n2i, data,
   n1i <- x$n1i
   n2i <- x$n2i
   ni  <- n1i + n2i
+  }
+
+
 
   quant <- stats::qnorm((100-level)/200)
 
@@ -178,8 +234,10 @@ rareMH <- function(x, ai, bi, ci, di, n1i, n2i, data,
     B <- sum(Bi)
     D <- sum(Di)
 
+
     if(B == 0 || D == 0){
-      stop("The data does not allow for the application of this method.
+      stop("The data does not allow for the application of this method.\n
+           This might be the result of no occurence of one of the outcomes in all of the studies.\n
            See e.g. ?rareCC() for possible continuity corrections.")
     }
 

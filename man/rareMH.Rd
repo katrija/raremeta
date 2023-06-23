@@ -4,7 +4,27 @@
 \alias{rareMH}
 \title{Conduct a meta-analysis using Mantel-Haenszel type estimators}
 \usage{
-rareMH(x, ai, bi, ci, di, n1i, n2i, data, measure, level = 95, digits = 4)
+rareMH(
+  x,
+  ai,
+  bi,
+  ci,
+  di,
+  n1i,
+  n2i,
+  data,
+  measure,
+  level = 95,
+  digits = 4,
+  correct = FALSE,
+  cc = "constant",
+  ccval = 0.5,
+  tccval,
+  cccval,
+  ccsum = 1,
+  ccto = "only0",
+  method = "FE"
+)
 }
 \arguments{
 \item{x}{an object of class \code{"rareData"}.}
@@ -31,6 +51,48 @@ or \code{"RD"} for the risk difference).}
 
 \item{digits}{integer specifying the number of decimal places to which the printed results
 should be rounded (if unspecified, the default is 4).}
+
+\item{correct}{logical specifying whether the data shall be continuity corrected before application of \code{rareMH()}. Default is \code{FALSE}}
+
+\item{cc}{character string specifying the type of continuity corrections to be used.
+(either \code{"constant"}, \code{"tacc"} or \code{"empirical"}). Default is \code{"constant"}.}
+
+\item{ccval}{scalar or numerical vector specifying the value of the continuity correction if
+\code{cc = "constant"}. Must be a scalar or a vector of length equal to the number of studies.
+Default is \code{ccval = 0.5}. If a scalar is specified, the value is added to all studies for
+which the number of events is zero in at least one of the groups. This behavior can be changed
+using the argument \code{ccto}. \code{ccval} is overwritten by tccval and cccval if both arguments are specified.}
+
+\item{tccval}{scalar or numerical vector specifying the value of the continuity correction
+applied to the observations from the treatment group (group 1) if \code{cc = "constant"}. Must be a scalar or a vector
+of length equal to the number of studies. If \code{cc = "constant"} and \code{tccval} is not specified, \code{tccval} is
+set to the value of \code{ccval} internally.}
+
+\item{cccval}{scalar or numerical vector specifying the value of the continuity correction
+applied to the observations from the control group (group 2) if \code{cc = "constant"}. Must be a scalar or a vector
+of length equal to the number of studies. If \code{cc = "constant"} and \code{cccval} is not specified, \code{cccval} is
+set to the value of \code{ccval} internally.}
+
+\item{ccsum}{numeric value specifying the value of the sum of the continuity correction applied to the
+observations from the treatment group and the continuity correction applied to the observations from
+the control group. Default is \code{ccsum = 1}. Currently, setting this argument to a different number only has
+an effect when \code{cc = "tacc"} or \code{cc = "empirical"}.}
+
+\item{ccto}{character string indicating to which studies the continuity correction should
+be applied. Either \code{"only0"}, for which the continuity correction is applied to all studies
+for which the number of events is zero in at least one of the groups, \code{"all"}, for which the
+continuity correction is applied to all studies, or \code{"if0all"}, for which the continuity
+correction is applied to all studies if any of the individual studies has zero events in at
+least one of the groups.}
+
+\item{method}{character string specifying whether a fixed- or a random-effects model should be fitted when
+calculating the empirical and treatment-arm continuity correction. See ´?rareCC()´ for more details.
+A fixed-effects model is fitted when using \code{method = "FE"} . A random-effects model is fitted
+by setting \code{method} equal to one of the following: \code{"DL"}, \code{"HE"}, \code{"SJ"}, \code{"ML"}, \code{"REML"}, \code{"EB"}, \code{"HS"},
+\code{"PM"}, \code{"IPM"}, \code{"GENQ"}, \code{"PMM"} or \code{"GENQM"}.}
+
+\item{drop00}{logical indicating whether double-zero studies (i.e., studies with no events or only events in both groups)
+should be excluded prior to calculating the studies' effect sizes and sampling variances.}
 }
 \value{
 an object of class "raremeta".

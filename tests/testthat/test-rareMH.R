@@ -65,6 +65,31 @@ test_that("rareMH runs with valid inputs", {
     rareMH(x, measure = "logRR", level = 100, digits = 3),
     NA
   )
+
+  expect_error(
+    rareMH(x, measure = "logOR", correct = TRUE),
+    NA
+  )
+
+  expect_error(
+    rareMH(x, measure = "logRR", correct = TRUE),
+    NA
+  )
+
+  expect_error(
+    rareMH(x, measure = "RD", correct = TRUE),
+    NA
+  )
+
+  expect_error(
+    rareMH(x, measure = "logOR", correct = TRUE, cc = "empirical", method = "DL"),
+    NA
+  )
+
+  expect_error(
+    rareMH(x, measure = "logRR", correct = TRUE, cc = "tacc", method = "REML"),
+    NA
+  )
 })
 
 test_that("rareMH returns errors and warning messages", {
@@ -132,13 +157,18 @@ test_that("rareMH returns errors and warning messages", {
     "'digits' must be an integer of length 1."
   )
 
+  expect_error(
+    rareMH(x, measure = "logOR", correct = "YesPlease"),
+    "argument 'correct' must be a logical"
+  )
+
 })
 
 test_that("comparing output of rareMH to output of metafor::rma.mh",{
 
   #log(OR) with defaults (level=95, digits=4)
-  rare    <- rareMH(x, measure = "logOR")
-  fit_rma <- metafor::rma.mh(ai=ai, bi=bi, ci=ci, di=di, data=data, measure="OR", drop00 = FALSE)
+  rare    <- rareMH(x, measure = "logOR", correct = FALSE)
+  fit_rma <- metafor::rma.mh(ai=ai, bi=bi, ci=ci, di=di, data=data, measure="OR", drop00 = FALSE, correct = FALSE)
 
   expect_equal(rare$b, fit_rma$b, ignore_attr = TRUE)
   expect_equal(rare$beta, fit_rma$beta, ignore_attr = TRUE)
@@ -177,9 +207,10 @@ test_that("comparing output of rareMH to output of metafor::rma.mh",{
   expect_equal(rare$k, fit_rma$k, ignore_attr = TRUE)
 
   #log(OR) with level=50, digits = 5
-  rare    <- rareMH(x, measure = "logRR", level = 50, digits = 5)
+  rare    <- rareMH(x, measure = "logRR", level = 50, digits = 5, correct = FALSE)
   fit_rma <- metafor::rma.mh(ai=ai, bi=bi, ci=ci, di=di, data=data, measure="RR",
-                    level = 50, digits = 5, drop00 = FALSE)
+                    level = 50, digits = 5, drop00 = FALSE, correct = TRUE)
+
 
   expect_equal(rare$b, fit_rma$b, ignore_attr = TRUE)
   expect_equal(rare$beta, fit_rma$beta, ignore_attr = TRUE)
@@ -246,3 +277,4 @@ test_that("does not matter if data is put in as data frame or rareData-object",{
   )
 
 })
+
