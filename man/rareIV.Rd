@@ -59,7 +59,7 @@ by setting \code{method} equal to one of the following: \code{"DL"}, \code{"HE"}
 \code{"PM"}, \code{"IPM"}, \code{"GENQ"}, \code{"PMM"} or \code{"GENQM"}.}
 
 \item{cc}{character string specifying the type of continuity corrections to be used
-(either \code{"constant"}, \code{"tacc"} or \code{"empirical"}). Default is "constant". See 'Details'.}
+(either \code{"constant"}, \code{"tacc"} or \code{"empirical"}). Default is \code{"constant"}. See 'Details'.}
 
 \item{ccval}{scalar or numerical vector specifying the value of the continuity correction if
 \code{cc = "constant"}. Must be a scalar or a vector of length equal to the number of studies.

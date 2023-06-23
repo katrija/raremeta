@@ -20,7 +20,7 @@
 #' by setting `method` equal to one of the following: `"DL"`, `"HE"`, `"SJ"`, `"ML"`, `"REML"`, `"EB"`, `"HS"`,
 #' `"PM"`, `"IPM"`, `"GENQ"`, `"PMM"` or `"GENQM"`.
 #' @param cc character string specifying the type of continuity corrections to be used
-#' (either `"constant"`, `"tacc"` or `"empirical"`). Default is "constant". See 'Details'.
+#' (either `"constant"`, `"tacc"` or `"empirical"`). Default is `"constant"`. See 'Details'.
 #' @param ccval scalar or numerical vector specifying the value of the continuity correction if
 #' `cc = "constant"`. Must be a scalar or a vector of length equal to the number of studies.
 #' Default is `ccval = 0.5`. If a scalar is specified, the value is added to all studies for
