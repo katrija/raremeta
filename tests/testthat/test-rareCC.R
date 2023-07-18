@@ -298,7 +298,7 @@ test_that("rareMH returns errors and warning messages", {
 
 #testing continuity correction vs correcting by hand for cc = "constant" with ccval = 1
 
-#ccto  = "all"
+# ccto  = "all"
 dataCC_all <- data.frame(
   ai = c(1, 4, 3, 1),
   bi = c(21, 19, 16, 20),
@@ -318,7 +318,7 @@ x_all <- rareDescribe(
   data = dataCC_all
 )
 
-#only 0
+# ccto = "only0"
 dataCC_only0 <- data.frame(
   ai = c(1, 3, 3, 1),
   bi = c(21, 18, 16, 20),

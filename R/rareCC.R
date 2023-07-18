@@ -90,7 +90,6 @@
 #' A fixed-effects model is fitted when `method` is set to `"FE"` (or `"EE"`). A random-effects model
 #' is fitted when `method` is set to either `"DL"`, `"HE"`, `"SJ"`, `"ML"`, `"REML"`, `"EB"`, `"HS"`,
 #' `"PM"`, `"IPM"`, `"GENQ"`, `"PMM"` or `"GENQM"`.
-#' For a basic introduction to fixed-effects and random-effects meta-analysis, please refer to Borenstein et al. (2021)
 #' Currently, the model is fitted by applying the `rma` function from the `metafor` package, see Viechtbauer (2010).
 #'
 #' ## Estimation of the between-study variance in random-effects meta-analysis
