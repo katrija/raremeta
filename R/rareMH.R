@@ -21,7 +21,7 @@
 #' @param digits integer specifying the number of decimal places to which the printed results
 #' should be rounded (if unspecified, the default is 4).
 #' @param correct logical specifying whether the data shall be continuity corrected before application of `rareMH()`. Default is `FALSE`
-#' @param cc character string specifying the type of continuity corrections to be used.
+#' @param cc character string specifying the type of continuity correction to be used.
 #' (either `"constant"`, `"tacc"` or `"empirical"`). Default is `"constant"`.
 #' @param ccval scalar or numerical vector specifying the value of the continuity correction if
 #' `cc = "constant"`. Must be a scalar or a vector of length equal to the number of studies.
@@ -96,7 +96,7 @@
 #' * `zval`: test statistics of the coefficients.
 #' * `pval`: p-values corresponding to the test statistics.
 #' * `ci.lb`: lower bound of the confidence intervals for the coefficients.
-#' * `ci.ub`: upper bound of the confidence intervals for the coefficients.
+#' * `ci.ub`: upfper bound of the confidence intervals for the coefficients.
 #' * `k`: number of studies included in the analysis.
 #' * `kdz`,`ksz`: number of double-zero and single-zero studies.
 #' * `k1sz`, `k2sz`: number of single-zero studies where the zero is in group 1 or group 2.
@@ -201,6 +201,9 @@ rareMH <- function(x, ai, bi, ci, di, n1i, n2i, data,
 
     x <- rareCC(x, cc = cc, ccval = ccval, tccval = tccval, cccval = cccval,
                 ccsum = ccsum, ccto = ccto, measure = measure, method = method)
+  }
+
+  if(!is.null(x$cc)){
 
     ai  <- x$ai.cc
     bi  <- x$bi.cc
