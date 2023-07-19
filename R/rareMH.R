@@ -96,7 +96,7 @@
 #' * `zval`: test statistics of the coefficients.
 #' * `pval`: p-values corresponding to the test statistics.
 #' * `ci.lb`: lower bound of the confidence intervals for the coefficients.
-#' * `ci.ub`: upfper bound of the confidence intervals for the coefficients.
+#' * `ci.ub`: upper bound of the confidence intervals for the coefficients.
 #' * `k`: number of studies included in the analysis.
 #' * `kdz`,`ksz`: number of double-zero and single-zero studies.
 #' * `k1sz`, `k2sz`: number of single-zero studies where the zero is in group 1 or group 2.

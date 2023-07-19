@@ -1,4 +1,4 @@
-#' Calculate effect sizes for meta-analyses of rare events.
+#' Calculate individual effect sizes for meta-analyses of rare events.
 #'
 #' @param x an object of class `"rareData"`.
 #' @param ai data frame column to specify the number of events in group 1 (i.e., the treatment group).
@@ -11,7 +11,7 @@
 #' @param measure character string specifying the effect size or outcome measure to be used
 #' (either `"logOR"` for the log odds ratio, `"logRR"` for the log relative risk,
 #' or `"RD"` for the risk difference).
-#' @param cc character string specifying the type of continuity corrections to be used
+#' @param cc character string specifying the type of continuity correction to be used
 #' (either `"constant"`, `"tacc"` or `"empirical"`). Default is "constant". See 'Details'.
 #' @param ccval scalar or numerical vector specifying the value of the continuity correction if
 #' `cc = "constant"`. Must be a scalar or a vector of length equal to the number of studies.
@@ -80,7 +80,7 @@
 #' using the argument `ccto`. Per default, the constant value 0.5 (`cc = "constant"`, `ccval = 0.5`) is added to
 #' all cells of the studies specified by `ccto`. This continuity correcton was desribed by Gart and Zweifel (1967).
 #' Alternative continuity corrections which were described by Sweeting et al. (2004) can be applied by setting `cc` to `"tacc"`
-#' (for the treatment-arm continuity correction), and to `"empirical"` for the empirical continuity correction.
+#' for the treatment-arm continuity correction, and to `"empirical"` for the empirical continuity correction.
 #' Per default, the sum of the corrections for treatment and control groups is set to `1`, but this can be changed by setting the
 #' the argument `ccsum` to a different value.
 #' It is possible to set the continuity correction to a user-defined value (or a vector of user-defined values) using the
@@ -118,11 +118,11 @@
 #' d <- dat.nissen2007
 #'
 #'
-#' # estimating the log odds ratios with the default continuity correction of 0.5
+#' # estimating the log odds ratios with applicatoin of the default continuity correction of 0.5
 #' d.RR <- rareES(ai=miRosiglitazone, ci=miControl, n1i=nRosiglitazone, n2i=nControl, data=d, measure="logRR", cc="constant")
 #' d.RR$yi
 #'
-#' # estimating logarithmised odds ratios with the empirical continuity correction
+#' # estimating log odds ratios with applicatoin of the empirical continuity correction
 #' d.OR <- rareES(ai=miRosiglitazone, ci=miControl, n1i=nRosiglitazone, n2i=nControl, data=d, measure="logRR", cc="empirical")
 #' d.OR$yi
 #'
@@ -170,6 +170,7 @@ rareES <- function(x, ai, bi, ci, di, n1i, n2i, data,
 
   # apply continuity correction (if not already done)
   # more argument checks are done inside 'rareCC()'
+  # (since cc = "none" by default, already corrected data will have ai==ai.cc etc)
   if(is.null(x$cc)){
   x <- rareCC(x, cc = cc, ccval = ccval, tccval = tccval, cccval = cccval,
               ccsum = ccsum, ccto = ccto, drop00 = drop00, measure = measure)

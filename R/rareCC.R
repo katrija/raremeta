@@ -11,7 +11,7 @@
 #' @param n1i data frame column to specify the sample sizes in group 1 (i.e., the treatment group).
 #' @param n2i data frame column to specify the sample sizes in group 2 (i.e., the control group).
 #' @param data data frame.
-#' @param cc character string specifying the type of continuity corrections to be used
+#' @param cc character string specifying the type of continuity correction to be used
 #' (either `"constant"`, `"tacc"` or `"empirical"`). Default is "constant". See 'Details'.
 #' @param ccval scalar or numerical vector specifying the value of the continuity correction if
 #' `cc = "constant"`. Must be a scalar or a vector of length equal to the number of studies.

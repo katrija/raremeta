@@ -58,8 +58,8 @@ A fixed-effects model is fitted when using \code{method = "FE"} . A random-effec
 by setting \code{method} equal to one of the following: \code{"DL"}, \code{"HE"}, \code{"SJ"}, \code{"ML"}, \code{"REML"}, \code{"EB"}, \code{"HS"},
 \code{"PM"}, \code{"IPM"}, \code{"GENQ"}, \code{"PMM"} or \code{"GENQM"}.}
 
-\item{cc}{character string specifying the type of continuity corrections to be used
-(either \code{"constant"}, \code{"tacc"} or \code{"empirical"}). Default is \code{"constant"}. See 'Details'.}
+\item{cc}{character string specifying the type of continuity correction to be used
+(either \code{"none"}, \code{"constant"}, \code{"tacc"} or \code{"empirical"}). Default is \code{"none"}. See 'Details'.}
 
 \item{ccval}{scalar or numerical vector specifying the value of the continuity correction if
 \code{cc = "constant"}. Must be a scalar or a vector of length equal to the number of studies.
@@ -202,7 +202,7 @@ using the argument \code{ccto}. Per default, the constant value 0.5 (\code{cc = 
 all cells of the studies specified by \code{ccto}. This continuity correcton was desribed by Gart and Zweifel (1967).
 Alternative continuity corrections which were described by Sweeting et al. (2004) can be applied by setting \code{cc} to \code{"tacc"}
 (for the treatment-arm continuity correction), and to \code{"empirical"} for the empirical continuity correction.
-Per default sum of the corrections for treatment and control groups is set to \code{1}, but this can be changed by setting the
+Per default, the sum of the corrections for treatment and control groups is set to \code{1}, but this can be changed by setting the
 the argument \code{ccsum} to a different value.
 It is possible to set the continuity correction to a user-defined value (or a vector of user-defined values) using the
 argument \code{ccval} (if the value). If the user wants to specify different values for the treatment and the control group,

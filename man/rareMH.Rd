@@ -54,7 +54,7 @@ should be rounded (if unspecified, the default is 4).}
 
 \item{correct}{logical specifying whether the data shall be continuity corrected before application of \code{rareMH()}. Default is \code{FALSE}}
 
-\item{cc}{character string specifying the type of continuity corrections to be used.
+\item{cc}{character string specifying the type of continuity correction to be used.
 (either \code{"constant"}, \code{"tacc"} or \code{"empirical"}). Default is \code{"constant"}.}
 
 \item{ccval}{scalar or numerical vector specifying the value of the continuity correction if
@@ -103,7 +103,7 @@ The object is a list containing the following elements:
 \item \code{zval}: test statistics of the coefficients.
 \item \code{pval}: p-values corresponding to the test statistics.
 \item \code{ci.lb}: lower bound of the confidence intervals for the coefficients.
-\item \code{ci.ub}: upper bound of the confidence intervals for the coefficients.
+\item \code{ci.ub}: upfper bound of the confidence intervals for the coefficients.
 \item \code{k}: number of studies included in the analysis.
 \item \code{kdz},\code{ksz}: number of double-zero and single-zero studies.
 \item \code{k1sz}, \code{k2sz}: number of single-zero studies where the zero is in group 1 or group 2.

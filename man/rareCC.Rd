@@ -41,7 +41,7 @@ rareCC(
 
 \item{data}{data frame.}
 
-\item{cc}{character string specifying the type of continuity corrections to be used
+\item{cc}{character string specifying the type of continuity correction to be used
 (either \code{"constant"}, \code{"tacc"} or \code{"empirical"}). Default is "constant". See 'Details'.}
 
 \item{ccval}{scalar or numerical vector specifying the value of the continuity correction if
@@ -159,7 +159,6 @@ and random-effects models using the inverse variance approach.
 A fixed-effects model is fitted when \code{method} is set to \code{"FE"} (or \code{"EE"}). A random-effects model
 is fitted when \code{method} is set to either \code{"DL"}, \code{"HE"}, \code{"SJ"}, \code{"ML"}, \code{"REML"}, \code{"EB"}, \code{"HS"},
 \code{"PM"}, \code{"IPM"}, \code{"GENQ"}, \code{"PMM"} or \code{"GENQM"}.
-For a basic introduction to fixed-effects and random-effects meta-analysis, please refer to Borenstein et al. (2021)
 Currently, the model is fitted by applying the \code{rma} function from the \code{metafor} package, see Viechtbauer (2010).
 }
 

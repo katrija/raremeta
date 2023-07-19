@@ -19,8 +19,8 @@
 #' A fixed-effects model is fitted when using `method = "FE"` . A random-effects model is fitted
 #' by setting `method` equal to one of the following: `"DL"`, `"HE"`, `"SJ"`, `"ML"`, `"REML"`, `"EB"`, `"HS"`,
 #' `"PM"`, `"IPM"`, `"GENQ"`, `"PMM"` or `"GENQM"`.
-#' @param cc character string specifying the type of continuity corrections to be used
-#' (either `"constant"`, `"tacc"` or `"empirical"`). Default is `"constant"`. See 'Details'.
+#' @param cc character string specifying the type of continuity correction to be used
+#' (either `"none"`, `"constant"`, `"tacc"` or `"empirical"`). Default is `"none"`. See 'Details'.
 #' @param ccval scalar or numerical vector specifying the value of the continuity correction if
 #' `cc = "constant"`. Must be a scalar or a vector of length equal to the number of studies.
 #' Default is `ccval = 0.5`. If a scalar is specified, the value is added to all studies for
@@ -100,7 +100,7 @@
 #' all cells of the studies specified by `ccto`. This continuity correcton was desribed by Gart and Zweifel (1967).
 #' Alternative continuity corrections which were described by Sweeting et al. (2004) can be applied by setting `cc` to `"tacc"`
 #' (for the treatment-arm continuity correction), and to `"empirical"` for the empirical continuity correction.
-#' Per default sum of the corrections for treatment and control groups is set to `1`, but this can be changed by setting the
+#' Per default, the sum of the corrections for treatment and control groups is set to `1`, but this can be changed by setting the
 #' the argument `ccsum` to a different value.
 #' It is possible to set the continuity correction to a user-defined value (or a vector of user-defined values) using the
 #' argument `ccval` (if the value). If the user wants to specify different values for the treatment and the control group,
