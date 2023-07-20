@@ -292,6 +292,10 @@ test_that("rareMH returns errors and warning messages", {
     "ccsum must be a scalar larger than 0."
   )
 
+  expect_error(
+    suppressWarnings(rareCC(ai=ai, bi=bi, ci=ci, di=di, data=data.frame(ai=c(0), bi=c(10), ci=c(2), di=c(8)), cc = "none")),
+    "All of the studies have been removed from the analysis.\n"
+  )
 
   })
 
@@ -432,3 +436,23 @@ test_that("does not matter if data is put in as data frame or rareData-object",{
 
 
 })
+
+
+# compare treatment arm continuity correction with the implementation in the 'meta' package
+test_that("treatment-arm continuity correction in meta::metabin yields the same result",{
+  x.meta <- meta::metabin(event.e=ai, n.e=n1i, event.c=ci, n.c=n2i, data=data,
+                          method = "Inverse", sm = "OR", incr = "TACC", method.incr = "all",
+                          allstudies = FALSE, random = FALSE)
+  x.rare <- rareIV(x, cc = "tacc", method = "FE", measure = "logOR", ccto = "all", drop00=FALSE)
+
+  expect_equal(
+    x.meta$incr.c,
+    x.rare$ccc
+  )
+
+  expect_equal(
+    x.meta$incr.e,
+    x.rare$tcc
+  )
+})
+
