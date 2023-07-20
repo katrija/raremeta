@@ -179,6 +179,22 @@ test_that("comparing output of rareMH to output of metafor::rma.mh",{
   expect_equal(rare$ci.ub, fit_rma$ci.ub, ignore_attr = TRUE)
   expect_equal(rare$k, fit_rma$k, ignore_attr = TRUE)
 
+  #log(OR) with continuity correction (add = 1/2, to = "all", level=95, digits=4)
+  rare    <- rareMH(x, measure = "logOR", correct = TRUE, ccto = "all")
+  fit_rma <- suppressWarnings(metafor::rma.mh(ai=ai, bi=bi, ci=ci, di=di,
+                                              data=data, measure="OR", add=c(1/2,1/2),
+                                              to=c("all","all"), drop00=c(TRUE,TRUE)))
+
+  expect_equal(rare$b, fit_rma$b, ignore_attr = TRUE)
+  expect_equal(rare$beta, fit_rma$beta, ignore_attr = TRUE)
+  expect_equal(rare$se, fit_rma$se, ignore_attr = TRUE)
+  expect_equal(rare$zval, fit_rma$zval, ignore_attr = TRUE)
+  expect_equal(rare$pval, fit_rma$pval, ignore_attr = TRUE)
+  expect_equal(rare$ci.lb, fit_rma$ci.lb, ignore_attr = TRUE)
+  expect_equal(rare$ci.ub, fit_rma$ci.ub, ignore_attr = TRUE)
+
+
+
   #log(OR) with level=50, digits = 5
   rare    <- rareMH(x, measure = "logOR", level = 50, digits = 5, correct = FALSE)
   fit_rma <- metafor::rma.mh(ai=ai, bi=bi, ci=ci, di=di, data=data, measure="OR",
