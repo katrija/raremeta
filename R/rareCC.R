@@ -338,6 +338,13 @@ rareCC <- function(x, ai, bi, ci, di, n1i, n2i, data,
     Since cc = 'none' (no continuity correction) was selected, these studies were removed from the analysis.")
   }
 
+  if(sum(remove, na.rm = TRUE) == length(ai)){
+    stop("All of the studies have been removed from the analysis.\n
+         This could be the case because no continuity correction (cc = 'none')
+         has been selected while all of the studies have no events in one of the groups.\n
+         See ?rareCC for more details.")
+  }
+
     ai <- ai[!remove]
     bi <- bi[!remove]
     ci <- ci[!remove]
