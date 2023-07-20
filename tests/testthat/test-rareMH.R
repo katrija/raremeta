@@ -180,9 +180,9 @@ test_that("comparing output of rareMH to output of metafor::rma.mh",{
   expect_equal(rare$k, fit_rma$k, ignore_attr = TRUE)
 
   #log(OR) with level=50, digits = 5
-  rare    <- rareMH(x, measure = "logOR", level = 50, digits = 5)
+  rare    <- rareMH(x, measure = "logOR", level = 50, digits = 5, correct = FALSE)
   fit_rma <- metafor::rma.mh(ai=ai, bi=bi, ci=ci, di=di, data=data, measure="OR",
-                    level = 50, digits = 5, drop00 = FALSE)
+                    level = 50, digits = 5, drop00 = FALSE, correct = FALSE)
 
   expect_equal(rare$b, fit_rma$b, ignore_attr = TRUE)
   expect_equal(rare$beta, fit_rma$beta, ignore_attr = TRUE)
@@ -194,7 +194,7 @@ test_that("comparing output of rareMH to output of metafor::rma.mh",{
   expect_equal(rare$k, fit_rma$k, ignore_attr = TRUE)
 
   #log(RR) with defaults (level=95, digits=4)
-  rare    <- rareMH(x, measure = "logRR")
+  rare    <- rareMH(x, measure = "logRR", correct = FALSE)
   fit_rma <- metafor::rma.mh(ai=ai, bi=bi, ci=ci, di=di, data=data, measure="RR", drop00 = FALSE)
 
   expect_equal(rare$b, fit_rma$b, ignore_attr = TRUE)
@@ -222,7 +222,7 @@ test_that("comparing output of rareMH to output of metafor::rma.mh",{
   expect_equal(rare$k, fit_rma$k, ignore_attr = TRUE)
 
   #RD with defaults (level=95, digits=4)
-  rare    <- rareMH(x, measure = "RD")
+  rare    <- rareMH(x, measure = "RD", correct = FALSE)
   fit_rma <- metafor::rma.mh(ai=ai, bi=bi, ci=ci, di=di, data=data, measure="RD", drop00 = FALSE)
 
   expect_equal(rare$b, fit_rma$b, ignore_attr = TRUE)
@@ -274,6 +274,32 @@ test_that("does not matter if data is put in as data frame or rareData-object",{
   expect_identical(
     rareMH(x=x, measure = "logOR")[-k],
     rareMH(ai=ai, bi=bi, ci=ci, di=di, data=data, measure = "logOR")[-k]
+  )
+
+})
+
+# continuity correctoin externally or internaly
+test_that("does not matter if continuity correction is applied internally or externally",{
+
+  k <- which(names(rareMH(x=x, measure = "logOR")) == "call")
+
+
+  x.cc1 <- rareCC(x, cc = "constant", ccval = 0.5)
+  expect_identical(
+    rareMH(x=x, measure = "logOR", correct = TRUE, cc = "constant", ccval = 0.5)[-k],
+    rareMH(x=x.cc1, measure = "logOR")[-k]
+  )
+
+  x.cc2 <- rareCC(x, cc = "tacc", measure = "logOR", method = "FE", ccsum = 1)
+  expect_identical(
+    rareMH(x=x, measure = "logOR", correct = TRUE, cc = "tacc", method = "FE", ccsum = 1)[-k],
+    rareMH(x=x.cc2, measure = "logOR")[-k]
+  )
+
+  x.cc3 <- rareCC(x, cc = "empirical", measure = "logOR", method = "FE", ccsum = 1)
+  expect_identical(
+    rareMH(x=x, measure = "logOR", correct = TRUE, cc = "empirical", method = "FE", ccsum = 1)[-k],
+    rareMH(x=x.cc3, measure = "logOR")[-k]
   )
 
 })
