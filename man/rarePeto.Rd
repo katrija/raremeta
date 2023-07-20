@@ -49,7 +49,7 @@ The object is a list containing the following elements:
 }
 \description{
 Function to conduct a meta-analysis.
-Effect size is the log odds ratio estimated from event counts in form of
+Effect size is the log odds ratio which is estimated from event counts in form of
 2x2 contingency tables using Peto's method (see Yusuf et al., 1985).
 }
 \section{Details}{
@@ -66,7 +66,7 @@ See \code{?rareDescribe} for more details.
 \subsection{Effect size measure}{
 
 The function is a meta-analytic method for estimating log odds ratios.
-Data comes in form of event counts in form of 2x2 contingency tables.\tabular{lrr}{
+Data comes in form of event counts in 2x2 contingency tables.\tabular{lrr}{
     \tab event \tab no event \cr
    group1 (treatment) \tab ai \tab bi \cr
    group2 (control) \tab ci \tab di \cr

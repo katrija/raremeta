@@ -103,7 +103,7 @@ The object is a list containing the following elements:
 \item \code{zval}: test statistics of the coefficients.
 \item \code{pval}: p-values corresponding to the test statistics.
 \item \code{ci.lb}: lower bound of the confidence intervals for the coefficients.
-\item \code{ci.ub}: upfper bound of the confidence intervals for the coefficients.
+\item \code{ci.ub}: upper bound of the confidence intervals for the coefficients.
 \item \code{k}: number of studies included in the analysis.
 \item \code{kdz},\code{ksz}: number of double-zero and single-zero studies.
 \item \code{k1sz}, \code{k2sz}: number of single-zero studies where the zero is in group 1 or group 2.

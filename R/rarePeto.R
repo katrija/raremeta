@@ -1,7 +1,7 @@
 #' Conduct a meta-analysis using Peto's method
 #'
 #' Function to conduct a meta-analysis.
-#' Effect size is the log odds ratio estimated from event counts in form of
+#' Effect size is the log odds ratio which is estimated from event counts in form of
 #' 2x2 contingency tables using Peto's method (see Yusuf et al., 1985).
 #'
 #' @param x an object of class `"rareData"`.
@@ -29,7 +29,7 @@
 #'
 #' ## Effect size measure
 #' The function is a meta-analytic method for estimating log odds ratios.
-#' Data comes in form of event counts in form of 2x2 contingency tables.
+#' Data comes in form of event counts in 2x2 contingency tables.
 #'
 #' |                   | event | no event|
 #' |:------------------|------:|--------:|

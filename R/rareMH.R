@@ -261,7 +261,8 @@ rareMH <- function(x, ai, bi, ci, di, n1i, n2i, data,
     B <- sum(ci*n1i/ni)
 
     if(A == 0 || B == 0){
-      stop("The data does not allow for application of this method.
+      stop("The data does not allow for application of this method. \n
+           This might be the result of no events in one of the groups in all of the studies.\n
            See e.g. ?rareCC() for possible continuity corrections.")
     }
 
