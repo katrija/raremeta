@@ -497,61 +497,79 @@ rareGLMM <- function(x, ai, bi, ci, di, n1i, n2i, data, measure,
 
       if(intercept == "random"){
 
-        fitMH <- rareMH(x, measure = "logOR")
-        parms <- c(fitMH$beta)
+        # Versuch eigener Implementierung (work in progress):
 
-        fitFE <- try(stats::nlminb(parms, objective = .negllnchg, gradient = NULL, hessian = NULL,
-                                   ai = ai, bi = bi, ci = ci, di = di, intercept = "fixed"), silent = TRUE)
+        # fitMH <- rareMH(x, measure = "logOR")
+        # parms <- c(fitMH$beta)
 
-        fitIV <- rareIV(x, measure = "logOR", method = "IPM", cc = "constant", ccval = 0.5, ccto = "all", drop00 = FALSE)
-        parms <- c(fitMH$beta, fitIV$tau2)
+        # fitFE <- try(stats::nlminb(parms, objective = .negllnchg, gradient = NULL, hessian = NULL,
+        #                            ai = ai, bi = bi, ci = ci, di = di, intercept = "fixed"), silent = TRUE)
 
-        fitML <- try(stats::nlminb(start = parms, objective = .negllnchg,
-                                   ai = ai, bi = bi, ci = ci, di = di, intercept = "random"), silent = TRUE)
+        # fitIV <- rareIV(x, measure = "logOR", method = "IPM", cc = "constant", ccval = 0.5, ccto = "all", drop00 = FALSE)
+        # parms <- c(fitMH$beta, fitIV$tau2)
+
+        # fitML <- try(stats::nlminb(par = parms, fn = .negllnchg, method = "BFGS",
+        #                           ai = ai, bi = bi, ci = ci, di = di, intercept = "random"),
+        #              silent = TRUE)
+
+        fitML <- try(metafor::rma.glmm(ai = ai, bi = bi, ci = ci, di = di,
+                                       model = "CM.EL", method = "ML", measure = "OR",
+                                       control = list(optimizer = "BFGS")), silent = TRUE)
+
 
         if(inherits(fitML, "try-error")){
           stop("Unable to fit model.")
         }
 
-        conv <- ifelse(fitML$convergence == 0, TRUE, FALSE)
+        # conv <- ifelse(fitML$convergence == 0, TRUE, FALSE)
 
-        beta <- fitML$par[1]
+        beta <- fitML$beta
+        # beta <- fitML$par[1]
         names(beta) <- measure
 
-        tau2 <- fitML$par[2]
+        tau2 <- fitML$tau2
+        # tau2 <- fitML$par[2]
 
-        hessian <- numDeriv::hessian(.negllnchg, fitML$par, ai = ai, bi = bi, ci = ci, di = di, intercept = "random")
-        vb <- try(solve(hessian), silent = TRUE)
+        # hessian <- numDeriv::hessian(.negllnchg, fitML$par, ai = ai, bi = bi, ci = ci, di = di, intercept = "random")
+        # vb <- try(solve(hessian), silent = TRUE)
 
-        if(inherits(vb, "try-error")){
-          warning("Standard errors could not be obtained.")
-          se <- zval <- pval <- zcrit <- ci.lb <- ci.ub <- NA
-        }else{
-          se <- sqrt(diag(vb))[1]
+        # if(inherits(vb, "try-error")){
+        #   warning("Standard errors could not be obtained.")
+        #   se <- zval <- pval <- zcrit <- ci.lb <- ci.ub <- NA
+        # }else{
+          se <- fitML$se
+          # se <- sqrt(diag(vb))[1]
           zval <- beta/se
           pval <- 2 * stats::pnorm(abs(zval), lower.tail = FALSE)
 
           zcrit <- stats::qnorm(1 - level / 2)
           ci.lb <- beta - zcrit * se
           ci.ub <- beta + zcrit * se
-        }
+       #  }
 
-        llML <- -fitML$objective
+        # llML <- -fitML$objective
         p <- 1
         X <- as.matrix(rep(1, length(ai)))
 
-        fit.stats <- rbind(llML, NA, NA, NA, NA )
+        fit.stats <- matrix(fitML$fit.stats[,"ML"], ncol = 1)
         rownames(fit.stats) <- c("llML", "dev", "AIC", "BIC", "AICc")
         colnames(fit.stats) <- c("ML")
 
-        if(inherits(fitFE, "try-error")){
-          warning("Unable to fit fixed-effects model")
-        }else{
-          llFE <- -fitFE$objective
+        llML <- fit.stats[1,1]
+
+        # if(inherits(fitFE, "try-error")){
+        #   warning("Unable to fit fixed-effects model")
+        # }else{
+
+          llFE <- fitML$QE.LRT/(-2)+llML
+          # llFE <- -fitFE$objective
+
           LRT.Chisq <- as.numeric(2 * (llML - llFE))
-          LRT.df <- length(fitML$par)-length(fitFE$par)
+          LRT.df <- length(fitML$parms)-1
+
+          # LRT.df <- length(fitML$par)-length(fitFE$par)
           LRT.pval <- stats::pchisq(LRT.Chisq, df = LRT.df, lower.tail = FALSE)
-        }
+       # }
       }
 
 
