@@ -34,7 +34,6 @@
   k <- length(ai)
   thetai <- rep(parms[1], k)
 
-  # likelihood logarithmieren!!!
   if(intercept == "fixed"){
     lli <- sapply(1:k, function(i){log(.llnchgi(thetai = thetai[i], ai = ai[i], bi = bi[i], ci = ci[i], di = di[i],intercept = "fixed"))})
   }
@@ -45,6 +44,8 @@
     if(tau2 <= 0){
       tau2 <- 0.00001
     }
+
+    print(c(thetai[1], tau2))
 
     lli <- sapply(1:k, function(i){
 
