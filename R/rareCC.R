@@ -309,7 +309,8 @@ rareCC <- function(x, ai, bi, ci, di, n1i, n2i, data,
   }
 
   # check if there are non-zero studies when the empirical cc shall be applied
-  if(cc == "empirical" && all(ai == 0 | bi == 0 | ci == 0 | di == 0)){
+  if(cc == "empirical" &&
+     all((ai == 0 | bi == 0 | ci == 0 | di == 0) | (is.na(ai) | is.na(bi) | is.na(ci) | is.na(di)))){
     stop("Continuity correction of type 'empirical' can only be applied if there is at least one non-zero study.")
   }
 
@@ -327,7 +328,6 @@ rareCC <- function(x, ai, bi, ci, di, n1i, n2i, data,
   ## remove studies if desired ##
 
   remove <- rep(FALSE, length(ai))
-
 
   if(drop00 == TRUE) remove <- x$dzstudies
 
@@ -362,7 +362,7 @@ rareCC <- function(x, ai, bi, ci, di, n1i, n2i, data,
 
   ccstudies <- rep(FALSE, length(ai))
 
-  if(cc == "none"){
+  if(cc == "none" || (ccto == "if0all" && !any(ai == 0 | ci == 0 | bi == 0 | di == 0) )){
      ccto  <- "none"
      ccval <- 0
   }
@@ -398,6 +398,9 @@ rareCC <- function(x, ai, bi, ci, di, n1i, n2i, data,
   # continuity corrections for logOR and logRR:
   if(cc == "tacc" && is.element(measure, c("logOR", "logRR"))){
     rinv <- n2i[ccstudies]/n1i[ccstudies]
+
+    #Fix: NAs are not allowed in subscripted assignments
+    ccstudies[is.na(ccstudies)] <- FALSE
 
     tcc[ccstudies] <- ccsum*1/(rinv+1)
     ccc[ccstudies] <- ccsum*rinv/(rinv+1)
