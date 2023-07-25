@@ -1,3 +1,39 @@
+# testing how raremeta fairs with NA entries in studies
+data <- data.frame(
+  ai = c(0, 3, 2, 0),
+  bi = c(20, 18, 15, 19),
+  ci = c(1, NA, 0, 0),
+  di = c(19, NA, 16, 20),
+  n1i = c(20, 21, 17, 19),
+  n2i = c(20, NA, 16, 20)
+)
+
+x <- rareDescribe(
+  ai = ai,
+  bi = bi,
+  ci = ci,
+  di = di,
+  n1i = n1i,
+  n2i = n2i,
+  data = data
+)
+
+x_CC <- rareCC(x)
+x_CC
+
+x_ES <- rareES(x, measure = "logOR", method = "FE", cc = "constant")
+x_ES$yi
+
+
+#rareCC
+
+
+
+
+
+
+
+
 # testing using datasets from metadat
 library("metadat")
 

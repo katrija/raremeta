@@ -397,10 +397,12 @@ rareCC <- function(x, ai, bi, ci, di, n1i, n2i, data,
 
   # continuity corrections for logOR and logRR:
   if(cc == "tacc" && is.element(measure, c("logOR", "logRR"))){
-    rinv <- n2i[ccstudies]/n1i[ccstudies]
 
     #Fix: NAs are not allowed in subscripted assignments
     ccstudies[is.na(ccstudies)] <- FALSE
+
+
+    rinv <- n2i[ccstudies]/n1i[ccstudies]
 
     tcc[ccstudies] <- ccsum*1/(rinv+1)
     ccc[ccstudies] <- ccsum*rinv/(rinv+1)
