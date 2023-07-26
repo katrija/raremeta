@@ -112,7 +112,7 @@ test_that("rareIV returns errors and warning messages", {
   # error if ccto argument is not valid
   expect_error(
     rareIV(x, measure = "logOR", method = "FE", cc = "constant", ccto = "Only0"),
-    "'ccto' must be either 'only0', 'all', or 'if0all'"
+    "'ccto' must be either 'none', 'only0', 'all', or 'if0all'"
   )
 
   # error if ccval argument is not valid

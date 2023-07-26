@@ -21,8 +21,8 @@
 #' @param digits integer specifying the number of decimal places to which the printed results
 #' should be rounded (if unspecified, the default is 4).
 #' @param correct logical specifying whether the data shall be continuity corrected before application of `rareMH()`. Default is `FALSE`
-#' @param cc character string specifying the type of continuity correction to be used.
-#' (either `"constant"`, `"tacc"` or `"empirical"`). Default is `"constant"`.
+#' @param cc character string specifying the type of continuity correction to be used
+#' (either `"none"`, `"constant"`, `"tacc"` or `"empirical"`). Default is `"constant"`.
 #' @param ccval scalar or numerical vector specifying the value of the continuity correction if
 #' `cc = "constant"`. Must be a scalar or a vector of length equal to the number of studies.
 #' Default is `ccval = 0.5`. If a scalar is specified, the value is added to all studies for
@@ -279,11 +279,12 @@ rareMH <- function(x, ai, bi, ci, di, n1i, n2i, data,
   if(measure == "RD"){
 
     beta   <- sum(ai*(n2i/ni) - ci*(n1i/ni), na.rm = TRUE)/sum(n1i*(n2i/ni), na.rm = TRUE)
-    #se     <- sqrt(sum((ai*bi*n2i^3 + ci*di*n1i^3)/(n1i*n2i*ni^2))/
-    #                   (sum(n1i*n2i/ni)^2))
     se     <- sqrt((beta * (sum(ci*(n1i/ni)^2 - ai*(n2i/ni)^2 + (n1i/ni)*(n2i/ni)*(n2i-n1i)/2, na.rm = TRUE))
      + sum(ai*(n2i-ci)/ni + ci*(n1i-ai)/ni, na.rm = TRUE)/2) / sum(n1i*(n2i/ni), na.rm = TRUE)^2)
-    # alternative estimator from Sato (1989?)
+
+    #se     <- sqrt(sum((ai*bi*n2i^3 + ci*di*n1i^3)/(n1i*n2i*ni^2), na.rm = TRUE)/
+    #                   (sum(n1i*n2i/ni, na.rm = TRUE)^2))
+    # alternative estimator from Sato (1989)
     # equation from 'A new and improved confidence interval for the Mantel–Haenszel risk difference'
     # by B Klingenberg
 

@@ -328,8 +328,8 @@ rareIV <- function(x, ai, bi, ci, di, n1i, n2i, data,
 
   # if cc argument exists, check that ccto argument is valid
   if(!missing(cc)){
-    if(!is.element(ccto, c("only0", "all", "if0all"))){
-      stop("'ccto' must be either 'only0', 'all', or 'if0all'")
+    if(!is.element(ccto, c("only0", "all", "if0all", "none"))){
+      stop("'ccto' must be either 'none', 'only0', 'all', or 'if0all'")
     }
   }
 
@@ -444,7 +444,7 @@ rareIV <- function(x, ai, bi, ci, di, n1i, n2i, data,
   }
 
   # calculate effect sizes with the specified continuity correction:
-  # (rareES skips the continuity correction if already done beforehand)
+  # (rareES skips the continuity correction if already applied beforehand)
 
 
   es <- rareES(x, measure = measure, cc = cc, ccval = ccval, tccval = tccval, cccval = cccval,

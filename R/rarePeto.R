@@ -120,13 +120,24 @@ rarePeto <- function(x, ai, bi, ci, di, n1i, n2i, data, level = 95, digits = 4){
   mf <- match.call()
 
   # extract counts and sample sizes
-  ai  <- x$ai
-  bi  <- x$bi
-  ci  <- x$ci
-  di  <- x$di
-  n1i <- x$n1i
-  n2i <- x$n2i
-  ni  <- n1i + n2i
+  if(!is.null(x$cc)){
+    ai  <- x$ai.cc
+    bi  <- x$bi.cc
+    ci  <- x$ci.cc
+    di  <- x$di.cc
+    n1i <- x$n1i.cc
+    n2i <- x$n2i.cc
+    ni  <- n1i + n2i
+
+  }else{
+    ai  <- x$ai
+    bi  <- x$bi
+    ci  <- x$ci
+    di  <- x$di
+    n1i <- x$n1i
+    n2i <- x$n2i
+    ni  <- n1i + n2i
+  }
 
   # calculating log(OR) estimate via O-E statistic
   measure <- "logOR"
@@ -134,17 +145,17 @@ rarePeto <- function(x, ai, bi, ci, di, n1i, n2i, data, level = 95, digits = 4){
   Ai    <- as.numeric(ai + ci)
   Bi    <- as.numeric(bi + di)
   Vi    <- (Ai * Bi * n1i * n2i) / (ni^2 *(ni - 1))
-  sumVi <- sum(Vi)
+  sumVi <- sum(Vi, na.rm = TRUE)
 
   quant <- stats::qnorm((100-level)/200)
 
-  if(sumVi == 0){
+  if(sumVi == 0 || is.na(sumVi)){
     stop("The data does not allow for the application of this method.\n
           There was no occurence of one of the outcomes in all of the studies.\n
           See e.g. ?rareCC() for possible continuity corrections.")
   }
 
-  beta  <- sum((ai-Ai*(n1i/ni)))/sumVi
+  beta  <- sum((ai-Ai*(n1i/ni)), na.rm = TRUE)/sumVi
   se    <- sqrt(1/sumVi)
   zval  <- beta / se
   pval  <- 2*stats::pnorm(abs(zval), lower.tail=FALSE)
