@@ -310,7 +310,7 @@ rareIV <- function(x, ai, bi, ci, di, n1i, n2i, data,
 
   # check if cc is specified
   # (in case there are zero-studies and continuity correction was not applied beforehand)
-  if(any(c(ai,bi,ci,di) == 0) & is.null(x$cc) & missing(cc)){
+  if(any(c(ai,bi,ci,di) == 0, na.rm = TRUE) & is.null(x$cc) & missing(cc)){
     stop("Some studies have zero events. \n
          You must specify the 'cc' argument to determine how they are handled.\n
          In case you want to exclude all zero-studies, set 'cc' equal to 'none'.")
