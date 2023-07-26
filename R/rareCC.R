@@ -252,7 +252,7 @@ rareCC <- function(x, ai, bi, ci, di, n1i, n2i, data,
       stop("'ccval' must have length 1 or length equal to the number of studies (in- or excluding double-zero studies).")
     }
 
-    if(any(ccval < 0)){
+    if(any(ccval < 0, na.rm = TRUE)){
       stop("'ccval' must be non-negative.")
     }
 
@@ -274,7 +274,7 @@ rareCC <- function(x, ai, bi, ci, di, n1i, n2i, data,
         stop("'tccval' must have length 1 or length equal to the number of studies (in- or excluding double-zero studies).")
       }
 
-      if(any(c(tccval, cccval) < 0)){
+      if(any(c(tccval, cccval) < 0, na.rm = TRUE)){
         stop("All values in 'tccval' and 'cccval' must be non-negative.")
       }
     }
@@ -398,7 +398,7 @@ rareCC <- function(x, ai, bi, ci, di, n1i, n2i, data,
   # continuity corrections for logOR and logRR:
   if(cc == "tacc" && is.element(measure, c("logOR", "logRR"))){
 
-    #Fix: NAs are not allowed in subscripted assignments
+    #NAs are not allowed in subscripted assignments
     ccstudies[is.na(ccstudies)] <- FALSE
 
 

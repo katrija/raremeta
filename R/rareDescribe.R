@@ -103,7 +103,7 @@ rareDescribe <- function(ai, bi, ci, di, n1i, n2i,
   }
 
   # give warning if there are missing values
-  if (any(is.na(c(ai, bi, ci, di)))) {
+    if (any(is.na(c(ai, bi, ci, di)))) {
     k1NA <- unique(c(which(is.na(ai)), which(is.na(bi))))
     k2NA <- unique(c(which(is.na(ci)), which(is.na(di))))
 
@@ -115,7 +115,6 @@ rareDescribe <- function(ai, bi, ci, di, n1i, n2i,
       warning(paste0("There are missing values in group 2 in studies: ", k2NA))
     }
   }
-
   #if (any(c(ai, bi, ci, di) %% 1 != 0, na.rm = TRUE)) {
   #  warning("Some values in ai, bi, ci or di are not integers. Please check whether this is intended.")
   #}

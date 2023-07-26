@@ -234,8 +234,8 @@ rareMH <- function(x, ai, bi, ci, di, n1i, n2i, data,
     Ci <- (bi+ci)/ni
     Di <- (bi*ci)/ni
 
-    B <- sum(Bi)
-    D <- sum(Di)
+    B <- sum(Bi, na.rm = TRUE)
+    D <- sum(Di, na.rm = TRUE)
 
 
     if(B == 0 || D == 0){
@@ -246,8 +246,8 @@ rareMH <- function(x, ai, bi, ci, di, n1i, n2i, data,
 
 
     beta   <- log(B/D)
-    se     <- sqrt(1/2 * (sum(Ai*Bi)/B^2 + sum(Ai*Di + Ci*Bi)/(B*D)
-                    + sum(Ci*Di)/D^2))
+    se     <- sqrt(1/2 * (sum(Ai*Bi, na.rm = TRUE)/B^2 + sum(Ai*Di + Ci*Bi, na.rm = TRUE)/(B*D)
+                    + sum(Ci*Di, na.rm = TRUE)/D^2))
     zval   <- beta / se
     pval   <- 2*stats::pnorm(abs(zval), lower.tail=FALSE)
     ci.lb  <- beta + quant * se
@@ -257,8 +257,8 @@ rareMH <- function(x, ai, bi, ci, di, n1i, n2i, data,
 
   if(measure == "logRR"){
 
-    A <- sum(ai*n2i/ni)
-    B <- sum(ci*n1i/ni)
+    A <- sum(ai*n2i/ni, na.rm = TRUE)
+    B <- sum(ci*n1i/ni, na.rm = TRUE)
 
     if(A == 0 || B == 0){
       stop("The data does not allow for application of this method. \n
@@ -268,7 +268,7 @@ rareMH <- function(x, ai, bi, ci, di, n1i, n2i, data,
 
 
       beta   <- log(A/B)
-      se     <- sqrt(sum(n1i*n2i*(ai+ci)/ni^2 - ai*ci/ni)/(A*B))
+      se     <- sqrt(sum(n1i*n2i*(ai+ci)/ni^2 - ai*ci/ni, na.rm = TRUE)/(A*B))
       zval   <- beta / se
       pval   <- 2*stats::pnorm(abs(zval), lower.tail=FALSE)
       ci.lb  <- beta + quant * se
@@ -278,11 +278,11 @@ rareMH <- function(x, ai, bi, ci, di, n1i, n2i, data,
 
   if(measure == "RD"){
 
-    beta   <- sum(ai*(n2i/ni) - ci*(n1i/ni))/sum(n1i*(n2i/ni))
+    beta   <- sum(ai*(n2i/ni) - ci*(n1i/ni), na.rm = TRUE)/sum(n1i*(n2i/ni), na.rm = TRUE)
     #se     <- sqrt(sum((ai*bi*n2i^3 + ci*di*n1i^3)/(n1i*n2i*ni^2))/
     #                   (sum(n1i*n2i/ni)^2))
-    se     <- sqrt((beta * (sum(ci*(n1i/ni)^2 - ai*(n2i/ni)^2 + (n1i/ni)*(n2i/ni)*(n2i-n1i)/2))
-     + sum(ai*(n2i-ci)/ni + ci*(n1i-ai)/ni)/2) / sum(n1i*(n2i/ni))^2)
+    se     <- sqrt((beta * (sum(ci*(n1i/ni)^2 - ai*(n2i/ni)^2 + (n1i/ni)*(n2i/ni)*(n2i-n1i)/2, na.rm = TRUE))
+     + sum(ai*(n2i-ci)/ni + ci*(n1i-ai)/ni, na.rm = TRUE)/2) / sum(n1i*(n2i/ni), na.rm = TRUE)^2)
     # alternative estimator from Sato (1989?)
     # equation from 'A new and improved confidence interval for the Mantel–Haenszel risk difference'
     # by B Klingenberg

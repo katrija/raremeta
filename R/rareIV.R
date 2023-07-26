@@ -105,6 +105,7 @@
 #' It is possible to set the continuity correction to a user-defined value (or a vector of user-defined values) using the
 #' argument `ccval` (if the value). If the user wants to specify different values for the treatment and the control group,
 #' this is possible via the arguments `tccval` and `cccval`.
+#' If an object of type 'rareData' is put in which was continuity corrected before input, the continuity correction is skipped.
 #'
 #' ### Differences between effect size measures in the application of continuity corrections
 #' When either the log odds ratio or the log risk ratio is used as an effect size measure, both the effect sizes and
@@ -344,7 +345,7 @@ rareIV <- function(x, ai, bi, ci, di, n1i, n2i, data,
     }
 
     # check if ccval is non-negative
-    if(any(ccval < 0)){
+    if(any(ccval < 0, na.rm = TRUE)){
       stop("'ccval' must be non-negative.")
     }
 
@@ -366,7 +367,7 @@ rareIV <- function(x, ai, bi, ci, di, n1i, n2i, data,
         stop("'tccval' must have length 1 or length equal to the number of studies (in- or excluding double-zero studies).")
       }
 
-      if(any(c(tccval, cccval) < 0)){
+      if(any(c(tccval, cccval) < 0, na.rm = TRUE)){
         stop("All values in 'tccval' and 'cccval' must be non-negative.")
       }
 
@@ -397,7 +398,8 @@ rareIV <- function(x, ai, bi, ci, di, n1i, n2i, data,
   }
 
   # check that there are non-zero studies when the empirical cc shall be applied
-  if(cc == "empirical" & all(ai == 0 | bi == 0 | ci == 0 | di == 0)){
+  if(cc == "empirical" &&
+     all((ai == 0 | bi == 0 | ci == 0 | di == 0) | (is.na(ai) | is.na(bi) | is.na(ci) | is.na(di)))){
     stop("continuity correction of type 'empirical' can only be applied if there is at least one non-zero study.")
   }
 
@@ -442,6 +444,9 @@ rareIV <- function(x, ai, bi, ci, di, n1i, n2i, data,
   }
 
   # calculate effect sizes with the specified continuity correction:
+  # (rareES skips the continuity correction if already done beforehand)
+
+
   es <- rareES(x, measure = measure, cc = cc, ccval = ccval, tccval = tccval, cccval = cccval,
                ccsum = ccsum, ccto = ccto, drop00 = drop00)
 
@@ -469,8 +474,8 @@ rareIV <- function(x, ai, bi, ci, di, n1i, n2i, data,
               Using method = 'IPM' with other values for cc and ccto has never been evaluated empirically.")
     }
 
-    mu_hat <- mean(log(ci.cc/(n2i.cc-ci.cc)))
-    theta_hat <- mean(yi)
+    mu_hat <- mean(log(ci.cc/(n2i.cc-ci.cc)), na.rm = TRUE)
+    theta_hat <- mean(yi, na.rm = TRUE)
 
     ipm_optim <- function(tau2){
       k <- length(yi)
@@ -479,9 +484,9 @@ rareIV <- function(x, ai, bi, ci, di, n1i, n2i, data,
 
       weights_ipm <- 1/(sigma2i+tau2)
 
-      theta_w <- sum(weights_ipm*yi)/sum(weights_ipm)
+      theta_w <- sum(weights_ipm*yi, na.rm = TRUE)/sum(weights_ipm, na.rm = TRUE)
 
-      f_tau2 <- sum(weights_ipm*(yi-theta_w)^2)-(k-1)
+      f_tau2 <- sum(weights_ipm*(yi-theta_w)^2, na.rm = TRUE)-(k-1)
 
       return(f_tau2)
     }

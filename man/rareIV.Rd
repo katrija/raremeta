@@ -207,6 +207,7 @@ the argument \code{ccsum} to a different value.
 It is possible to set the continuity correction to a user-defined value (or a vector of user-defined values) using the
 argument \code{ccval} (if the value). If the user wants to specify different values for the treatment and the control group,
 this is possible via the arguments \code{tccval} and \code{cccval}.
+If an object of type 'rareData' is put in which was continuity corrected before input, the continuity correction is skipped.
 \subsection{Differences between effect size measures in the application of continuity corrections}{
 
 When either the log odds ratio or the log risk ratio is used as an effect size measure, both the effect sizes and
