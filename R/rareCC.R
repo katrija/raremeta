@@ -362,7 +362,7 @@ rareCC <- function(x, ai, bi, ci, di, n1i, n2i, data,
 
   ccstudies <- rep(FALSE, length(ai))
 
-  if(cc == "none" || (ccto == "if0all" && !any(ai == 0 | ci == 0 | bi == 0 | di == 0) )){
+  if(cc == "none" || (ccto == "if0all" && !any(ai == 0 | ci == 0 | bi == 0 | di == 0, na.rm = TRUE) )){
      ccto  <- "none"
      ccval <- 0
   }
@@ -371,7 +371,7 @@ rareCC <- function(x, ai, bi, ci, di, n1i, n2i, data,
     ccstudies <- (ai == 0 | ci == 0 | bi == 0 | di == 0)
   }
 
-  if(ccto == "all" || (ccto == "if0all" && any(ai == 0 | ci == 0 | bi == 0 | di == 0) )){
+  if(ccto == "all" || (ccto == "if0all" && any(ai == 0 | ci == 0 | bi == 0 | di == 0, is.na = TRUE) )){
     ccstudies <- rep(TRUE, length(ai))
   }
 
