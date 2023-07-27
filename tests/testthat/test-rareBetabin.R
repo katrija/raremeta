@@ -9,6 +9,13 @@ data <- data.frame(
 data$n1i <- data$ai + data$bi
 data$n2i <- data$ci + data$di
 
+# long format (for aods3):
+data_long <- data.frame(
+  xi = c(data$ai, data$ci),
+  ni = c(data$n1i, data$n2i),
+  group = rep(1:0, each = nrow(data))
+)
+
 x <- rareDescribe(
   ai = ai,
   bi = bi,
@@ -72,6 +79,29 @@ test_that("rareBetabin handles the exclusion of double-zero studies correctly", 
   expect_equal(fit1$tau2, fit1_no00$tau2)
 })
 
+##### COMPARISON TO ALTERNATIVE IMPLEMENTATIONS --------------------------------
+
+# log OR with common rho:
+fit <- rareBetabin(x, measure = "logOR", drop00 = FALSE)
+fit_aods <- suppressWarnings(aods3::aodml(cbind(xi, ni-xi)~1+group, data = data_long,
+                         link = "logit", family = "bb"))
+
+test_that("rareBetabin yields similar results as aodml", {
+  expect_equal(fit$beta, fit_aod$b, tolerance = 0.01, ignore_attr = TRUE)
+  expect_equal(fit$se, sqrt(diag(fit_aod$varparam)[1:2]), tolerance = 0.01, ignore_attr = TRUE)
+  expect_equal(fit$rho, fit_aod$phi/(1+fit_aod$phi), tolerance = 0.01, ignore_attr = TRUE)
+})
+
+# log OR with different rhos:
+# currently not testable: the following code yields an error:
+# fit_aods <- aods3::aodml(cbind(xi, ni-xi)~1+group, data = data_long,
+# phi.formula = ~1+group, link = "logit", family = "bb")
+# (also, choosing another optimizer does not seem to help)
+
+# log RR:
+# currently not testable (no alternative implementations as far as I am aware)
+
+# look out for future developments!
 
 ##### OUTPUT STRUCTURE ---------------------------------------------------------
 test_that("rareBetabin returns the appropriate outputs", {
@@ -80,8 +110,7 @@ test_that("rareBetabin returns the appropriate outputs", {
   expect_equal(length(rareBetabin(x, measure = "logOR", common_rho = FALSE)$rho), 2)
 })
 
-# checking equivalent ways of data input
-
+##### CHECKING EQUIVALENT WAYS OF DATA INPUT -----------------------------------
 test_that("does not matter if data is put in as data frame or rareData-object",{
 
   k <- which(names(rareBetabin(x=x, measure = "logOR")) == "call")
