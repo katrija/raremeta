@@ -12,6 +12,7 @@ RoxygenNote: 7.2.3
 URL: https://github.com/karija/raremeta
 BugReports: https://github.com/karija/raremeta/issues
 Suggests: 
+    aods3,
     knitr,
     rmarkdown,
     testthat (>= 3.0.0)
