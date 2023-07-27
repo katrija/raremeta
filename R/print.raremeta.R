@@ -276,8 +276,8 @@ print.raremeta <- function(x, digits, ...){
       cat("\nHeterogeneity: \n")
 
       # Heterogeneity:
-      LRTp <- ifelse(x$LRT.pval < .0001, "< .0001", format(round(x$LRT.pval, digits), nsmall = digits, scientific = FALSE))
-      cat("\n", paste0("LRT(df = ", x$LRT.df, ") = ", format(round(x$LRT.Chisq, digits), nsmall = digits, scientific = FALSE), ", p-val ", LRTp), "\n")
+      # LRTp <- ifelse(x$LRT.pval < .0001, "< .0001", format(round(x$LRT.pval, digits), nsmall = digits, scientific = FALSE))
+      # cat("\n", paste0("LRT(df = ", x$LRT.df, ") = ", format(round(x$LRT.Chisq, digits), nsmall = digits, scientific = FALSE), ", p-val ", LRTp), "\n")
 
       if(x$common_rho == TRUE){
         cat("\n",

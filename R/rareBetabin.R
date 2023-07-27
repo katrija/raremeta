@@ -375,21 +375,19 @@ rareBetabin <- function(x, ai, bi, ci, di, n1i, n2i, data, measure,
     silent = TRUE
   )
 
-  LRT.Chisq <- LRT.df <- LRT.pval <- NA
-
-  if(inherits(fitFE, "try-error")){
-    warning("Unable to fit fixed-effects model.")
-  }else{
-    llFE <- stats::logLik(fitFE)
-
-    LRT.Chisq <- as.numeric(2 * (llML - llFE))
-    LRT.df <- parms - attributes(llFE)$df
-    LRT.pval <- stats::pchisq(LRT.Chisq, df = LRT.df, lower.tail = FALSE)
-  }
-
+  # LRT.Chisq <- LRT.df <- LRT.pval <- NA
+  #
+  # if(inherits(fitFE, "try-error")){
+  #   warning("Unable to fit fixed-effects model.")
+  # }else{
+  #   llFE <- stats::logLik(fitFE)
+  #
+  #   LRT.Chisq <- as.numeric(2 * (llML - llFE))
+  #   LRT.df <- parms - attributes(llFE)$df
+  #   LRT.pval <- stats::pchisq(LRT.Chisq, df = LRT.df, lower.tail = FALSE)
+  # }
 
   # make results list
-  # UNDER CONSTRUCTION
   res <- list(
     # model information:
     model = "rareBetabin",
@@ -403,9 +401,9 @@ rareBetabin <- function(x, ai, bi, ci, di, n1i, n2i, data, measure,
     vb = vb,
     rho = rho,
     # LRT:
-    LRT.Chisq = LRT.Chisq,
-    LRT.df = LRT.df,
-    LRT.pval = LRT.pval,
+    # LRT.Chisq = LRT.Chisq,
+    # LRT.df = LRT.df,
+    # LRT.pval = LRT.pval,
     # fit.stats = fit.stats,
     p = parms,
     # convergence information:
