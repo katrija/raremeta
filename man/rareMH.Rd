@@ -55,7 +55,7 @@ should be rounded (if unspecified, the default is 4).}
 \item{correct}{logical specifying whether the data shall be continuity corrected before application of \code{rareMH()}. Default is \code{FALSE}}
 
 \item{cc}{character string specifying the type of continuity correction to be used
-(either \code{"none"}, \code{"constant"}, \code{"tacc"} or \code{"empirical"}). Default is \code{"constant"}. See 'Details'.}
+(either \code{"none"}, \code{"constant"}, \code{"tacc"} or \code{"empirical"}). Default is \code{"constant"}.}
 
 \item{ccval}{scalar or numerical vector specifying the value of the continuity correction if
 \code{cc = "constant"}. Must be a scalar or a vector of length equal to the number of studies.
