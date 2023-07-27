@@ -81,6 +81,22 @@ test_that("rareGLMM runs with valid inputs", {
     ),
     NA
   )
+
+  expect_error(
+    suppressMessages(rareGLMM(x,
+                              measure = "logOR",
+                              conditional = TRUE, approx = TRUE
+    )),
+    NA
+  )
+
+  expect_error(
+    suppressMessages(rareGLMM(x,
+                              measure = "logRR",
+                              conditional = TRUE, approx = FALSE
+    )),
+    NA
+  )
 })
 
 ##### ERRORS AND WARNINGS ------------------------------------------------------
@@ -150,6 +166,9 @@ test_that("compare rareGLMM to metafor",{
                tolerance = 1e-5)
   expect_equal(fit_rirs$tau2, fit_rirs_rma$tau2, ignore_attr = TRUE,
                tolerance = 1e-5)
+  expect_equal(fit_rirs$LRT.Chisq, fit_rirs_rma$QE.LRT, ignore_attr = TRUE,
+               tolerance = 1e-5)
+  expect_equal(fit_rirs$LRT.df, fit_rirs_rma$QE.df, ignore_attr = TRUE)
 
   expect_equal(fit_firs$beta["group"], fit_firs_rma$beta, ignore_attr = TRUE,
                tolerance = 1e-5)
@@ -157,6 +176,9 @@ test_that("compare rareGLMM to metafor",{
                tolerance = 1e-5)
   expect_equal(fit_firs$tau2, fit_firs_rma$tau2, ignore_attr = TRUE,
                tolerance = 1e-5)
+  expect_equal(fit_firs$LRT.Chisq, fit_firs_rma$QE.LRT, ignore_attr = TRUE,
+               tolerance = 1e-5)
+  expect_equal(fit_rirs$LRT.df, fit_rirs_rma$QE.df, ignore_attr = TRUE)
 
 })
 
@@ -191,19 +213,30 @@ fit_firs_rma <- suppressWarnings(metafor::rma.glmm(x1i = ai, t1i = n1i, x2i = ci
 
 test_that("compare rareGLMM to metafor",{
 
+  # rirs:
   expect_equal(fit_rirs$beta[2], fit_rirs_rma$beta, ignore_attr = TRUE,
                tolerance = 1e-5)
   expect_equal(fit_rirs$se[2], fit_rirs_rma$se, ignore_attr = TRUE,
                tolerance = 1e-5)
   expect_equal(fit_rirs$tau2, fit_rirs_rma$tau2, ignore_attr = TRUE,
                tolerance = 1e-5)
+  expect_equal(fit_rirs$LRT.Chisq, fit_rirs_rma$QE.LRT, ignore_attr = TRUE,
+               tolerance = 1e-5)
+  expect_equal(fit_rirs$LRT.df, fit_rirs_rma$QE.df, ignore_attr = TRUE)
 
+  # firs:
   expect_equal(fit_firs$beta["group"], fit_firs_rma$beta, ignore_attr = TRUE,
                tolerance = 1e-4)
   expect_equal(fit_firs$se["group"], fit_firs_rma$se, ignore_attr = TRUE,
                tolerance = 1e-5)
   expect_equal(fit_firs$tau2, fit_firs_rma$tau2, ignore_attr = TRUE,
                tolerance = 1e-5)
+  expect_equal(fit_firs$LRT.Chisq, fit_firs_rma$QE.LRT, ignore_attr = TRUE,
+               tolerance = 1e-5)
+  expect_equal(fit_rirs$LRT.df, fit_rirs_rma$QE.df, ignore_attr = TRUE)
+
+
+
 
 })
 
