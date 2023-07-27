@@ -141,6 +141,8 @@ fit_rirs <- rareGLMM(x, drop00 = FALSE,
 fit_firs <- suppressWarnings(rareGLMM(x, drop00 = FALSE,
                      measure = "logOR", intercept = "fixed", slope = "random"
 ))
+fit_cond <- suppressWarnings(rareGLMM(x, measure = "logOR", intercept = "random",
+                                      conditional = TRUE, approx = TRUE))
 
 test_that("rareGLMM returns the appropriate outputs", {
   expect_equal(fit_rifs$tau2, 0)
@@ -157,6 +159,11 @@ fit_rirs_rma <- suppressWarnings(metafor::rma.glmm(ai = ai, bi = bi, ci = ci, di
 fit_firs_rma <- suppressWarnings(metafor::rma.glmm(ai = ai, bi = bi, ci = ci, di = di,
                                   data = data, measure = "OR", drop00 = FALSE,
                                   model = "UM.FS"))
+
+fit_cond_rma <- suppressWarnings(metafor::rma.glmm(ai = ai, bi = bi, ci = ci, di = di,
+                                                   data = data, measure = "OR", drop00 = TRUE,
+                                                   model = "CM.AL"))
+# setting drop00 = TRUE ensures that the df of the LRT are the same as in rareGLMM
 
 test_that("compare rareGLMM to metafor",{
 
@@ -179,6 +186,16 @@ test_that("compare rareGLMM to metafor",{
   expect_equal(fit_firs$LRT.Chisq, fit_firs_rma$QE.LRT, ignore_attr = TRUE,
                tolerance = 1e-5)
   expect_equal(fit_rirs$LRT.df, fit_rirs_rma$QE.df, ignore_attr = TRUE)
+
+  expect_equal(fit_cond$beta, fit_cond_rma$beta, ignore_attr = TRUE,
+               tolerance = 1e-5)
+  expect_equal(fit_cond$se, fit_cond_rma$se, ignore_attr = TRUE,
+               tolerance = 1e-5)
+  expect_equal(fit_cond$tau2, fit_cond_rma$tau2, ignore_attr = TRUE,
+               tolerance = 1e-5)
+  expect_equal(fit_cond$LRT.Chisq, fit_cond_rma$QE.LRT, ignore_attr = TRUE,
+               tolerance = 1e-5)
+  expect_equal(fit_cond$LRT.df, fit_cond_rma$QE.df, ignore_attr = TRUE)
 
 })
 
