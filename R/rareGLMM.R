@@ -283,16 +283,17 @@ rareGLMM <- function(x, ai, bi, ci, di, n1i, n2i, data, measure,
       if (intercept == "random" & slope == "random" & conditional == FALSE) {
         if (cor == FALSE) {
           m <- cbind(y, n - y) ~ 1 + group + (1 + groupRE || id)
-          mFE <- cbind(y, n - y) ~ 1 + group + (1 | id)
         } else {
           m <- cbind(y, n - y) ~ 1 + group + (1 + groupRE | id)
-          mFE <- cbind(y, n - y) ~ 1 + group + (1 | id)
         }
+        mFE <- cbind(y, n - y) ~ 1 + group + (1 | id)
+        mSAT <- cbind(y, n - y) ~ 1 + group + id:group + (1 | id)
       }
 
       if (intercept == "fixed" & slope == "random" & conditional == FALSE) {
         m <- cbind(y, n - y) ~ -1 + id + group + (0 + groupRE | id)
         mFE <- cbind(y, n - y) ~ -1 + id + group
+        mSAT <- cbind(y, n - y) ~ -1 + id + group + id:group
       }
 
       if (intercept == "random" & slope == "fixed" & conditional == FALSE) {
@@ -308,16 +309,17 @@ rareGLMM <- function(x, ai, bi, ci, di, n1i, n2i, data, measure,
       if (intercept == "random" & slope == "random" & conditional == FALSE) {
         if (cor == FALSE) {
           m <- y ~ 1 + group + offset(log(n)) + (1 + groupRE || id)
-          mFE <- y ~ 1 + group + offset(log(n)) + (1 | id)
         } else {
           m <- y ~ 1 + group + offset(log(n)) + (1 + groupRE | id)
-          mFE <- y ~ 1 + group + offset(log(n)) + (1 | id)
         }
+        mFE <- y ~ 1 + group + offset(log(n)) + (1 | id)
+        mSAT <- y ~ 1 + group + id:group + offset(log(n)) +(1 | id)
       }
 
       if (intercept == "fixed" & slope == "random" & conditional == FALSE) {
         m <- y~ -1 + id + group + offset(log(n)) + (0 + groupRE | id)
         mFE <- y~ -1 + id + group + offset(log(n))
+        mSAT <- y ~ -1 + id + group + id:group + offset(log(n))
       }
 
       if (intercept == "random" & slope == "fixed" & conditional == FALSE) {
@@ -352,13 +354,20 @@ rareGLMM <- function(x, ai, bi, ci, di, n1i, n2i, data, measure,
 
     llML <- stats::logLik(fitML)
 
-    # Fit FE model ---------------------------------------------------------------
+    # Fit FE and SAT model -----------------------------------------------------
     llFE <- LRT.Chisq <- LRT.df <- LRT.pval <- NA
 
     if (slope == "random") {
       if (intercept == "fixed") {
         fitFE <- try(
           stats::glm(mFE,
+                     data = dataLong,
+                     family = fam
+          ), silent = TRUE
+        )
+
+        fitSAT <- try(
+          stats::glm(mSAT,
                      data = dataLong,
                      family = fam
           ), silent = TRUE
@@ -370,24 +379,27 @@ rareGLMM <- function(x, ai, bi, ci, di, n1i, n2i, data, measure,
                       family = fam
           ), silent = TRUE
         )
+
+        fitSAT <- try(
+          lme4::glmer(mSAT,
+                      data = dataLong,
+                      family = fam
+          ), silent = TRUE
+        )
       }
 
-      if(inherits(fitFE, "try-error")){
-        warning("Unable to fit fixed-effects model.")
+      # LRT --------------------------------------------------------------------
+      if(inherits(fitFE, "try-error")||inherits(fitSAT, "try-error")){
+        warning("Unable to fit fixed-effects model or saturated model.\n Results of the Likelihood-ratio test for homogeneity cannot be obtained.")
       }else{
         llFE <- stats::logLik(fitFE)
+        llSAT <- stats::logLik(fitSAT)
 
-        # if(intercept == "fixed"){
-        #   llML <- llFE-0.5*stats::deviance(fitML)
-        # }
-
-        LRT.Chisq <- as.numeric(2 * (llML - llFE))
-        LRT.df <- attributes(llML)$df - attributes(llFE)$df
+        LRT.Chisq <- as.numeric(2 * (llSAT - llFE))
+        LRT.df <- attributes(llSAT)$df - attributes(llFE)$df
         LRT.pval <- stats::pchisq(LRT.Chisq, df = LRT.df, lower.tail = FALSE)
       }
     }
-
-
 
     # Output generation ----------------------------------------------------------
 
@@ -561,11 +573,11 @@ rareGLMM <- function(x, ai, bi, ci, di, n1i, n2i, data, measure,
         #   warning("Unable to fit fixed-effects model")
         # }else{
 
-          llFE <- fitML$QE.LRT/(-2)+llML
+          llFE <- NA
           # llFE <- -fitFE$objective
 
-          LRT.Chisq <- as.numeric(2 * (llML - llFE))
-          LRT.df <- length(fitML$parms)-1
+          LRT.Chisq <- fitML$QE.LRT
+          LRT.df <- fitML$QE.df
 
           # LRT.df <- length(fitML$par)-length(fitFE$par)
           LRT.pval <- stats::pchisq(LRT.Chisq, df = LRT.df, lower.tail = FALSE)
@@ -631,6 +643,9 @@ rareGLMM <- function(x, ai, bi, ci, di, n1i, n2i, data, measure,
         fitML <- try(lme4::glmer(cbind(ai, ci)~1+(1|study), offset = off,
                              family = binomial(link = "logit")), silent = TRUE)
 
+        fitSAT <- try(stats::glm(cbind(ai, ci)~1+factor(study), offset = off,
+                                 family = binomial(link = "logit")), silent = TRUE)
+
         if(inherits(fitML, "try-error")){
           stop("Unable to fit model.")
         }
@@ -668,12 +683,13 @@ rareGLMM <- function(x, ai, bi, ci, di, n1i, n2i, data, measure,
         rownames(fit.stats) <- c("llML", "dev", "AIC", "BIC", "AICc")
         colnames(fit.stats) <- c("ML")
 
-        if(inherits(fitFE, "try-error")){
-          warning("Unable to fit fixed-effects model")
+        if(inherits(fitFE, "try-error")||inherits(fitSAT, "try-error")){
+          warning("Unable to fit fixed-effects model or saturated model.\n Results of the Likelihood-ratio test for homogeneity cannot be obtained.")
         }else{
           llFE <- stats::logLik(fitFE)
-          LRT.Chisq <- as.numeric(2 * (llML - llFE))
-          LRT.df <- attributes(llML)$df - attributes(llFE)$df
+          llSAT <- stats::logLik(fitSAT)
+          LRT.Chisq <- as.numeric(2 * (llSAT - llFE))
+          LRT.df <- attributes(llSAT)$df - attributes(llFE)$df
           LRT.pval <- stats::pchisq(LRT.Chisq, df = LRT.df, lower.tail = FALSE)
         }
 
