@@ -371,7 +371,7 @@ rareCC <- function(x, ai, bi, ci, di, n1i, n2i, data,
     ccstudies <- (ai == 0 | ci == 0 | bi == 0 | di == 0)
   }
 
-  if(ccto == "all" || (ccto == "if0all" && any(ai == 0 | ci == 0 | bi == 0 | di == 0, is.na = TRUE) )){
+  if(ccto == "all" || (ccto == "if0all" && any(ai == 0 | ci == 0 | bi == 0 | di == 0, na.rm = TRUE) )){
     ccstudies <- rep(TRUE, length(ai))
   }
 
@@ -381,7 +381,6 @@ rareCC <- function(x, ai, bi, ci, di, n1i, n2i, data,
   ccc <- rep(0,length(ci))
 
   if(cc == "constant"){
-
 
     if(length(tccval) == 1){
       tcc[ccstudies] <- tccval
