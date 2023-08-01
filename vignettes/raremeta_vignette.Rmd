@@ -12,46 +12,55 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>")
 ```
-::: center
-::: huge
-Vignette **raremeta**\
-:::
 
-**Abstract**\
+
+# Abstract
 This article gives an introduction to the `R`-software package
 **raremeta**. We aim to motivate and explain the use of the package in
 the context of conducting meta-analysis of binary data of rare events.
 Special interest is put into variants of a common way to incorporate
 studies with no events: *Continuity Corrections*.
-:::
 
-# Introduction {#introduction .unnumbered}
+
+# Introduction
 
 In the following vignette, we aim to give the reader a starting point to
 work with the **raremeta** package for `R`. For a quick dive into the
-workflow, we begin with some examples interlaced with the corresponding
+workflow, we begin with an example interlaced with the corresponding
 `R`-code. For anybody familiar with the mathematical modeling and
 methodological techniques used when conducting meta analysis and their
 implementation in `R` this might be sufficient. For anybody new to
 either the statistical concepts or similar programs, there is a more
-in-depth description following the examples. To do so, the reader will
-be given an overview of the main workflow for model fitting using
-**raremeta**. After this, there will be a dedicated section introducing
-continuity corrections on a theoretical and practical level. Some more
-information will be in an appendix.
+in-depth description, which includes documentation of all functions, following this example.
+We also include a dedicated section introducing
+continuity corrections on a theoretical and practical level. 
 
-# raremeta in Action {#raremeta-in-action .unnumbered}
+# A First Example: raremeta in Action
 
 We begin by setting up **raremeta** and examine the dataset
-`dat.nissen2007` "'r, eval = FALSE install.packages(\"raremeta\") "' "'r
-library(raremeta) dat \<- dat.nissen2007 head(dat,3) "' We see that the
+`dat.nissen2007` which is based on a 2007 meta-analysis by Nissen and Wolski (Nissen and Wolski 2007) as a first example.
+
+
+```{r, eval = FALSE} 
+install.packages("raremeta")
+```
+                 
+```{r, eval=TRUE}
+library(raremeta)
+dat <- dat.nissen2007
+head(dat,3)
+```
+
+We see that the
 dataset `dat` contains event counts for two different events, `cv`
 (cardiovascular death) and `mi` (myocardial infarction) under the
 treatment `Rosiglitazone`. Suppose we are interested in analyzing the
 effect of the treatment on `cv` - cardiovascular death. We use the
-function `rareDescribe` to prepare the dataset. "'r dat \<-
-rareDescribe(ai=cvRosiglitazone,ci=cvControl,n1i=nRosiglitazone,
-n2i=nControl,data=dat) "' Now, `dat` is an object of type `rareData`,
+function `rareDescribe` to prepare the dataset. 
+```{r, eval=TRUE}
+dat <- rareDescribe(ai=cvRosiglitazone,ci=cvControl,n1i=nRosiglitazone,n2i=nControl,data=dat) 
+```
+Now, `dat` is an object of type `rareData`,
 which we can use as an argument for the `rareIV` function to model fit.
 Non specified arguments have a default, which can also be checked in the
 next section. Let us go through some examples of doing so. We begin by
@@ -59,27 +68,42 @@ fitting a random effects model specifying the effect size to be the
 logarithm of the odds ratio, the heterogeneity estimator `"DL"` -
 *DerSimonian-Laird*, and the continuity correction to add $0.5$ to all
 cells of all studies if there is a single-zero study and to none of the
-cells if there is no single-zero study (double-zero studies got droped
-by default). "'r Fit1 \<-
-rareIV(x=dat,measure=\"logOR\",method=\"DL\",cc=\"constant\",ccto=\"if0all\")
-summary(Fit1) "'
+cells if there is no single-zero study (double-zero studies got dropped
+by default).
+
+```{r, eval=TRUE}
+Fit1 <- rareIV(x=dat,measure="logOR",method="DL",cc="constant",ccto="if0all")
+summary(Fit1)
+```
 
 Next, we fit a fixed effects model specifying the effect size to be the
 risk difference and the contiuity correction to add $0.1$ to all
-studies, without dropping double-zero studies. "'r, eval=FALSE Fit2 \<-
-rareIV(x=dat,measure=\"RD\",method=\"FE\",cc=\"constant\", ccval=0.1
-,ccto=\"all\",drop00=FALSE) summary(Fit2) "'
+studies, without dropping double-zero studies.
+
+```{r, eval=TRUE}
+Fit2 <- rareIV(x=dat,measure="RD",method="FE",cc="constant", ccval=0.1,ccto="all",drop00=FALSE)
+summary(Fit2)
+```
 
 For a exhaustive account of the possible inputs, continue reading or
 look into the corresponding documentation.
 
-# Calculation: An Overview of the raremeta-Workflow {#calculation-an-overview-of-the-raremeta-workflow .unnumbered}
+# Calculation: An Overview of the raremeta-Workflow 
 
-Let us go through the process of calculating effect sizes using the
+Let us go through the process of calculating estimated effect sizes using the
 software package **raremeta** in `R`. We will introduce a common
 workflow: Preparing event-count-data using `rareDescribe` to calculate
-estimations of effect sizes using `rareIV`. "'r, eval = FALSE
-install.packages(\"raremeta\") "' "'r library(raremeta) "' Suppose `dat`
+estimations of effect sizes using `rareIV`.
+
+```{r, eval=FALSE}
+install.packages("raremeta") 
+```
+```{r, eval=TRUE}
+library(raremeta)
+dat <- dat.nissen2007
+```
+
+Suppose `dat`
 is a dataframe containing $k$ units of event-counts, i.e. for the $i$'th
 study
 
@@ -102,22 +126,26 @@ reporting the event-counts of the individual studies.
    Study $k$   $a_k$   $b_k$   $c_k$   $d_k$   $n_{1k}$   $n_{2k}$
 :::
 
-Let us look at `rareDescribe` and its parameters: "'r, eval=FALSE
-rareDescribe(ai,bi,ci,di,n1i,n2i,data) "' The meaning of its parameters
+Let us look at `rareDescribe` and its parameters:
+`rareDescribe(ai,bi,ci,di,n1i,n2i,data)`.
+The meaning of its parameters
 becomes clear from the table above. The columns of `dat` are named in
-the same fashion as the parameters, i.e. `dat$ai` is a vector of length
+the same fashion as the parameters, e.g. `dat$ai` is a vector of length
 $k$ reporting the number of events in the treatment-group etc. If we
 then use `rareDescribe` on the dataframe `dat` an object of the class
-`rareData` is returned. "'r, eval=FALSE dat \<-
-rareDescribe(ai,bi,ci,di,n1i,n2i,data=dat) "' Just as before, `dat`
-includes the event-counts of the $k$ studies, now expanded by
+`rareData` is returned. 
+```{r, eval=TRUE}
+dat <- rareDescribe(ai=cvRosiglitazone,ci=cvControl,n1i=nRosiglitazone,n2i=nControl,data=dat)
+```
+Just as before, `dat` includes the event-counts of the $k$ studies, now expanded by
 information about the number of double-zero studies, means and medians
 of event-counts and much more. Most importantly, `dat` is now in the
-right format to put into `rareIV` to calculate effect sizes. Again, let
-us look at `rareIV` and its parameters: "'r, eval=FALSE
-rareIV(x,measure,method,cc,ccval = 0.5,tccval,cccval,ccsum=1,ccto =
-\"only0\",drop00=TRUE, weighted=TRUE,level =
-95,test=\"z\",digits=4,verbose=FALSE,control) "' The parameter `x`
+right format to put into `rareIV` to calculate estimated effect sizes. Again, let
+us look at `rareIV` and its parameters: 
+```{r, eval=FALSE}
+rareIV(x,measure,method,cc,ccval = 0.5,tccval,cccval,ccsum=1,ccto="only0",drop00=TRUE, weighted=TRUE,level=95,test="z",digits=4,verbose=FALSE,control)
+``` 
+The parameter `x`
 stands for an object of type `rareData`. Through `measure` we decide
 which effect size shall be estimated. Possible inputs are
 `logOR, logRR, RD` standing for the logarithm of the Odds-Ratio, the
@@ -131,7 +159,7 @@ of adding $0.5$ to all cells of all single- and double-zero studies is
 achieved by setting `cc="constant"`. The logical `drop00` indicates
 whether studies with no events in both the treatment-group and the
 control-group should be left out from the analysis. The argument
-`weighted` specifies whether estimations for effect sizes shall come by
+`weighted` specifies whether estimation for effect sizes shall come by
 weighted averages (i.e. normed inverse variances) or unweighted averages
 (i.e. arithmetical means). The confidence interval is specified through
 `level` and through `test` we specify how test statistics and confidence
@@ -144,19 +172,63 @@ function. We choose to stick to the defaults as much as possible,
 specifying the effect size to be `logOR`, a fixed effects model and
 constant continuity correction.
 
-"'r, eval=FALSE Fit \<- rareIV(x =
-dat,measure=\"logOR\",method=\"FE\",cc=\"constant\") "'
+```{r, eval=TRUE}
+Fit <- rareIV(x=dat,measure="logOR",method="FE",cc="constant")
+```
 
 The returned object `Fit` includes estimations of the parameters of
 interest, for example the effect size, $p$-value, $z$-value, confidence
 intervals and much more. We can display its information by way of the
 `summary()` function or simply through the command `head()`.
+```{r, eval=TRUE}
+summary(Fit)
+```
 
-# Continuity Corrections {#continuity-corrections .unnumbered}
+\newpage
 
-## Theoretical Introduction {#theoretical-introduction .unnumbered}
+# List of Functions
 
-When confronted with data expressed in terms of a $2 \times 2$-table
+Function Name     | Short Description
+-------------     | -----------------
+rareBetabin()     | meta-analysis using the beta binomial model rareCC()          | continuity correction for binary data
+rareDesribe()     | pre-processing of a data-frame
+rareES()          | effect size estimation 
+rareGLMM()        | meta-analysis using the generalized linear mixed model
+rareIV()          | meta-analysis using the inverse variance method
+rareMH()          | meta-analysis using the Mantel-Haenszel method  
+rarePeto()        | meta-analysis using Peto's method
+
+
+## rareBetabin
+
+
+## rareCC 
+
+
+## rareDescribe
+
+
+## rareES
+
+
+## rareGLMM
+
+
+## rareIV
+
+
+## rareMH
+
+
+## rarePeto
+
+\newpage
+
+# Continuity Corrections
+
+## Theoretical Introduction 
+
+When confronted with rare event data expressed in terms of a $2 \times 2$-table
 many standard methods of estimating effect sizes may fail.
 
 ::: center
@@ -202,7 +274,9 @@ Now, many methods of estimating effect sizes are available again.
 Continuity corrections can be applied in various ways. Two main
 questions arise: 
 
-*Which studies should the continuity correction be applied to?* Assume
+**Which studies should the continuity correction be applied to?**
+
+Assume
 we are conducting meta-analysis in the presence of studies where no
 event is observed in either the treatment or the control group. Besides
 the two obvious ways of applying the continuity correction to all or
@@ -210,8 +284,7 @@ none of the studies it is standard to apply the continuity correction to
 only those studies with no event in either the control or the treatment
 group. 
 
-*Which method of continuity correction do I apply to the specified
-studies?* 
+**Which method of continuity correction do I apply to the specified studies?**
 
 1\. Constant Continuity Correction 
 
@@ -284,17 +357,17 @@ standard constant continuity correction of $k_T = k_C = 0.5$. Now, with
 $R  :=  \frac{n_C}{n_T}$, the group ratio imbalance, and the
 approximation
 $$\frac{k_T(n_C + k_C)}{k_C(n_T + k_T)} \approx \frac{Rk_T}{k_C}$$ which
-is true for large enough groups, we now see that it holds that:
+is true for large enough groups, we now see that this amounts to:
 $$k_C \approx \frac{R}{R + \hat{\Omega}_{OR}} \text{  and  } k_T \approx \frac{\hat{\Omega}_{OR}}{R + \hat{\Omega}_{OR}}.$$
 
-## Continuity Corrections in **raremeta** {#continuity-corrections-in-raremeta .unnumbered}
+## Continuity Corrections in **raremeta**
 
 We have seen different ways of continuity correcting studies. Let us go
-through the syntax of **raremeta** to learn how to apply them. It all
-comes down to specifying parameters the parameters from `cc` up to
-`ccto` in "'r, eval=FALSE rareIV(x,measure,method,cc,ccval =
-0.5,tccval,cccval,ccsum=1,ccto = \"only0\",drop00=TRUE,
-weighted=TRUE,level = 95,test=\"z\",digits=4,verbose=FALSE,control). "'
+through the syntax of **raremeta** to learn how to apply them. It all comes down to specifying parameters the parameters from `cc` up to
+`ccto` in
+```{r, eval=FALSE}
+rareIV(x,measure,method,cc,ccval=0.5,tccval,cccval,ccsum=1,ccto ="only0",drop00=TRUE,weighted=TRUE,level=95,test="z",digits=4,verbose=FALSE,control)
+```
 The first parameter, `cc`, decides which of the three introduced methods
 of continuity correction should be applied. Possible inputs are `none`,
 which stands for the option to not apply any continuity correction and
@@ -325,22 +398,26 @@ entry of the vector. Obviously, this enables the user simulate her own
 way of continuity correcting studies. If one opts for `cc = "tacc"` or
 `cc = "empirical"`, it must be specified, to which value the values
 $k_T$ and $k_C$ from the theoretical introduction above should add up
-to. This happens through the argument `ccsum`. 
+to. This happens through the argument `ccsum`.
+For the pooled effect size calculated only considering the non-zero studies needed for the empirical continuity correction, the arguments `measure` (`"logOR", "logRR", or "RD"`) and `method` (`"FE", "DL",...`) must be specified.
 
 If one, for example, wants to apply the treatment arm continuity
 correction where $k_T + k_C = 0.1$ to all studies of the
-`rareData`-object `dat`, one may input "'r, eval=FALSE rareIV(x =
-dat,measure=\"logOR\",method=\"FE\",cc=\"tacc\",ccsum=0.1,ccto=\"all\").
-"' To apply the constant continuity correction with specified values
+`rareData`-object `dat`, one may input 
+```{r, eval=FALSE}
+rareIV(x = dat,measure="logOR",method="FE",cc="tacc",ccsum=0.1,ccto="all").
+```
+To apply the constant continuity correction with specified values
 (potentially vectors of length \> $1$) $t$ for the treatment group and
 $c$ for the control group to all single- and double-zero studies, one
-may input "'r, eval=FALSE rareIV(x=
-dat,measure=\"logOR\",method=\"FE\",cc=\"constant\",
-tccval=t,cccval=c,ccto=\"only0\",drop00=FALSE). "'
+may input
+```{r, eval=FALSE}
+rareIV(x=dat,measure="logOR",method="FE",cc="constant",tccval=t,cccval=c,ccto="only0",drop00=FALSE).
+```
 
-# Appendix {#appendix .unnumbered}
+# Appendix
 
-## Appendix A: Motivating the Empirical Continuity Correction {#appendix-a-motivating-the-empirical-continuity-correction .unnumbered}
+## Appendix A: Motivating the Empirical Continuity Correction 
 
 In this section we want to shed light on a certain aspect of continuity
 corrections by answering the following question:
@@ -361,7 +438,7 @@ to the size of the treatment group and the control group, respectively.
 :::
 
 Let $k_T$ and $k_C$ be the continuity corrections applied to the
-treatment group and the control group respectively. After the continuity
+treatment group and the control group, respectively. After the continuity
 correction is applied we end up with:
 
 ::: center
