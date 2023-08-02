@@ -47,7 +47,7 @@ rareES(
 or \code{"RD"} for the risk difference).}
 
 \item{cc}{character string specifying the type of continuity correction to be used
-(either \code{"constant"}, \code{"tacc"} or \code{"empirical"}). Default is "constant". See 'Details'.}
+(either \code{"constant"}, \code{"tacc"} or \code{"empirical"}). Default is "none". See 'Details'.}
 
 \item{ccval}{scalar or numerical vector specifying the value of the continuity correction if
 \code{cc = "constant"}. Must be a scalar or a vector of length equal to the number of studies.
