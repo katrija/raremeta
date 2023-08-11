@@ -59,8 +59,10 @@
 #' See `?rareDescribe` for more details.
 #'
 #' ## Effect size measures
-#' The function includes different versions of the generalized linear (mixed) model. The regression equation
-#' for the fixed-effects model (GLM) can be expressed as
+#' The function includes different versions of the generalized linear (mixed) model. Per default, the function fits an
+#' unconditional model. For information on fitting conditional generalized linear (mixed) models, see further below.
+#'
+#' The regression equation for the unconditional fixed-effects model (GLM) can be expressed as
 #'
 #' \mjseqn{g(\pi_{ij}) = \alpha_i + \theta \cdot x_{ij}},
 #'
@@ -102,6 +104,17 @@
 #' used to specify whether random-effects are assumed to be correlated. Per default, this is not
 #' the case, i.e. `cor = FALSE`.
 #'
+#' ## Conditional generalized linear (mixed) models
+#'
+#' When specifying `conditional = TRUE`, a conditional generalized linear (mixed) model is fitted.
+#' For `measure = "logOR"` and `intercept = "fixed"`, this is the fixed-effects hypergeometric model described by van Houwelingen et al. (1993).
+#' The hypergeometric-normal model described in the same article, which assumes a normal distribution for the true effect sizes (i.e., the intercepts
+#' of the hypergeometric model) can be fitted by setting `intercept = "random"`.
+#' For `measure = "logRR"`, the conditional binomial(-normal) model described by Cai et al. (2010) is fitted. The same model is fitted
+#' when specifying `measure = "logOR` and `approx = TRUE`, as the conditional binomial(-normal) model can be viewed as an approximation
+#' to the hypergeometric(-normal) model (see Stijnen et al., 2010, for further details).
+#'
+#'
 #' @return an object of class "raremeta". The object is a list containing the following elements:
 #' * `model`: name of the model used for conducting the meta-analysis.
 #' * `beta`: estimated coefficients of the model.
@@ -129,6 +142,9 @@
 #' Böhning, D., Mylona, K., & Kimber, A. (2015). Meta-analysis of clinical trials with rare
 #' events. Biometrical Journal, 57 (4), 633–648. doi: 10.1002/bimj.201400184
 #'
+#' Cai, T., Parast, L., & Ryan, L. (2010). Meta-analysis for rare events. Statistics in
+#' Medicine, 29 (20), 2078–2089. doi: 10.1002/sim.3964
+#'
 #' Jackson, D., Law, M., Stijnen, T., Viechtbauer, W., & White, I. R. (2018). A comparison
 #' of seven random-effects models for meta-analyses that estimate the summary odds
 #' ratio. Statistics in Medicine, 37 (7), 1059–1085. doi: 10.1002/sim.7588
@@ -136,6 +152,9 @@
 #' Stijnen, T., Hamza, T. H., & Özdemir, P. (2010). Random effects meta-analysis of event
 #' outcome in the framework of the generalized linear mixed model with applications
 #' in sparse data. Statistics in Medicine, 29 (29), 3046–3067. doi: 10.1002/sim.4040
+#'
+#' van Houwelingen, H. C., Zwinderman, K. H., & Stijnen, T. (1993). A bivariate approach
+#' to meta-analysis. Statistics in Medicine, 12 (24), 2273–2284. doi: 10.1002/sim.4780122405
 #'
 #' @examples
 #'
