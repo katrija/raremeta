@@ -82,11 +82,6 @@
 #' * `vb`: variance-covariance matrix of the estimated coefficients.
 #' * `rho`: estimated intraclass correlation. If `common_rho = FALSE`, rho is a vector
 #' which contains both intraclass correlations.
-#' * `LRT.Chisq`: Test statistic of the likelihood ratio test testing for homogeneity.
-#' * `LRT.df`: Degrees of freedom of the likelihood ratio test testing for homogeneity.
-#' * `LRT.pval`: p-value of the likelihood ratio test testing for homogeneity.
-#' * `fit.stats`: a list with log-likelihood, deviance, AIC, BIC, and AICc values under
-#' the unrestricted and restricted likelihood.
 #' * `p`: number of coefficients in the model (including the intercept).
 #' * `k`: number of studies included in the analysis.
 #' * `k.all`: total number of studies (before exclusion).

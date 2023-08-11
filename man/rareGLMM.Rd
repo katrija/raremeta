@@ -109,7 +109,7 @@ an object of class "raremeta". The object is a list containing the following ele
 \item \code{LRT.df}: Degrees of freedom of the likelihood ratio test testing for homogeneity.
 \item \code{LRT.pval}: p-value of the likelihood ratio test testing for homogeneity.
 \item \code{fit.stats}: a list with log-likelihood, deviance, AIC, BIC, and AICc values under
-the unrestricted and restricted likelihood.
+the unrestricted likelihood.
 \item \code{p}: number of coefficients in the model (including the intercept).
 \item \code{k}: number of studies included in the analysis.
 \item \code{k.all}: total number of studies (before exclusion).
