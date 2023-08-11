@@ -247,6 +247,19 @@ rareGLMM <- function(x, ai, bi, ci, di, n1i, n2i, data, measure,
 
   level <- (100 - level) / 100
 
+  # remove NAs:
+  missings <- (is.na(x$ai)|is.na(x$bi)|is.na(x$ci)|is.na(x$di))
+
+  if(sum(missings) > 0){
+    warning(paste("Your data contain", sum(missings), "studies with missing values. Those studies were removed from the analysis."))
+    ai <- ai[!missings]
+    bi <- bi[!missings]
+    ci <- ci[!missings]
+    di <- di[!missings]
+    n1i <- n1i[!missings]
+    n2i <- n2i[!missings]
+  }
+
   # remove double-zero studies if desired:
   if (drop00 == TRUE) {
     remove <- (ai == 0 & ci == 0) | (bi == 0 & di == 0)
