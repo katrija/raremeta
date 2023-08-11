@@ -407,7 +407,12 @@ rareGLMM <- function(x, ai, bi, ci, di, n1i, n2i, data, measure,
       beta <- lme4::fixef(fitML)
       vb <- as.matrix(stats::vcov(fitML))
       sigma2 <- lme4::VarCorr(fitML)
-      tau2 <- sigma2[[length(sigma2)]][1]
+
+      if(cor == FALSE){
+        tau2 <- sigma2[[length(sigma2)]][1]
+      }else{
+        tau2 <- sigma2[[1]][2,2]
+      }
 
       singular <- lme4::isSingular(fitML)
       conv <- ifelse(fitML@optinfo$conv$opt == 0, TRUE, FALSE)
