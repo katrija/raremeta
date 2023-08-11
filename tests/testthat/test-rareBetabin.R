@@ -83,7 +83,7 @@ test_that("rareBetabin handles the exclusion of double-zero studies correctly", 
 
 # log OR with common rho:
 fit <- rareBetabin(x, measure = "logOR", drop00 = FALSE)
-fit_aods <- suppressWarnings(aods3::aodml(cbind(xi, ni-xi)~1+group, data = data_long,
+fit_aod <- suppressWarnings(aods3::aodml(cbind(xi, ni-xi)~1+group, data = data_long,
                          link = "logit", family = "bb"))
 
 test_that("rareBetabin yields similar results as aodml", {
