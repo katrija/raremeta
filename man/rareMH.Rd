@@ -113,10 +113,8 @@ The object is a list containing the following elements:
 }
 }
 \description{
-Function to conduct a meta-analysis.
-Effect sizes are the log odds ratio, log relative risk and
-risk difference estimated from event counts in form of 2x2 contingency
-tables using Mantel-Haenszel type estimators.
+Function to conduct a meta-analysis of log odd ratios,
+log relative risks or risk differences using the Mantel-Haenszel method.
 }
 \section{Details}{
 \subsection{Data input}{
@@ -132,29 +130,18 @@ See \code{?rareDescribe} for more details.
 \subsection{Effect size measures}{
 
 The function includes meta-analytic methods for log odds ratios, log risk ratios, and risk differences.
-The effect size measure can be specified using the \code{measure} argument. The respective effect size,
-along with an estimate of its sampling variance, is then calculated for each study based on the
-entries of the study's 2x2 table:\tabular{lrr}{
-    \tab event \tab no event \cr
-   group1 (treatment) \tab ai \tab bi \cr
-   group2 (control) \tab ci \tab di \cr
-}
-
+The effect size measure can be specified using the \code{measure} argument.
 }
 
 \subsection{Mantel-Haenszel type estimators}{
 
-A prominent class of estimators for the common effect size under the the equal-effects model
-was proposed by Mantel and Haenszel in 1959.
+The Mantel-Haenszel method (Mantel & Haenszel, 1959) is a fixed-effects method.
 Mantel-Haenszel type estimators are particularly useful in meta-analysis of rare
-events.
-As a quotient of sums rather than a sum of quotients,
-the Mantel-Haenszel estimator of the overall effect is oftentimes defined even though the standard
-estimator for the corresponding effect size for some individual studies may not be defined.
-The variance estimation is due to Greenland et al. (1985) and
-Robins et al. (1986).
-For a summary of the implemented estimators see e.g. sections 9.2-9.4 of Jewell
-(2013).
+events, since their use does not require a continuity correction as long as at least one
+study per group reports at least one event.
+The standard error of the pooled effect is estimated according to the formulas given in
+Greenland et al. (1985) and Robins et al. (1986).
+For a summary of the implemented estimators see e.g. sections 9.2-9.4 of Jewell (2013).
 }
 }
 
