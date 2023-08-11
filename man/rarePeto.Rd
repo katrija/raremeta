@@ -48,9 +48,7 @@ The object is a list containing the following elements:
 }
 }
 \description{
-Function to conduct a meta-analysis.
-Effect size is the log odds ratio which is estimated from event counts in form of
-2x2 contingency tables using Peto's method (see Yusuf et al., 1985).
+Function to conduct a meta-analysis of the log odds ratio using the Peto method.
 }
 \section{Details}{
 \subsection{Data input}{
@@ -65,13 +63,8 @@ See \code{?rareDescribe} for more details.
 
 \subsection{Effect size measure}{
 
-The function is a meta-analytic method for estimating log odds ratios.
-Data comes in form of event counts in 2x2 contingency tables.\tabular{lrr}{
-    \tab event \tab no event \cr
-   group1 (treatment) \tab ai \tab bi \cr
-   group2 (control) \tab ci \tab di \cr
-}
-
+The Peto method is a fixed-effects method for meta-analysis of the log odds ratio. For further details,
+see Yusuf et al. (1985).
 }
 }
 
@@ -91,6 +84,5 @@ rarePeto(x)
 \references{
 Yusuf, S., Peto, R., Lewis, J., Collins, R., & Sleight, P. (1985).
 Beta blockade during and after myocardial infarction: an overview of
-the randomized trials.
-Progress in cardiovascular diseases, 27(5), 335-371.
+the randomized trials. Progress in cardiovascular diseases, 27(5), 335-371.
 }

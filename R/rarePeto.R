@@ -1,8 +1,6 @@
 #' Conduct a meta-analysis using Peto's method
 #'
-#' Function to conduct a meta-analysis.
-#' Effect size is the log odds ratio which is estimated from event counts in form of
-#' 2x2 contingency tables using Peto's method (see Yusuf et al., 1985).
+#' Function to conduct a meta-analysis of the log odds ratio using the Peto method.
 #'
 #' @param x an object of class `"rareData"`.
 #' @param ai data frame column to specify the number of events in group 1 (i.e., the treatment group).
@@ -28,16 +26,8 @@
 #' See `?rareDescribe` for more details.
 #'
 #' ## Effect size measure
-#' The function is a meta-analytic method for estimating log odds ratios.
-#' Data comes in form of event counts in 2x2 contingency tables.
-#'
-#' |                   | event | no event|
-#' |:------------------|------:|--------:|
-#' |group1 (treatment) | ai    | bi      |
-#' |group2 (control)   | ci    | di      |
-#'
-#'
-#'
+#' The Peto method is a fixed-effects method for meta-analysis of the log odds ratio. For further details,
+#' see Yusuf et al. (1985).
 #'
 #' @return an object of class "raremeta".
 #' The object is a list containing the following elements:
@@ -57,8 +47,7 @@
 #' @references
 #' Yusuf, S., Peto, R., Lewis, J., Collins, R., & Sleight, P. (1985).
 #' Beta blockade during and after myocardial infarction: an overview of
-#' the randomized trials.
-#' Progress in cardiovascular diseases, 27(5), 335-371.
+#' the randomized trials. Progress in cardiovascular diseases, 27(5), 335-371.
 #'
 #' @export
 #'
