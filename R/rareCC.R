@@ -334,7 +334,7 @@ rareCC <- function(x, ai, bi, ci, di, n1i, n2i, data,
   if(cc == "none") remove <- (x$szstudies | x$dzstudies)
 
   if(cc == "none" && (sum(remove, na.rm = TRUE) > 0)){
-    warning("The data contains studies with no event in at least one of the cells.
+    warning("The data contain studies with no event in at least one of the groups.
     Since cc = 'none' (no continuity correction) was selected, these studies were removed from the analysis.")
   }
 
