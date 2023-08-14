@@ -44,6 +44,7 @@ print.rareData <- function(x, ...) {
   # cat("\nNumber of studies in which the event is very rare (rel. freq. < 0.01):  ", x$kveryrare, "out of", x$k, "studies.")
 
 
+
   #print summary of continuity corrected data
   #(commented out for now)
 
@@ -112,5 +113,19 @@ print.rareData <- function(x, ...) {
 
     cat("\n variance \n")
     print(x$vi)
+  }
+}
+
+# print summary of effect size and variance estimates
+if(FALSE){
+  if(all(c("yi","vi") %in% names(x))){
+    EffectSize <- round(as.matrix(rbind(x$yi, x$vi)), 2)
+    EffectSize <- EffectSize[, c("mean", "sd", "min", "q25", "median", "q75", "max", "IQR")]
+    row.names(EffectSize) <- c(x$measure, "vi")
+
+    cat("\nEffect Size Estimation: \n")
+    stats::printCoefmat(EffectSize)
+    cat("\n")
+
   }
 }
