@@ -35,6 +35,90 @@ in-depth description, which includes documentation of all functions, following t
 We also include a dedicated section introducing
 continuity corrections on a theoretical and practical level. 
 
+# A Tour Through the Functionality of `raremeta`
+
+In the following section we are about to use a great deal of the implemented functionality 
+on a data set by Yuan et. al. (2018).
+We begin by exploring the data a little bit.
+After that, we will be fitting statistical models by using the functions which are 
+part of the `raremeta` package.
+We will put emphasis on the input's syntax and interpretation of the output.
+At the end, there will be a section discussing pre processing of the input data.
+
+```{r, eval=TRUE}
+library(raremeta)
+data("dat.yuan2018")
+head(dat.yuan2018)
+```
+
+The data frame consists of 8 rows and 5 columns. 
+Each of the rows stand for one individual study.
+The first column, `study`, includes the study identifier, while the other columns, `ai, ci, n1i, n2i`, include information on the event counts and number of participants in the different studies. 
+This information is usually depicted in form of a table  
+
+::: center
+   $i$'th study   event   no-event  total
+  -------------- ------- ---------- ----------
+    treatment     $a_i$    $b_i$     $n_{1i}$
+     control      $c_i$    $d_i$     $n_{2i}$
+:::
+
+where `ai,ci` and `n1i,n2i` are the number of events and the
+total number of participants of the i'th study in the treatment
+group and the control group, respectively.  
+As seen above, the Yuan data is in fact a data frame of rare events.
+Usually, studies with no event in one of the groups are called single-zero studies, while studies with no event in both of the groups are called double-zero studies.
+The Yuan data set includes double zero studies, making it a good example for presenting the usage of the implemented techniques from meta analysis of rare events included in `raremeta`.  
+
+We continue by presenting the following functions one by one.
+
+Function Name     | Short Description
+-------------     | -----------------
+rareDesribe()     | pre-processing of a data-frame
+rareBetabin()     | meta-analysis using the beta binomial model 
+rareCC()          | continuity correction for binary data
+rareES()          | effect size estimation 
+rareGLMM()        | meta-analysis using the generalized linear mixed model
+rareIV()          | meta-analysis using the inverse variance method
+rareMH()          | meta-analysis using the Mantel-Haenszel method  
+rarePeto()        | meta-analysis using Peto's method
+
+## rareES
+To calculate individual effect sizes for meta-analysis of rare events, the `rareES` function can be used. 
+
+```{r, eval=FALSE}
+rareES(x,ai,bi,ci,di,n1i,n2i,data,measure,cc="none",ccval=0.5,tccval,cccval,ccsum=1,ccto="only0",drop00=TRUE,method="FE")
+```
+
+The data input may be achieved by specifying an appropriate subset of the first 8 arguments.
+We will go into more depth on the possibility to specifying the `x` argument later in this section.
+The following 7 arguments reflect the information included in the contingency table representation above, with `data` specifying the data frame. 
+Through `measure` we may specify the effect size or outcome measure to be used (either `"logOR"` for the log odds ratio, ``"logRR"` for the log relative risk, or `"RD"` for the risk difference). 
+The arguments from `cc` to `ccto` and `method` specify the continuity correction to be applied before calculation of the effect size estimate. 
+The argument `drop00` is a  logical indicating whether double-zero studies should be excluded prior to calculating the studies’ effect sizes and sampling variances.    
+
+Let us have a look at the output of an application of the `rareES` function. 
+We calculate the log odds ration on the study level for the Yuan data set. 
+```{r, eval=TRUE}
+x <- rareES(ai=ai,ci=ci,n1i=n1i,n2i=n2i,data=dat.yuan2018,measure="logOR")
+head(x)
+```
+The `rareES` function turned the Yuan data into an object of type `rareData`, adding the information about the estimated effect size and the inside study variances.
+This is reflected by the output being a summary of all the information saved in this object.   
+The output begins with a warning, stating that since we did not opt for the application of any continuity correction, the usual estimate of the log odds ratio for the single- and double-zero studies is undefined, therefore all of them were dropped in the analysis. 
+Following that, there is a summary of the original data. 
+After the counts of different kinds of studies follows a list of descriptive statistics of the total size of the the treatment group (group 1) and the control group (group 2), respectively.
+The list consists of the mean, standard deviation, minimum, 25% quantile, median, 75% quantile, maximum and interquartile range.
+Following that, we look at the same descriptive statistics for the sample size ratio, i.e. the size of the treatment group divided by the size of the control group.
+It ends with analogue descriptives of the relative event-frequencies. 
+
+The calculated estimates for the log odds ratio and the variance are added to the object and can be printed by referring to their names, `"yi` for the effect size estimates and `"vi"` for the variance estimates.
+
+```{r, eval=TRUE}
+x$yi
+x$vi
+```
+
 # A First Example: raremeta in Action
 
 We begin by setting up **raremeta** and examine the dataset
