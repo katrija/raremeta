@@ -3,7 +3,9 @@ Title: Meta-Analysis of Rare Events
 Version: 0.0.0.9000
 Authors@R: 
     person("Katrin", "Jansen", , "katrinjansen@uni-muenster.de", role = c("aut", "cre"),
-           comment = c(ORCID = "0000-0002-4533-3779"))
+            comment = c(ORCID = "0000-0002-4533-3779"))
+    person("Karl", "Westphal", ,"westphalkk@gmail.com", role = c("aut", "cre"), 
+            comment = c(ORCID = "0009-0004-7735-1519"))       
 Description: What the package does (one paragraph).
 License: GPL (>= 2)
 Encoding: UTF-8
