@@ -1,3 +1,96 @@
+#' Meta-analytic data from Fodor et al. (2018): VR therapy vs. passive control groups
+#'
+#' A data frame with 26 rows and 5 columns.
+#' * study: study identifier
+#' * ai: number of events (dropout) in the treatment group (VR therapy group)
+#' * ci: number of events (dropout) in the control group (passive control group)
+#' * n1i: sample size of the treatment group
+#' * n2i: sample size of the control group
+#'
+#' @docType data
+#'
+#' @usage dat.fodor2018.pass
+#'
+#' @examples
+#' # load data frame:
+#'
+#' data <- dat.fodor2018.pass
+#'
+#' # calculate descriptives using rareDescribe():
+#'
+#' descr <- rareDescribe(ai = ai,
+#'                       n1i = n1i,
+#'                       ci = ci,
+#'                       n2i = n2i,
+#'                       data = data)
+#'
+#' print(descr)
+#'
+#' # conduct random-effects meta-analysis
+#' # using the inverse variance model:
+#'
+#' ma <- rareIV(descr,
+#'              measure = "logOR",
+#'              method = "REML",
+#'              cc = "constant",
+#'              ccto = "only0",
+#'              ccval = 0.5,
+#'              drop00 = FALSE)
+#'
+#' summary(ma)
+#'
+#' @references Fodor, L. A., Coteț, C. D., Cuijpers, P., Szamoskozi, Ș., David, D., & Cristea, I. A. (2018).
+#' The effectiveness of virtual reality based interventions for symptoms of anxiety and depression: A meta-analysis.
+#' Scientific reports, 8(1), 10323. \href{https://doi.org/10.1038/s41598-018-28113-6}{SciRep}.
+"dat.fodor2018.pass"
+
+#' Meta-analytic data from Fodor et al. (2018): VR therapy vs. active control groups
+#'
+#' A data frame with 27 rows and 5 columns.
+#' * study: study identifier
+#' * ai: number of events (dropout) in the treatment group (VR therapy group)
+#' * ci: number of events (dropout) in the control group (active control group)
+#' * n1i: sample size of the treatment group
+#' * n2i: sample size of the control group
+#'
+#' @docType data
+#'
+#' @usage dat.fodor2018.act
+#'
+#' @examples
+#' # load data frame:
+#'
+#' data <- dat.fodor2018.act
+#'
+#' # calculate descriptives using rareDescribe():
+#'
+#' descr <- rareDescribe(ai = ai,
+#'                       n1i = n1i,
+#'                       ci = ci,
+#'                       n2i = n2i,
+#'                       data = data)
+#'
+#' print(descr)
+#'
+#' # conduct random-effects meta-analysis
+#' # using the inverse variance model:
+#'
+#' ma <- rareIV(descr,
+#'              measure = "logOR",
+#'              method = "REML",
+#'              cc = "constant",
+#'              ccto = "only0",
+#'              ccval = 0.5,
+#'              drop00 = FALSE)
+#'
+#' summary(ma)
+#'
+#' @references Fodor, L. A., Coteț, C. D., Cuijpers, P., Szamoskozi, Ș., David, D., & Cristea, I. A. (2018).
+#' The effectiveness of virtual reality based interventions for symptoms of anxiety and depression: A meta-analysis.
+#' Scientific reports, 8(1), 10323. \href{https://doi.org/10.1038/s41598-018-28113-6}{SciRep}.
+"dat.fodor2018.act"
+
+
 #' Meta-analytic data from Yuan et al. (2018)
 #'
 #' A data frame with 8 rows and 5 columns.
