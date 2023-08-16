@@ -86,7 +86,7 @@ fitIV <- rareIV(ai=ai,ci=ci,n1i=n1i,n2i=n2i,data=dat.yuan2018,
 fitIV
 ```
 
-Readers who are already familiar with other `R`-packages for meta analysis (e.g. **metafor** or **meta**) might recognize parts of the input syntax and have no problems to interpret the output.
+Readers who are already familiar with other `R`-packages for meta analysis (e.g. **metafor** or **meta**) might recognize parts of the input syntax and will likely have no problems to interpret the output.
 We continue with an in depth account which explains the usage and output-interpretation of all major functions included in `raremeta`.
 
 Function Name     | Short Description
@@ -166,7 +166,7 @@ rareMH()
 ```
 
 ## rarePeto
-To conduct a meta-analysis on the log odds ration using Peto's method (see Yusuf et al., 1985), the `rarePeto` function can be used.  
+To conduct a meta-analysis on the log odds ratio using Peto's method (see Yusuf et al., 1985), the `rarePeto` function can be used.  
 
 ```{r, eval=FALSE}
 rarePeto(x,ai,bi,ci,di,n1i,n2i,data,level=95,digits=4)
@@ -217,15 +217,39 @@ Let us recall some of the examples above and see how the input is simplified.
 
 ## rareCC
 The `rareCC` function enables the user to apply continuity correcion to the data.
-Even though most functions allow to apply the correction internally, users may find it easier to pre-process the data this way and then input it to the other functions.
-Since the functions above are set up in a way that a already continuity corrected data input will not be continuity corrected again, the user must not fear of applying it twice.  
+Eventhough most functions allow to apply the correction internally, users may find it easier to pre-process the data this way and then input it to the other functions.
+Since the functions above are set up in a way that a already continuity corrected data input will not be continuity corrected again, the user must not fear applying it twice.  
 Let us have a look at the arguments.
 ```{r, eval=FALSE}
 rareCC(x,ai,bi,ci,di,n1i,n2i,data,cc="constant",ccval=0.5,tccval,cccval,ccsum=1,ccto="only0",drop00=TRUE,measure,method="FE")
 ``` 
+As always, data input can be done by specifying the `x` argument or the columns of the data frame at hand. 
 We have implemented three different families of continuity correction: The *constant*, *treatment arm*, and *empirical* continuity correction.
 
---------------------------------------
+###### Constant continuity correction
+When setting `cc = "constant"`, a constant value will be added to all cells of all studies specified via the `ccto` argument. The default is `ccval = 0.5`. 
+Through specification of `tccval` and `cccval` different values can be specified for the cells of the treatment group and the control group, respectively. 
+By inputting vectors in the afforementioned arguments, different values can be added to different studies (adding the k-th value to the k-th study), making it possible for the user to introduce their own continuity correction.
+
+###### Treatment-arm continuity correction
+When setting `cc = "tacc"` (treatment-arm continuity correction), the size of both of study arms is used to calculate a value for continuity correction. For a precise definition see Sweeting et al. (2004).
+
+###### Empirical correction
+When setting `cc = "empirical"`, the estimated summary effect size (`logOR, logRR` or `RD`) for all studies which enable the estimation of the corresponding individual effect size is used to calculate a value for continuity correction. 
+This means that there must be at least one study enabling the estimation of the corresponding individual effect size and the measure- and method argument must be specified. 
+For a precise definition (including an interpretation of the argument `ccsum`) see Sweeting et al. (2004).
+This kind of continuity correction obviously depends on the effect size, which can be set by changing the `measure` argument.
+Possible effect sizes are `"logOR`, `"logRR"`, and `"RD"`.
+When it comes to model fitting, there is the possibility to fit fixed-effects models (also known as equal-effects models) and random-effects models using the inverse variance approach. 
+A fixed-effects model is fitted when `method` is set to `"FE"` (or `"EE"`). A random-effects model is fitted when method is set to either `"DL", "HE", "SJ", "ML", "REML", "EB", "HS", "PM", "IPM", "GENQ", "PMM"` or `"GENQM"`. 
+Currently, the model is fitted by applying the `rma()` function from the **metafor** package, see Viechtbauer (2010).  
+As always, `drop00` is a logical, indicating whether double-zero studies shall be dropped from the analysis.  
+The argument `ccto` is a character string indicating which studies the continuity correction should be applied to. Either `"only0"`, for which the continuity correction is applied to all studies for which the number of events is zero in at least one of the groups, `"all"`, for which the continuity correction is applied to all studies, or `"if0all"`, for which the continuity correction is applied to all studies if any of the individual studies has zero events in at least one of the groups.  
+
+Let us go through some examples and see where how we can attain the continuity corrected data from the generated object. 
+
+
+
 
 
 ## rareES
@@ -235,15 +259,13 @@ To calculate individual effect sizes for meta-analysis of rare events, the `rare
 rareES(x,ai,bi,ci,di,n1i,n2i,data,measure,cc="none",ccval=0.5,tccval,cccval,ccsum=1,ccto="only0",drop00=TRUE,method="FE")
 ```
 
-The data input may be achieved by specifying an appropriate subset of the first 8 arguments.
-We will go into more depth on the possibility to specifying the `x` argument later in this section.
-The following 7 arguments reflect the information included in the contingency table representation above, with `data` specifying the data frame. 
+Data input is done in the usual way.
 Through `measure` we may specify the effect size or outcome measure to be used (either `"logOR"` for the log odds ratio, ``"logRR"` for the log relative risk, or `"RD"` for the risk difference). 
 The arguments from `cc` to `ccto` and `method` specify the continuity correction to be applied before calculation of the effect size estimate. 
-The argument `drop00` is a  logical indicating whether double-zero studies should be excluded prior to calculating the studies’ effect sizes and sampling variances.    
+Again, the argument `drop00` is a  logical indicating whether double-zero studies should be excluded prior to calculating the studies’ effect sizes and sampling variances.    
 
 Let us have a look at the output of an application of the `rareES` function. 
-We calculate the log odds ration on the study level for the Yuan data set. 
+We calculate the log odds ratio on the study level for the Yuan data set. 
 ```{r, eval=TRUE}
 x <- rareES(ai=ai,ci=ci,n1i=n1i,n2i=n2i,data=dat.yuan2018,measure="logOR")
 head(x)
