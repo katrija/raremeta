@@ -580,7 +580,7 @@ rareGLMM <- function(x, ai, bi, ci, di, n1i, n2i, data, measure,
         # tau2 <- fitML$par[2]
 
         # hessian <- numDeriv::hessian(.negllnchg, fitML$par, ai = ai, bi = bi, ci = ci, di = di, intercept = "random")
-        # vb <- try(solve(hessian), silent = TRUE)
+        vb <- fitML$vb
 
         # if(inherits(vb, "try-error")){
         #   warning("Standard errors could not be obtained.")
