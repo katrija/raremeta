@@ -1,3 +1,146 @@
+#' Meta-analytic data from Hoppen et al. (2023): EMDR vs. passive control conditions
+#'
+#' A data frame with 7 rows and 5 columns.
+#' * study: study identifier
+#' * ai: number of events (dropout) in the treatment group (EMDR)
+#' * ci: number of events (dropout) in the control group (passive control conditions)
+#' * n1i: sample size of the treatment group
+#' * n2i: sample size of the control group
+#'
+#' @docType data
+#'
+#' @usage dat.hoppen2023
+#'
+#' @examples
+#' # load data frame:
+#'
+#' data <- dat.hoppen2023
+#'
+#' # calculate descriptives using rareDescribe():
+#'
+#' descr <- rareDescribe(ai = ai,
+#'                       n1i = n1i,
+#'                       ci = ci,
+#'                       n2i = n2i,
+#'                       data = data)
+#'
+#' print(descr)
+#'
+#' # conduct random-effects meta-analysis
+#' # using the inverse variance model:
+#'
+#' ma <- rareIV(descr,
+#'              measure = "logOR",
+#'              method = "REML",
+#'              cc = "constant",
+#'              ccto = "only0",
+#'              ccval = 0.5,
+#'              drop00 = FALSE)
+#'
+#' summary(ma)
+#'
+#' @references Hoppen, T. H., Jehn, M., Holling, H., Mutz, J., Kip, A., & Morina, N. (2023).
+#' The efficacy and acceptability of psychological interventions for adult PTSD:
+#' A network and pairwise meta-analysis of randomized controlled trials.
+#' Journal of Consulting and Clinical Psychology.
+#' \href{https://doi.org/10.1037/ccp0000809}{J CONSULT CLIN PSYCH}.
+"dat.hoppen2023"
+
+#' Meta-analytic data from Yang et al. (2019): Psychological interventions for social anxiety disorder vs. control
+#'
+#' A data frame with 16 rows and 5 columns.
+#' * study: study identifier
+#' * ai: number of events (dropout) in the treatment group (psychological intervention group)
+#' * ci: number of events (dropout) in the control group (control group)
+#' * n1i: sample size of the treatment group
+#' * n2i: sample size of the control group
+#'
+#' @docType data
+#'
+#' @usage dat.yang2019
+#'
+#' @examples
+#' # load data frame:
+#'
+#' data <- dat.yang2019
+#'
+#' # calculate descriptives using rareDescribe():
+#'
+#' descr <- rareDescribe(ai = ai,
+#'                       n1i = n1i,
+#'                       ci = ci,
+#'                       n2i = n2i,
+#'                       data = data)
+#'
+#' print(descr)
+#'
+#' # conduct random-effects meta-analysis
+#' # using the inverse variance model:
+#'
+#' ma <- rareIV(descr,
+#'              measure = "logOR",
+#'              method = "REML",
+#'              cc = "constant",
+#'              ccto = "only0",
+#'              ccval = 0.5,
+#'              drop00 = FALSE)
+#'
+#' summary(ma)
+#'
+#' @references Yang, L., Zhou, X., Pu, J., Liu, L., Cuijpers, P., Zhang, Y., ... & Xie, P. (2019).
+#' Efficacy and acceptability of psychological interventions for social anxiety disorder in
+#' children and adolescents: a meta-analysis of randomized controlled trials.
+#' European Child & Adolescent Psychiatry, 28, 79-89.
+#' \href{https://doi.org/10.1007/s00787-018-1189-x}{EUR CHILD ADOLES PSY}.
+"dat.yang2019"
+
+#' Meta-analytic data from Okumura et al. (2014): Group CBT for depression vs. non-active control
+#'
+#' A data frame with 27 rows and 5 columns.
+#' * study: study identifier
+#' * ai: number of events (dropout) in the treatment group (group CBT group)
+#' * ci: number of events (dropout) in the control group (non-active control group)
+#' * n1i: sample size of the treatment group
+#' * n2i: sample size of the control group
+#'
+#' @docType data
+#'
+#' @usage dat.okumura2014
+#'
+#' @examples
+#' # load data frame:
+#'
+#' data <- dat.okumura2014
+#'
+#' # calculate descriptives using rareDescribe():
+#'
+#' descr <- rareDescribe(ai = ai,
+#'                       n1i = n1i,
+#'                       ci = ci,
+#'                       n2i = n2i,
+#'                       data = data)
+#'
+#' print(descr)
+#'
+#' # conduct random-effects meta-analysis
+#' # using the inverse variance model:
+#'
+#' ma <- rareIV(descr,
+#'              measure = "logOR",
+#'              method = "REML",
+#'              cc = "constant",
+#'              ccto = "only0",
+#'              ccval = 0.5,
+#'              drop00 = FALSE)
+#'
+#' summary(ma)
+#'
+#' @references Okumura, Y., & Ichikura, K. (2014). Efficacy and acceptability of
+#' group cognitive behavioral therapy for depression: a systematic review and
+#' meta-analysis. Journal of Affective Disorders, 164, 155-164.
+#' \href{https://doi.org/10.1016/j.jad.2014.04.023}{JAD}.
+"dat.okumura2014"
+
 #' Meta-analytic data from Fodor et al. (2018): VR therapy vs. passive control groups
 #'
 #' A data frame with 26 rows and 5 columns.
