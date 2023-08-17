@@ -11,7 +11,11 @@ vignette: >
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>")
+library(devtools) 
+load_all() 
 ```
+
+
 
 
 # Abstract
@@ -41,23 +45,23 @@ continuity corrections on a theoretical and practical level.
 # A Tour Through the Functionality of `raremeta`
 
 In the following section we are about to use a great deal of the implemented functionality 
-on a data set by Yuan et. al. (2018).  
+on a data set by Hoppen et al. (2023).  
 
 The models implemented in the `raremeta` package are suitable for meta-analysis of 2x2 contingency tables, in particular when the event that is investigated is rare. 
-An example for such data is provided in a meta-analysis by Yuan  et al. (2018). 
-In this meta-analysis, the authors evaluate the acceptability of bibliotherapy for depression and anxiety disorders in children and adolescents. 
-Specifically, they examine whether bibliotherapy is associated with a larger (or smaller) number of dropouts compared to control treatments. 
-A larger number of dropouts in bibliotherapy indicates a lower acceptability of this treatment.  
+An example for such data is provided in a meta-analysis by Hoppen et al. (2023). 
+In this meta-analysis, the authors evaluate the acceptability of psychological interventions, specifically Eye Movement Desensitization and Reprocessing (EMDR), for posttraumatic stress disorder (PTSD) in adults.
+Specifically, they examine whether EMDR is associated with a larger (or smaller) number of dropouts compared to control treatments. 
+A larger number of dropouts in EMDR indicates a lower acceptability of this treatment.  
 
 In the following, we show how these data can be analyzed with different models for meta-analysis of rare events using the `raremeta` package.
 
 ```{r, eval=TRUE}
 library(raremeta)
-data("dat.yuan2018")
-dat.yuan2018
+data("dat.hoppen2023")
+dat.hoppen2023
 ```
 
-The data frame consists of 8 rows and 5 columns. 
+The data frame consists of 7 rows and 5 columns. 
 Each of the rows stand for one individual study.
 The first column, `study`, includes the study identifier, while the other columns, `ai, ci, n1i, n2i`, include information on the event counts and number of participants in the different studies. 
 This information is usually depicted in form of a table  
@@ -72,21 +76,22 @@ This information is usually depicted in form of a table
 where `ai,ci` and `n1i,n2i` are the number of events and the
 total number of participants of the i'th study in the treatment
 group and the control group, respectively.
-In the Yuan data, the treatment is bibliotherapy.
-This makes the treatment group consist of those individuals undergoing bibliotherapy and the control group consist of those undergoing the control treatment.
+In the Hoppen data, the treatment is EMDR.
+This makes the treatment group consist of those individuals undergoing EMDR and the control group consist of those undergoing the control treatment.
 Usually, studies with no event in one of the groups are called single-zero studies, while studies with no event in both of the groups are called double-zero studies.
-The meta-analysis by Yuan et al. is in fact an example for a meta-analysis of a rare event: Specifically, it contains two studies with no events in both groups (double-zero studies).  
+The meta-analysis by Hoppen et al. is in fact an example for a meta-analysis of a rare event: Specifically, it contains one study with no event in one of the groups (single-zero study) and one study with no event in both groups (double-zero study).  
 
 We will now briefly show how to apply the inverse-variance method for the log odds ratio with the standard continuity correction (add 0.5 to all cells of all studies with zero counts) to the data.  
 
 ```{r, eval = TRUE}
-fitIV <- rareIV(ai=ai,ci=ci,n1i=n1i,n2i=n2i,data=dat.yuan2018,
+fitIV <- rareIV(ai=ai,ci=ci,n1i=n1i,n2i=n2i,data=dat.hoppen2023,
                 measure="logOR",method="FE",cc="constant",ccval=0.5,ccto="only0")
 
 fitIV
 ```
 
-Readers who are already familiar with other `R`-packages for meta analysis (e.g. **metafor** or **meta**) might recognize parts of the input syntax and will likely have no problems to interpret the output.
+Readers who are already familiar with other `R`-packages for meta analysis (e.g. **metafor** or **meta**) might recognize parts of the input syntax and will likely have no problems to interpret the output.  
+
 We continue with an in depth account which explains the usage and output-interpretation of all major functions included in `raremeta`.
 
 Function Name     | Short Description
@@ -101,7 +106,7 @@ rareMH()          | meta-analysis using the Mantel-Haenszel method
 rarePeto()        | meta-analysis using Peto's method
 
 ## rareIV
-The `rareIV()` function allows the user to conduct a meta-analysis using the inverse variance model.  
+The `rareIV` function allows the user to conduct a meta-analysis using the inverse variance model.  
 
 ```{r, eval=FALSE}
 rareIV(x,ai,bi,ci,di,n1i,n2i,data,measure,method,cc="none",ccval=0.5,tccval,cccval,ccsum=1,ccto="only0",
@@ -109,46 +114,52 @@ rareIV(x,ai,bi,ci,di,n1i,n2i,data,measure,method,cc="none",ccval=0.5,tccval,cccv
 ```
 The data input may be achieved in several ways.
 In line with other packages for meta-analysis such as **metafor** or **meta**, the reader may specify the data frame and the columns which include the cells of the 2x2 contingency table. 
-This may be done in `raremeta` by specifying the arguments `data, ai, bi, ci, and di` or `data, ai, n1i, ci, n2i`.
-We will go into more depth on the possibility to specifying the `x` argument later in this section.  
+This may be done in `raremeta` by specifying the arguments `data, ai, bi, ci, di` or `data, ai, n1i, ci, n2i`.
+We will go into more depth on the possibility to specifying the `x` argument when we talk about pre-processing the data by using the `rareDescribe` function later in this section.  
 The argument `measure` specifies the effect size or outcome measure to be used (either `"logOR"` for the log odds ratio, `"logRR"` for the log relative risk, or `"RD"` for the risk difference).
 The argument `method` specifies whether a fixed- or a random-effects model should be fitted. 
 A fixed-effects model is fitted when using `method = "FE"` . 
 A random-effects model is fitted by setting method equal to one of the following: `"DL", "HE", "SJ", "ML", "REML", "EB", "HS", "PM", "IPM", "GENQ", "PMM"` or `"GENQM"`.
 The arguments `cc` to `ccto` define the type of continuity correction applied to the data before the analysis and we will go into more depth in its application in later parts.
-The argument `drop00` specifies whether double zero studies shall be excluded from the analysis.  
+The argument `drop00` specifies whether double-zero studies shall be excluded from the analysis.  
 For an interpretation of the additional arguments, consult the corresponding function documentation.  
 
-If we use the Yuan data to fit a random effects meta-analysis on the logarithmised odds-ratio using the median-unbiased Paule-Mandel estimator while adding the constant value of 0.5 to all cells of all studies (as described in Viechtbauer 2021), we use the following input.
+If we use the Hoppen data to fit a random effects meta-analysis on the logarithmised odds-ratio using the median-unbiased Paule-Mandel estimator while adding the constant value of 0.5 to all cells of all studies (as described in Viechtbauer 2021), we use the following input.
 
 ```{r, eval=TRUE}
-fitIV <- rareIV(ai=ai,ci=ci,n1i=n1i,n2i=n2i,data=dat.yuan2018,
+fitIV <- rareIV(ai=ai,ci=ci,n1i=n1i,n2i=n2i,data=dat.hoppen2023,
                 measure="logOR",method="IPM",cc="constant",ccval=0.5,ccto="all")
 fitIV
 ```
 
 The output begins with a short description of the type of model used, 
 the numbers of studies which were part of the analysis, the type of continuity correction used and whether double-zero studies were exclueded.
-In this case, the total number of studies in the Yuan data is 8, while 6 studies were part of the analysis.
-This stems from the fact, that, by default, the argument `drop00` was set to `TRUE`.    
+In this case, the total number of studies in the Hoppen data is 7, while 6 studies were part of the analysis.
+This stems from the fact, that, by default, the argument `drop00` was set to `TRUE`, which implies that double-zero studies are excluded from the analysis.  
 The next part of the output reports the Q-statistic, p-value, heterogeneity estimate and I2-statistic.
-The output ends with the estimated model parameters.
-The logarithmised odd-ratio was estimated to be 0.5805 (implying a estimated odds ratio of 1.786963). 
-Following the estimated effect size, the output also includes estimates for other model parameters: the estimators standard error, z-value, p-value, and the lower and upper bounds of the confidence interval (the confidence level was set to 95% by default).  
+The output ends with the estimated model parameters, rounded to four decimal digits.
+The logarithmised odd-ratio was estimated to be 0.5847419 (implying a estimated odds ratio of 1.794528).
+The estimated effect size can be read from the list by way of the name `beta`.
+```{r, eval = TRUE}
+fitIV$beta
+exp(fitIV$beta)
+```
+Following the estimated effect size, the output also includes estimates for other model parameters: The estimators standard error, z-value, p-value, and the lower and upper bounds of the confidence interval (the confidence level was set to 95% by default).  
 
 
 ## rareMH
 A prominent class of estimators for the common effect size under the the fixed-effects model was proposed by Mantel and Haenszel in 1959.
-The `rareMH()` function enables the user to conduct a meta-analysis using Mantel-Haenszel type estimators.
+The `rareMH` function enables the user to conduct a meta-analysis using Mantel-Haenszel type estimators.
 
 ```{r, eval=FALSE}
-rareMH(x,ai,bi,ci,di,n1i,n2i,data,measure,level=95,digits=4,correct=FALSE,cc="constant",ccval=0.5,tccval,cccval,ccsum=1,ccto="only0",method="FE")
+rareMH(x,ai,bi,ci,di,n1i,n2i,data,measure,level=95,digits=4,correct=FALSE,cc="constant",ccval=0.5,
+       tccval,cccval,ccsum=1,ccto="only0",method="FE")
 ```
 
 Data input and argument interpretation work in the usual way (see the corresponding function documentation or the part concerning `rareIV` above for more information.)  
-The additional argument `correct` allows the user to decide whether continuity correction shall be applied.
+The additional argument `correct` allows the user to decide whether continuity correction shall be applied.  
 There is a difference between setting the options `correct=FALSE` and `cc="none"`.
-While setting `correct=FALSE` implies no change of the data before estimation whatsoever, the option `cc="none"` excludes all single- (and double-) zero studies from the analysis.
+While setting `correct=FALSE` implies no change of the data before estimation whatsoever, the option `cc="none"` excludes all single- (and double-) zero studies from the analysis.  
 As a quotient of sums rather than a sum of quotients, Mantel-Haenszel type estimators are particularly useful in meta-analysis of rare events (see e.g. sections 9.2-9.4 of Jewell (2013)).
 In fact, for the estimation of the common effect size, no continuity correction is needed.  
 
@@ -215,13 +226,29 @@ The data input works the usual way.
 Let us recall some of the examples above and see how the input is simplified.
 
 
+```{r, eval=FALSE}
+x <- rareDescribe(ai=ai,ci=ci,n1i=n1i,n2i=n2i,data=dat.hoppen2023)
+rareIV()
+```
+
+```{r, eval=FALSE}
+x <- rareDescribe(ai=ai,ci=ci,n1i=n1i,n2i=n2i,data=dat.hoppen2023)
+rareMH()
+```
+
+```{r, eval=FALSE}
+x <- rareDescribe(ai=ai,ci=ci,n1i=n1i,n2i=n2i,data=dat.hoppen2023)
+rarePeto()
+```
+
 ## rareCC
 The `rareCC` function enables the user to apply continuity correcion to the data.
 Eventhough most functions allow to apply the correction internally, users may find it easier to pre-process the data this way and then input it to the other functions.
 Since the functions above are set up in a way that a already continuity corrected data input will not be continuity corrected again, the user must not fear applying it twice.  
 Let us have a look at the arguments.
 ```{r, eval=FALSE}
-rareCC(x,ai,bi,ci,di,n1i,n2i,data,cc="constant",ccval=0.5,tccval,cccval,ccsum=1,ccto="only0",drop00=TRUE,measure,method="FE")
+rareCC(x,ai,bi,ci,di,n1i,n2i,data,cc="constant",ccval=0.5,tccval,cccval,ccsum=1,
+       ccto="only0",drop00=TRUE,measure,method="FE")
 ``` 
 As always, data input can be done by specifying the `x` argument or the columns of the data frame at hand. 
 We have implemented three different families of continuity correction: The *constant*, *treatment arm*, and *empirical* continuity correction.
@@ -248,7 +275,17 @@ The argument `ccto` is a character string indicating which studies the continuit
 
 Let us go through some examples and see where how we can attain the continuity corrected data from the generated object. 
 
+```{r, eval=FALSE}
+x <- rareCC()
+```
 
+```{r, eval=FALSE}
+x <- rareCC()
+```
+
+```{r, eval=FALSE}
+x <- rareCC()
+```
 
 
 
@@ -256,7 +293,8 @@ Let us go through some examples and see where how we can attain the continuity c
 To calculate individual effect sizes for meta-analysis of rare events, the `rareES` function can be used. 
 
 ```{r, eval=FALSE}
-rareES(x,ai,bi,ci,di,n1i,n2i,data,measure,cc="none",ccval=0.5,tccval,cccval,ccsum=1,ccto="only0",drop00=TRUE,method="FE")
+rareES(x,ai,bi,ci,di,n1i,n2i,data,measure,cc="constant",ccval=0.5,tccval,cccval,ccsum=1,
+       ccto="only0",drop00=TRUE,method="FE")
 ```
 
 Data input is done in the usual way.
@@ -265,21 +303,20 @@ The arguments from `cc` to `ccto` and `method` specify the continuity correction
 Again, the argument `drop00` is a  logical indicating whether double-zero studies should be excluded prior to calculating the studies’ effect sizes and sampling variances.    
 
 Let us have a look at the output of an application of the `rareES` function. 
-We calculate the log odds ratio on the study level for the Yuan data set. 
+We calculate the log odds ratio on the study level for the Hoppen data set. 
 ```{r, eval=TRUE}
-x <- rareES(ai=ai,ci=ci,n1i=n1i,n2i=n2i,data=dat.yuan2018,measure="logOR")
-head(x)
+x <- rareES(ai=ai,ci=ci,n1i=n1i,n2i=n2i,data=dat.hoppen2023,measure="logOR")
+x
 ```
-The `rareES` function turned the Yuan data into an object of type `rareData`, adding the information about the estimated effect size and the inside study variances.
+The `rareES` function turned the Hoppen data into an object of type `rareData`, adding the information about the estimated effect size and the inside study variances.
 This is reflected by the output being a summary of all the information saved in this object.   
-The output begins with a warning, stating that since we did not opt for the application of any continuity correction, the usual estimate of the log odds ratio for the single- and double-zero studies is undefined, therefore all of them were dropped in the analysis. 
-Following that, there is a summary of the original data. 
-After the counts of different kinds of studies follows a list of descriptive statistics of the total size of the the treatment group (group 1) and the control group (group 2), respectively.
+The output begins with a summary of the original data. 
+After the counts of different kinds total number of studies and number of single- (double-) zero studies follows a list of descriptive statistics of the total size of the the treatment group (group 1) and the control group (group 2), respectively.
 The list consists of the mean, standard deviation, minimum, 25% quantile, median, 75% quantile, maximum and interquartile range.
 Following that, we look at the same descriptive statistics for the sample size ratio, i.e. the size of the treatment group divided by the size of the control group.
 It ends with analogue descriptives of the relative event-frequencies. 
 
-The calculated estimates for the log odds ratio and the variance are added to the object and can be printed by referring to their names, `"yi` for the effect size estimates and `"vi"` for the variance estimates.
+The calculated estimates for the log odds ratio and the variance are added to the object and can be printed by referring to their names, `"yi"` for the effect size estimates and `"vi"` for the variance estimates.
 
 ```{r, eval=TRUE}
 x$yi
