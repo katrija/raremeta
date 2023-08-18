@@ -18,42 +18,44 @@ load_all()
 
 
 
-# Abstract
-This article gives an introduction to the `R`-software package
-**raremeta**. We aim to motivate and explain the use of the package in
-the context of conducting meta-analysis of binary data of rare events.
-Special interest is put into variants of a common way to incorporate
-studies with no events: *Continuity Corrections*.
+<!-- # Abstract -->
+<!-- This article gives an introduction to the `R`-software package -->
+<!-- **raremeta**. We aim to motivate and explain the use of the package in -->
+<!-- the context of conducting meta-analysis of binary data of rare events. -->
+<!-- Special interest is put into variants of a common way to incorporate -->
+<!-- studies with no events: *Continuity Corrections*. -->
 
 
 # Introduction
 
-In the following vignette, we aim to give the reader a starting point to
-work with the **raremeta** package for `R`. 
-For a quick dive into the
-workflow, we begin with an example interlaced with the corresponding
-`R`-code. 
-For anybody familiar with the mathematical modeling and
-methodological techniques used when conducting meta analysis and their
-implementation in `R` this might be sufficient. 
-For anybody new to
-either the statistical concepts or similar programs, there is a more
-in-depth description, which includes documentation of all functions, following this example.
-We also include a dedicated section introducing
-continuity corrections on a theoretical and practical level. 
+In this vignette, we provide an introduction on how to fit models for meta-analysis of rare events with the R-package `raremeta`. 
 
-# A Tour Through the Functionality of `raremeta`
+The `raremeta` package contains functions for fitting several alternative models that have been proposed for meta-analysis of rare events, in particular
 
-In the following section we are about to use a great deal of the implemented functionality 
-on a data set by Hoppen et al. (2023).  
+- the inverse-variance model with different types of continuity corrections (e.g., those proposed by Sweeting et al., 2004) and different types of estimators for the between-study variance (e.g., the improved Paule-Mandel estimator proposed by Bhaumik et al, 2012)
+- the Mantel-Haenszel method (Mantel \& Haenszel, 1959) and the Peto method (Yusuf et al., 1985)
+- the beta-binomial model (Kuss, 2015)
+- generalized linear mixed models (GLMMs): unconditional GLMMs with fixed, study-specific intercepts or a random intercept (Böhning et al., 2015; Jackson et al, 2017) and conditional GLMMs such as the hypergeometric-normal (van Houwelingen et al. 1993) and the conditional-binomial model (Stijnen et al., 2010)
+
+Above that, the package contains several functions for pre-processing meta-analytic data.
+
+<!-- For a quick dive into the workflow, we begin with an example interlaced with the corresponding `R`-code.  -->
+<!-- For anybody familiar with the mathematical modeling and -->
+<!-- methodological techniques used when conducting meta analysis and their -->
+<!-- implementation in `R` this might be sufficient.  -->
+<!-- For anybody new to -->
+<!-- either the statistical concepts or similar programs, there is a more -->
+<!-- in-depth description, which includes documentation of all functions, following this example. -->
+<!-- We also include a dedicated section introducing -->
+<!-- continuity corrections on a theoretical and practical level.  -->
+
+# A tour through `raremeta`
 
 The models implemented in the `raremeta` package are suitable for meta-analysis of 2x2 contingency tables, in particular when the event that is investigated is rare. 
-An example for such data is provided in a meta-analysis by Hoppen et al. (2023). 
-In this meta-analysis, the authors evaluate the acceptability of psychological interventions, specifically Eye Movement Desensitization and Reprocessing (EMDR), for posttraumatic stress disorder (PTSD) in adults.
-Specifically, they examine whether EMDR is associated with a larger (or smaller) number of dropouts compared to control treatments. 
-A larger number of dropouts in EMDR indicates a lower acceptability of this treatment.  
+An example for such data is provided in a meta-analysis by Hoppen et al. (2023). In this meta-analysis, the authors evaluate the efficacy and acceptability of different treatments for posttraumatic stress disorder (PTSD) in adults using network and pairwise meta-analysis.
+Here, we focus on the pairwise comparison of Eye Movement Desensitization and Reprocessing (EMDR) and passive control groups with respect to the acceptability of the intervention. Acceptability is examined by investigating whether EMDR is associated with a larger (or smaller) number of dropouts compared to control treatments. A larger number of dropouts in EMDR indicates a lower acceptability of this treatment.  
 
-In the following, we show how these data can be analyzed with different models for meta-analysis of rare events using the `raremeta` package.
+The data can be reviewed by executing
 
 ```{r, eval=TRUE}
 library(raremeta)
@@ -62,9 +64,9 @@ dat.hoppen2023
 ```
 
 The data frame consists of 7 rows and 5 columns. 
-Each of the rows stand for one individual study.
-The first column, `study`, includes the study identifier, while the other columns, `ai, ci, n1i, n2i`, include information on the event counts and number of participants in the different studies. 
-This information is usually depicted in form of a table  
+Each row contains one individual study. The first column, `study`, includes the study identifier, while the other columns, `ai, ci, n1i, n2i`, include information on the event counts and number of participants in the different studies. 
+
+This information is usually depicted in form of a 2x2 contingency table,  
 
 ::: center
    $i$'th study   event   no-event  total
@@ -73,15 +75,9 @@ This information is usually depicted in form of a table
      control      $c_i$    $d_i$     $n_{2i}$
 :::
 
-where `ai,ci` and `n1i,n2i` are the number of events and the
-total number of participants of the i'th study in the treatment
-group and the control group, respectively.
-In the Hoppen data, the treatment is EMDR.
-This makes the treatment group consist of those individuals undergoing EMDR and the control group consist of those undergoing the control treatment.
-Usually, studies with no event in one of the groups are called single-zero studies, while studies with no event in both of the groups are called double-zero studies.
-The meta-analysis by Hoppen et al. is in fact an example for a meta-analysis of a rare event: Specifically, it contains one study with no event in one of the groups (single-zero study) and one study with no event in both groups (double-zero study).  
+where $a_i$ and $c_i$ are the numbers of events (here: dropout) in the treatment and control group of the $i-$th study, respectively, and $n_{1i}$, $n_{2i}$ are the sample sizes of these groups. The meta-analysis by Hoppen et al. is in fact an example for a meta-analysis of a rare event: Specifically, it contains one study with no event in one of the groups (single-zero study) and one study with no event in both groups (double-zero study).  
 
-We will now briefly show how to apply the inverse-variance method for the log odds ratio with the standard continuity correction (add 0.5 to all cells of all studies with zero counts) to the data.  
+To exemplify the usage of the `raremeta` package, we apply the  the inverse-variance method for the log odds ratio with the standard continuity correction (add 0.5 to all cells of all studies with zero counts) to the data:  
 
 ```{r, eval = TRUE}
 fitIV <- rareIV(ai=ai,ci=ci,n1i=n1i,n2i=n2i,data=dat.hoppen2023,
@@ -90,23 +86,35 @@ fitIV <- rareIV(ai=ai,ci=ci,n1i=n1i,n2i=n2i,data=dat.hoppen2023,
 fitIV
 ```
 
-Readers who are already familiar with other `R`-packages for meta analysis (e.g. **metafor** or **meta**) might recognize parts of the input syntax and will likely have no problems to interpret the output.  
+Readers who are already familiar with other `R`-packages for meta analysis might recognize parts of the input syntax and the structure of the output. In the following sections, these aspects will be explained in more detail for the different functions which are part of the `raremeta`  package.
 
-We continue with an in depth account which explains the usage and output-interpretation of all major functions included in `raremeta`.
+The `raremeta` package contains several functions for fitting models for rare events meta-analysis:
+
+Function Name     | Short Description
+-------------     | -----------------
+rareIV()          | meta-analysis using the inverse-variance method
+rareMH()          | meta-analysis using the Mantel-Haenszel method  
+rarePeto()        | meta-analysis using Peto's method
+rareBetabin()     | meta-analysis using the beta-binomial model 
+rareGLMM()        | meta-analysis using the generalized linear mixed model
+
+The application of these functions is explained in detail in the following sections.
+
+In addition, the package includes three functions for pre-processing of meta-analytic data, in particular:
 
 Function Name     | Short Description
 -------------     | -----------------
 rareDescribe()    | pre-processing of a data-frame
-rareBetabin()     | meta-analysis using the beta binomial model 
 rareCC()          | continuity correction for binary data
 rareES()          | effect size estimation 
-rareGLMM()        | meta-analysis using the generalized linear mixed model
-rareIV()          | meta-analysis using the inverse variance method
-rareMH()          | meta-analysis using the Mantel-Haenszel method  
-rarePeto()        | meta-analysis using Peto's method
 
-## rareIV
-The `rareIV` function allows the user to conduct a meta-analysis using the inverse variance model.  
+An explanation of the purpose and usage of these functions is given further below.
+
+# Models for meta-analysis of rare events
+
+## rareIV: meta-analysis using the inverse-variance model
+
+The `rareIV` function allows the user to conduct a meta-analysis using the inverse-variance model.  
 
 ```{r, eval=FALSE}
 rareIV(x,ai,bi,ci,di,n1i,n2i,data,measure,method,cc="none",ccval=0.5,tccval,cccval,ccsum=1,ccto="only0",
@@ -114,17 +122,19 @@ rareIV(x,ai,bi,ci,di,n1i,n2i,data,measure,method,cc="none",ccval=0.5,tccval,cccv
 ```
 The data input may be achieved in several ways.
 In line with other packages for meta-analysis such as **metafor** or **meta**, the reader may specify the data frame and the columns which include the cells of the 2x2 contingency table. 
-This may be done in `raremeta` by specifying the arguments `data, ai, bi, ci, di` or `data, ai, n1i, ci, n2i`.
-We will go into more depth on the possibility to specifying the `x` argument when we talk about pre-processing the data by using the `rareDescribe` function later in this section.  
-The argument `measure` specifies the effect size or outcome measure to be used (either `"logOR"` for the log odds ratio, `"logRR"` for the log relative risk, or `"RD"` for the risk difference).
-The argument `method` specifies whether a fixed- or a random-effects model should be fitted. 
-A fixed-effects model is fitted when using `method = "FE"` . 
-A random-effects model is fitted by setting method equal to one of the following: `"DL", "HE", "SJ", "ML", "REML", "EB", "HS", "PM", "IPM", "GENQ", "PMM"` or `"GENQM"`.
-The arguments `cc` to `ccto` define the type of continuity correction applied to the data before the analysis and we will go into more depth in its application in later parts.
-The argument `drop00` specifies whether double-zero studies shall be excluded from the analysis.  
-For an interpretation of the additional arguments, consult the corresponding function documentation.  
+This may be done in `raremeta` by specifying the arguments `data, ai, bi, ci, di` or `data, ai, n1i, ci, n2i`. We will go into more depth on the possibility to specifying the `x` argument when explaining how to pre-process the data by using the `rareDescribe` function further below.
 
-If we use the Hoppen data to fit a random effects meta-analysis on the logarithmised odds-ratio using the median-unbiased Paule-Mandel estimator while adding the constant value of 0.5 to all cells of all studies (as described in Viechtbauer 2021), we use the following input.
+The argument `measure` specifies the effect size or outcome measure to be used (either `"logOR"` for the log odds ratio, `"logRR"` for the log relative risk, or `"RD"` for the risk difference).
+
+The argument `method` specifies whether a fixed- or a random-effects model should be fitted. A fixed-effects model is fitted when using `method = "FE"` . 
+A random-effects model is fitted by setting method equal to one of the following: `"DL", "HE", "SJ", "ML", "REML", "EB", "HS", "PM", "IPM", "GENQ", "PMM"` or `"GENQM"`, which specifies the type of between-study variance estimator to be used.
+
+The arguments `cc` to `ccto` define the type of continuity correction applied to the data before. Specifically, `cc` describes the type of continuity correction to be used, and can be set to "constant" (application of a constant continuity correction which adds the same value to all cells of the contingency table), "reciprocal" (application of a continuity correction for which the value added to the cells of the contingency table depends on the sample size ratio of the study), or "empirical" (application of a continuity correction for which the value is based on the pooled effect size obtained from non-zero studies). See Sweeting et al. (2004), for a description of the reciprocal and the empirical continuity correction. The argument `ccto` can be used to specify to which studies the continuity correction shall be added, and can either be set to "all" (apply continuity correction to all studies), "only0" (apply continuity correction only to zero-studies), "if0all" (apply continuity correction to all studies if the data frame contains any zero-study) or "none".
+The argument `drop00` specifies whether double-zero studies shall be excluded from the analysis, and can be set to `TRUE` or `FALSE`. The arguments `ccval`, `cccval` and `tccval` allow for a flexible specification of alternative continuity corrections defined by the user, see `?rareIV` for more details.
+
+The `rareIV` function allows for the specification of several additional arguments. These are explained in detail in the function documentation (`?rareIV`).
+
+We now show how to conduct a random effects meta-analysis using the inverse-variance model for the log odds ratio with the improved Paule-Mandel estimator for the between-study variance (Bhaumik et al., 2012). In line with the approach described by Bhaumik et al., we add a constant value of 0.5 to all cells of all studies.
 
 ```{r, eval=TRUE}
 fitIV <- rareIV(ai=ai,ci=ci,n1i=n1i,n2i=n2i,data=dat.hoppen2023,
@@ -136,79 +146,83 @@ The output begins with a short description of the type of model used,
 the numbers of studies which were part of the analysis, the type of continuity correction used and whether double-zero studies were exclueded.
 In this case, the total number of studies in the Hoppen data is 7, while 6 studies were part of the analysis.
 This stems from the fact, that, by default, the argument `drop00` was set to `TRUE`, which implies that double-zero studies are excluded from the analysis.  
-The next part of the output reports the Q-statistic, p-value, heterogeneity estimate and I2-statistic.
-The output ends with the estimated model parameters, rounded to four decimal digits.
-The logarithmised odd-ratio was estimated to be 0.5847419 (implying a estimated odds ratio of 1.794528).
-The estimated effect size can be read from the list by way of the name `beta`.
+The next part of the output reports the $Q$-statistic along with its $p$-value, heterogeneity estimate and $I^2$-statistic.
+
+The output ends with information on the estimated pooled effect size. For the given example, we obtain a pooled log odds ratio of 0.5847, indicating dropout is somewhat larger in the EMDR group. 
+
+The odds ratio implied by the analysis can be obtained by executing
+
 ```{r, eval = TRUE}
-fitIV$beta
 exp(fitIV$beta)
 ```
-Following the estimated effect size, the output also includes estimates for other model parameters: The estimators standard error, z-value, p-value, and the lower and upper bounds of the confidence interval (the confidence level was set to 95% by default).  
 
+indicating that on average the odds of dropout are about 1.79 times as large in EMDR groups as compared to passive control groups.
 
-## rareMH
-A prominent class of estimators for the common effect size under the the fixed-effects model was proposed by Mantel and Haenszel in 1959.
-The `rareMH` function enables the user to conduct a meta-analysis using Mantel-Haenszel type estimators.
+The standard error associated with the pooled log odds ratio is estimated at 0.5649. The Wald test for which the test statistic and the $p$-value are reported ($z = 1.0351$, $p = 0.3006$) indicates that the treatment effect is not significantly different from zero. This information can also be obtained from the confidence interval $(-0.5225, 1.6920)$, which overlaps 0. 
+
+## rareMH: meta-analysis using the Mantel-Haenszel method
+
+A prominent class of estimators for the common effect size under the fixed-effects model was proposed by Mantel and Haenszel in 1959.
+The `rareMH` function enables the user to conduct a meta-analysis using these types of estimators.
 
 ```{r, eval=FALSE}
-rareMH(x,ai,bi,ci,di,n1i,n2i,data,measure,level=95,digits=4,correct=FALSE,cc="constant",ccval=0.5,
-       tccval,cccval,ccsum=1,ccto="only0",method="FE")
+rareMH(x,ai,bi,ci,di,n1i,n2i,data,measure,
+       cc="constant",ccval=0.5, tccval,cccval,ccsum=1,ccto="only0",
+       method="FE", level=95,digits=4,correct=FALSE, ...)
 ```
 
-Data input and argument interpretation work in the usual way (see the corresponding function documentation or the part concerning `rareIV` above for more information.)  
-The additional argument `correct` allows the user to decide whether continuity correction shall be applied.  
-There is a difference between setting the options `correct=FALSE` and `cc="none"`.
-While setting `correct=FALSE` implies no change of the data before estimation whatsoever, the option `cc="none"` excludes all single- (and double-) zero studies from the analysis.  
-As a quotient of sums rather than a sum of quotients, Mantel-Haenszel type estimators are particularly useful in meta-analysis of rare events (see e.g. sections 9.2-9.4 of Jewell (2013)).
-In fact, for the estimation of the common effect size, no continuity correction is needed.  
+Data input and argument interpretation work in the same way as for the `rareIV` function (see above), for instance by specifying the arguments `data, ai, bi, ci, di` or `data, ai, n1i, ci, n2i`.
 
-Let us look at the application of `rareMH` in on our data set.
-We aim to estimate the logarithmised odds-ratio and the logarithmised risk-ratio without applying any continuity correction.
+The additional argument `correct` allows the user to decide whether continuity correction shall be applied. Note that there is a difference between setting the options `correct=FALSE` and `cc="none"`: While setting `correct=FALSE` implies no change of the data before estimation whatsoever, the option `cc="none"` excludes all single- (and double-) zero studies from the analysis. Note that when using the Mantel-Haenszel method, continuity corrections are only necessary if all studies report a zero in one of the groups, as this is the only situation in which an estimate of the pooled effect size cannot be obtained without a continuity correction.
+
+We now apply the `rareMH` to our data set. We aim to estimate the pooled log odds ratio without applying any continuity correction.
 
 ```{r,eval=FALSE}
 rareMH()
 ```
 
+[Output interpretaion]
 
+A meta-analysis using the Mantel-Haenszel method for the log relative risk can be obtained using the following code:
 
 ```{r,eval=FALSE}
 rareMH()
 ```
 
-## rarePeto
+## rarePeto: meta-analysis using Peto's method
+
 To conduct a meta-analysis on the log odds ratio using Peto's method (see Yusuf et al., 1985), the `rarePeto` function can be used.  
 
 ```{r, eval=FALSE}
 rarePeto(x,ai,bi,ci,di,n1i,n2i,data,level=95,digits=4)
 ```
 
-Again, data input and argument specification works the usual way.
-Just as with `rareMH` above, the use of Peto's method allows for estimation of the common log odds ratio without the use of any continuity correction, even in the presence of single- and double-zero studies.  
+Just like for the `rareIV` and the `rareMH` function, the data input can be achieved by specifying the arguments `data, ai, bi, ci, di` or `data, ai, n1i, ci, n2i`.
 
-Let us use `rarePeto` on out data set and interpret its output.
+Peto's method allows for estimation of the pooled log odds ratio without the use of any continuity correction, even in the presence of single- and double-zero studies.  
+
+We now apply the `rarePeto` function to our data set:
 
 ```{r, eval=FALSE}
 rarePeto()
 ```
 
+[Output interpretaion]
+
+## rareBetabin: meta-analysis using the beta-binomial model
 
 
+## rareGLMM: meta-analysis using the generalized linear mixed model
 
 
+# Pre-processing of meta-analytic rare event data
 
+In the following subsection, we explain the usage of different functions allowing for pre-processing meta-analytic rare event data, specifically:
 
+- `rareDescribe`: function for pre-processing a data frame and obtaining descriptive statistics with respect to sample sizes, numbers of events, as well as the numbers of single- and double-zero studies
+- `rareCC`: function for applying continuity corrections to meta-analytic dat
+- `rareES`: function for calculating study-specific effect size estimates for different types of effect sizes, such as log odds ratios, log relative risks, and risk differences
 
-## rareBetabin
-
-
-
-## rareGLMM
-
-
-
-
-In the following subsection, we aim to present functions allowing for pre-processing of the data at hand. 
 
 ## rareDescribe
 Instead of data input via columns of a specified data frame, there is also the option of pre-processing the data to make it easier to handle.
@@ -267,7 +281,7 @@ This means that there must be at least one study enabling the estimation of the 
 For a precise definition (including an interpretation of the argument `ccsum`) see Sweeting et al. (2004).
 This kind of continuity correction obviously depends on the effect size, which can be set by changing the `measure` argument.
 Possible effect sizes are `"logOR`, `"logRR"`, and `"RD"`.
-When it comes to model fitting, there is the possibility to fit fixed-effects models (also known as equal-effects models) and random-effects models using the inverse variance approach. 
+When it comes to model fitting, there is the possibility to fit fixed-effects models (also known as equal-effects models) and random-effects models using the inverse-variance approach. 
 A fixed-effects model is fitted when `method` is set to `"FE"` (or `"EE"`). A random-effects model is fitted when method is set to either `"DL", "HE", "SJ", "ML", "REML", "EB", "HS", "PM", "IPM", "GENQ", "PMM"` or `"GENQM"`. 
 Currently, the model is fitted by applying the `rma()` function from the **metafor** package, see Viechtbauer (2010).  
 As always, `drop00` is a logical, indicating whether double-zero studies shall be dropped from the analysis.  
@@ -323,1331 +337,1356 @@ x$yi
 x$vi
 ```
 
-# A First Example: raremeta in Action
 
-We begin by setting up **raremeta** and examine the dataset
-`dat.nissen2007` which is based on a 2007 meta-analysis by Nissen and Wolski (Nissen and Wolski 2007) as a first example.
+## References
 
+Bhaumik, D. K., Amatya, A., Normand, S.-L. T., Greenhouse, J., Kaizar, E., Neelon, B., & Gibbons, R. D. (2012). Meta-Analysis of Rare Binary Adverse Event Data. Journal of the American Statistical Association, 107 (498), 555–567. doi: 10.1080/01621459.2012.664484
 
-```{r, eval = FALSE} 
-install.packages("raremeta")
-```
-                 
-```{r, eval=TRUE}
-library(raremeta)
-dat <- dat.nissen2007
-head(dat,3)
-```
-
-We see that the
-dataset `dat` contains event counts for two different events, `cv`
-(cardiovascular death) and `mi` (myocardial infarction) under the
-treatment `Rosiglitazone`. Suppose we are interested in analyzing the
-effect of the treatment on `cv` - cardiovascular death. We use the
-function `rareDescribe` to prepare the dataset.
-```{r, eval=TRUE}
-dat <- rareDescribe(ai=cvRosiglitazone,ci=cvControl,n1i=nRosiglitazone,n2i=nControl,data=dat) 
-```
-The object `dat` is of type `rareData`,
-which we can use as an argument for the `rareIV` function to model fit.
-Alternatively, the original data frame can be used directly as input in `rareIV()`, which will automatically create an object of type `rareData`, internally.
-Let us go through some example inputs. We begin by
-fitting a random effects model specifying the effect size to be the
-logarithm of the odds ratio, the heterogeneity estimator `"DL"` -
-*DerSimonian-Laird*, and the continuity correction to add $0.5$ to all
-cells of all studies if there is a single-zero study and to none of the
-cells if there is no single-zero study (double-zero studies got dropped
-by default).
-
-```{r, eval=TRUE}
-Fit1 <- rareIV(x=dat,measure="logOR",method="DL",cc="constant",ccto="if0all")
-summary(Fit1)
-```
-
-Next, we fit a fixed effects model specifying the effect size to be the
-risk difference and the contiuity correction to add $0.1$ to all
-studies, without dropping double-zero studies.
-
-```{r, eval=TRUE}
-Fit2 <- rareIV(x=dat,measure="RD",method="FE",cc="constant", ccval=0.1,ccto="all",drop00=FALSE)
-summary(Fit2)
-```
-
-For a exhaustive account of the possible inputs, continue reading or
-look into the corresponding documentation.
-
-# Calculation: An Overview of the raremeta-Workflow 
-
-Let us go through the process of calculating estimated effect sizes using the
-software package **raremeta** in `R`. We will introduce a common
-workflow: Preparing event-count-data using `rareDescribe` to calculate
-estimations of effect sizes using `rareIV`.
-
-```{r, eval=FALSE}
-install.packages("raremeta") 
-```
-```{r, eval=TRUE}
-library(raremeta)
-dat <- dat.nissen2007
-```
-
-Suppose `dat`
-is a dataframe containing $k$ units of event-counts, i.e. for the $i$'th
-study
-
-::: center
-   $i$'th study   event   no-event  total
-  -------------- ------- ---------- ----------
-    treatment     $a_i$    $b_i$     $n_{1i}$
-     control      $c_i$    $d_i$     $n_{2i}$
-:::
-
-in form of a table, i.e. $k$ rows (one for each study) and columns
-reporting the event-counts of the individual studies.
-
-::: center
-     `dat`     `ai`    `bi`    `ci`    `di`     `n1i`      `n2i`
-  ----------- ------- ------- ------- ------- ---------- ----------
-   Study $1$   $a_1$   $b_1$   $c_1$   $d_1$   $n_{11}$   $n_{21}$
-   Study $2$   $a_2$   $b_2$   $c_2$   $d_2$   $n_{12}$   $n_{22}$
-       ⋮         ⋮       ⋮       ⋮       ⋮        ⋮          ⋮
-   Study $k$   $a_k$   $b_k$   $c_k$   $d_k$   $n_{1k}$   $n_{2k}$
-:::
-
-Let us look at `rareDescribe` and its parameters:
-`rareDescribe(ai,bi,ci,di,n1i,n2i,data)`.
-The meaning of its parameters
-becomes clear from the table above. The columns of `dat` are named in
-the same fashion as the parameters, e.g. `dat$ai` is a vector of length
-$k$ reporting the number of events in the treatment-group etc. If we
-then use `rareDescribe` on the dataframe `dat` an object of the class
-`rareData` is returned. 
-```{r, eval=TRUE}
-dat <- rareDescribe(ai=cvRosiglitazone,ci=cvControl,n1i=nRosiglitazone,n2i=nControl,data=dat)
-```
-Just as before, `dat` includes the event-counts of the $k$ studies, now expanded by
-information about the number of double-zero studies, means and medians
-of event-counts and much more. Most importantly, `dat` is now in the
-right format to put into `rareIV` to calculate estimated effect sizes. Again, let
-us look at `rareIV` and its parameters: 
-```{r, eval=FALSE}
-rareIV(x,measure,method,cc,ccval = 0.5,tccval,cccval,ccsum=1,ccto="only0",drop00=TRUE, weighted=TRUE,level=95,test="z",digits=4,verbose=FALSE,control)
-``` 
-The parameter `x`
-stands for an object of type `rareData`. Through `measure` we decide
-which effect size shall be estimated. Possible inputs are
-`logOR, logRR, RD` standing for the logarithm of the Odds-Ratio, the
-logarithm of the Relative-Risk and the Risk-Difference, respectively. By
-`method` we indicate the mathematical modeling, deciding between a
-fixed-effects and a random effects model and also decide the
-heterogeneity-estimator to be used. The arguments `cc` up to `ccto`
-specify the type of continuity correction to be applied. There is a
-dedicated section explaining the meaning and usage. The standard method
-of adding $0.5$ to all cells of all single- and double-zero studies is
-achieved by setting `cc="constant"`. The logical `drop00` indicates
-whether studies with no events in both the treatment-group and the
-control-group should be left out from the analysis. The argument
-`weighted` specifies whether estimation for effect sizes shall come by
-weighted averages (i.e. normed inverse variances) or unweighted averages
-(i.e. arithmetical means). The confidence interval is specified through
-`level` and through `test` we specify how test statistics and confidence
-intervals for the fixed effects should be computed. By `digits` we
-specify the number of decimal places to which the printed result should
-be rounded. 
-
-Let us now feed our dataset `dat` (now of type `rareData`) into this
-function. We choose to stick to the defaults as much as possible,
-specifying the effect size to be `logOR`, a fixed effects model and
-constant continuity correction.
-
-```{r, eval=TRUE}
-Fit <- rareIV(x=dat,measure="logOR",method="FE",cc="constant")
-```
-
-The returned object `Fit` includes estimations of the parameters of
-interest, for example the effect size, $p$-value, $z$-value, confidence
-intervals and much more. We can display its information by way of the
-`summary()` function or simply through the command `head()`.
-```{r, eval=TRUE}
-summary(Fit)
-```
-
-\newpage
-
-# List of Functions
-
-Function Name     | Short Description
--------------     | -----------------
-rareDesribe()     | pre-processing of a data-frame
-rareBetabin()     | meta-analysis using the beta binomial model 
-rareCC()          | continuity correction for binary data
-rareES()          | effect size estimation 
-rareGLMM()        | meta-analysis using the generalized linear mixed model
-rareIV()          | meta-analysis using the inverse variance method
-rareMH()          | meta-analysis using the Mantel-Haenszel method  
-rarePeto()        | meta-analysis using Peto's method
-
-
-
-# Continuity Corrections
-
-## Theoretical Introduction 
-
-When confronted with rare event data expressed in terms of a $2 \times 2$-table
-many standard methods of estimating effect sizes may fail.
-
-::: center
-               event   no-event
-  ----------- ------- ----------
-   treatment   $a_i$    $b_i$
-    control    $c_i$    $d_i$
-:::
-
-Let us, for example, consider the standard method of estimating the
-logarithm of the standard estimator of the relative-risk $RR_i$ of the
-two groups in the $i$-th study:
-$$\text{log}(\hat{RR_i}) := \text{log} \frac{a_i /(a_i + b_i)}{c_i /(c_i + d_i)}.$$
-If either $a_i$, the number of events in the treatment group in study
-$i$, or $c_i$, the number of events in the control group in study $i$,
-is equal to zero, one is faced with an undefined term. Continuity
-corrections present a way of handling this problem. To apply the
-continuity correction we add specified values to the cells of the
-specified study. There are various methods to do so. Three of them will
-be discussed below. As an example consider the following study:
-
-::: center
-               event   no-event
-  ----------- ------- ----------
-   treatment    $0$     $n_T$
-    control     $0$     $n_C$
-:::
-
-a *double-zero study* with $n_T$ and $n_C$ being the size of the
-treatment group and the control group, respectively. The standard method
-of continuity correction is adding $0.5$ to each cell of the study. If
-this method is applied, we end up with:
-
-::: center
-               event   no-event
-  ----------- ------- -----------
-   treatment   $0.5$   $n_T+0.5$
-    control    $0.5$   $n_C+0.5$
-:::
-
-Now, many methods of estimating effect sizes are available again.
-
-Continuity corrections can be applied in various ways. Two main
-questions arise: 
-
-**Which studies should the continuity correction be applied to?**
-
-Assume
-we are conducting meta-analysis in the presence of studies where no
-event is observed in either the treatment or the control group. Besides
-the two obvious ways of applying the continuity correction to all or
-none of the studies it is standard to apply the continuity correction to
-only those studies with no event in either the control or the treatment
-group. 
-
-**Which method of continuity correction do I apply to the specified studies?**
-
-1\. Constant Continuity Correction 
-
-We add a constant value to each cell of the specified studies. If we
-decide to add value $x_i$ in the $i$-th study, this amounts to
-
-::: center
-                  event        no-event
-  ----------- ------------- --------------
-   treatment   $a_i + x_i$   $b_i + x_i$
-    control    $c_i + x_i$   $d_i + x_i$.
-:::
-
-The default is adding $0.5$ to each cell of each specified study but it
-is also possible to add different values to different studies. The
-important characteristic of this approach is that the added value does
-not depend on the size or outcome of the studies. The possibility to do
-so is reflected in the next two approaches. 
-
-2\. Treatment Arm Continuity Correction 
-
-In the specified studies, we add a value dependent on the size of the
-control group to the cells of the treatment group and vice versa. The
-value is calculated as the reciprocal of the total size of the other
-group. For the $i$-th study this amounts to:
-
-::: center
-                          event                        no-event
-  ----------- ----------------------------- ------------------------------
-   treatment   $a_i + \frac{1}{c_i + d_i}$   $b_i + \frac{1}{c_i + d_i}$
-    control    $c_i + \frac{1}{a_i + b_i}$   $d_i + \frac{1}{a_i + b_i}$.
-:::
-
-3\. Empirical Continuity Correction 
-
-In the specified studies, we add a value dependent on the respective
-group sizes and an estimation of the effect size only considering the
-non-zero studies. Again, let us consider the $i$'th study
-
-::: center
-               event   no-event
-  ----------- ------- ----------
-   treatment   $a_i$    $b_i$
-    control    $c_i$    $d_i$.
-:::
-
-Suppose we are interested in estimating the Odds Ratio. Let $n_T$ be the
-size of the treatment group, $n_C$ be the size of the control group of
-the $i$'th study. Let $\hat{\Omega}_{OR}$ be the standard estimation of
-the pooled Odds Ratio calculated only considering the non-zero studies.
-We choose the continuity corrections $k_T$ for the treatment group and
-$k_C$ for the control group in such a way that $$\begin{aligned}
-\frac{k_T(n_C + k_C)}{k_C(n_T + k_T)} = \hat{\Omega}_{OR}.
-\end{aligned}$$ This ensures that the estimated Odds Ratio which is
-obtained for a double-zero study after the continuity correction is
-applied amounts to $\hat{\Omega}_{OR}$.\
-Applying the continuity correction to the $i$-th study makes us end up
-with:
-
-::: center
-                  event        no-event
-  ----------- ------------- --------------
-   treatment   $a_i + k_T$   $b_i + k_T$
-    control    $c_i + k_C$   $d_i + k_C$.
-:::
-
-To receive unique solutions for $k_T$ and $k_C$ we use the following
-restriction: $$k_T + k_C = 1,$$ which, for example, holds true for the
-standard constant continuity correction of $k_T = k_C = 0.5$. Now, with
-$R  :=  \frac{n_C}{n_T}$, the group ratio imbalance, and the
-approximation
-$$\frac{k_T(n_C + k_C)}{k_C(n_T + k_T)} \approx \frac{Rk_T}{k_C}$$ which
-is true for large enough groups, we now see that this amounts to:
-$$k_C \approx \frac{R}{R + \hat{\Omega}_{OR}} \text{  and  } k_T \approx \frac{\hat{\Omega}_{OR}}{R + \hat{\Omega}_{OR}}.$$
-
-## Continuity Corrections in **raremeta**
-
-We have seen different ways of continuity correcting studies. Let us go
-through the syntax of **raremeta** to learn how to apply them. It all comes down to specifying parameters the parameters from `cc` up to
-`ccto` in
-```{r, eval=FALSE}
-rareIV(x,measure,method,cc,ccval=0.5,tccval,cccval,ccsum=1,ccto ="only0",drop00=TRUE,weighted=TRUE,level=95,test="z",digits=4,verbose=FALSE,control)
-```
-The first parameter, `cc`, decides which of the three introduced methods
-of continuity correction should be applied. Possible inputs are `none`,
-which stands for the option to not apply any continuity correction and
-`"constant", "tacc"` and `"empirical"` which stand for the constant
-continuity correction, the treatment arm continuity correction and the
-empirical continuity correction, respectively. The argument `"ccto"`
-specifies the studies, continuity correction shall be applied to.
-Possible inputs are `"only0", "all", "if0all"`. While
-`"only0" and "all"` stand for applying continuity correction to those
-studies with no event in either the treatment- or the control group and
-all studies (regardless the existence of single-zero or double-zero
-studies), respectively, `"if0all"` leads to the application of
-continuity corrections to all studies if there is either a single-zero
-study or a double-zero study or none of the studies if there are neither
-single-zero studies nor double-zero studies. If one opts for
-`cc = "constant"`, it must be specified, which value should be applied
-to the relevant cells. This happens either through `"ccval"` or the two
-arguments `"tccval"` and `"cccval"`. While specifying `"ccval"` is used
-when continuity corrections in the control group and the treatment group
-shall be the same, the arguments `"tccval"` and `"cccval"` enable the
-user to input continuity corrections for the treatment group and the
-control group, respectively. In both cases, if a single value is put in,
-all corresponding cells of the specified studies will be continuity
-corrected with this value. If the input comes in form of vectors, whose
-length is equal to the number of studies, then the corresponding cells
-of the $i$'th study will be continuity corrected through the $i$'th
-entry of the vector. Obviously, this enables the user simulate her own
-way of continuity correcting studies. If one opts for `cc = "tacc"` or
-`cc = "empirical"`, it must be specified, to which value the values
-$k_T$ and $k_C$ from the theoretical introduction above should add up
-to. This happens through the argument `ccsum`.
-For the pooled effect size calculated only considering the non-zero studies needed for the empirical continuity correction, the arguments `measure` (`"logOR", "logRR", or "RD"`) and `method` (`"FE", "DL",...`) must be specified.
-
-If one, for example, wants to apply the treatment arm continuity
-correction where $k_T + k_C = 0.1$ to all studies of the
-`rareData`-object `dat`, one may input 
-```{r, eval=FALSE}
-rareIV(x = dat,measure="logOR",method="FE",cc="tacc",ccsum=0.1,ccto="all").
-```
-To apply the constant continuity correction with specified values
-(potentially vectors of length \> $1$) $t$ for the treatment group and
-$c$ for the control group to all single- and double-zero studies, one
-may input
-```{r, eval=FALSE}
-rareIV(x=dat,measure="logOR",method="FE",cc="constant",tccval=t,cccval=c,ccto="only0",drop00=FALSE).
-```
-
-# Appendix
-
-## Appendix A: Motivating the Empirical Continuity Correction 
-
-In this section we want to shed light on a certain aspect of continuity
-corrections by answering the following question:
-
-::: center
-**What is the estimated effect size for a double-zero study after the
-continuity correction is applied?**\
-:::
-
-Suppose we are interested in the Odds Ratio. Let $n_T$ and $n_C$ refer
-to the size of the treatment group and the control group, respectively.
-
-::: center
-               event   no-event
-  ----------- ------- ----------
-   treatment    $0$     $n_T$
-    control     $0$     $n_C$
-:::
-
-Let $k_T$ and $k_C$ be the continuity corrections applied to the
-treatment group and the control group, respectively. After the continuity
-correction is applied we end up with:
-
-::: center
-               event     no-event
-  ----------- ------- ---------------
-   treatment   $k_T$    $n_T + k_T$
-    control    $k_C$   $n_C + k_C$ .
-:::
-
-Let $(\lnot)E$ stand for (no-)event, $T$ for the treatment group and $C$
-for the control group. If we now estimate the Odds Ratio via plug in,
-using estimations of the risk in the two study arms:
-$$\widehat{\mathbb{P}(E | T)} = \frac{k_T}{n_T+2k_T} \text{  and  } \widehat{\mathbb{P}(E | C)} = \frac{k_C}{n_C+2k_C},$$
-we end up with: $$\begin{aligned}
-\hat{OR} &  :=  \frac{\widehat{\mathbb{P}(E | T)}/(1-\widehat{\mathbb{P}(E | T)})}{\widehat{\mathbb{P}(E | C)}/(1-\widehat{\mathbb{P}(E | C)})}\\
-&= \frac{\frac{k_T}{n_T +2k_T}/(1-\frac{k_T}{n_T+2k_T})}{\frac{k_C}{n_C +2k_C}/(1-\frac{k_C}{n_C+2k_C})}\\
-& = \frac{\frac{k_T}{n_T +2k_T}/ \frac{n_T+k_T}{n_T+2k_T}}{\frac{k_C}{n_C +2k_C}/\frac{n_C+k_C}{n_C+2k_C}}\\
-&=\frac{k_T/(n_T+k_T)}{k_C/(n_C+k_C)}\\
-&=\frac{k_T(n_C+k_C)}{k_C(n_T+k_T)}
-\end{aligned}$$
-
-Now, with the group ratio imbalance $R  :=  \frac{n_C}{n_T}$, we can
-easily describe what the three approaches amount to. For the constant
-continuity correction with $k_T = k_C = \alpha$ sufficiently small (e.g.
-$0.5$) we approximately get
-$$\hat{OR} = \frac{\alpha (n_T \ R + \alpha)}{\alpha(n_T + \alpha)} \approx \frac{\alpha\ n_T \ R}{\alpha\ n_T} = R.$$
-For the reciprocal continuity correction with $k_T = 1/n_C$ and
-$k_C = 1/n_T$ get $$\begin{aligned}
-\hat{OR} &= \frac{1/n_C (n_C - 1/n_T)}{1/n_T(n_T - 1/n_C)} = 1
-\end{aligned}$$ and, by definition, for the empirical continuity
-correction for the prior $\hat{\Omega}$ this amounts to
-$$\hat{OR} = \hat{\Omega}_{OR}.$$ In summary, the constant continuity
-correction pulls the estimated Odds Ratio towards the group ratio
-imbalance, the reciprocal continuity correction towards no effect and
-the empirical continuity correction towards the estimated pooled Odds
-Ratio using only the non-zero studies.
-
-\newpage
-
-# Appendix B: Documentation of all Functions
-## rareDescribe
-
-**Descriptives for a meta-analysis of a rare events**
-
-#### Description
-Function to compute descriptives based on the 2x2 tables of the individual studies for meta-analytic rare event data.
-
-#### Usage
-```{r, eval=FALSE}
-rareDescribe(ai, bi, ci, di, n1i, n2i, data)
-```
-
-#### Arguments
-`ai`: data frame column to specify the number of events in group 1 (i.e., the treatment group).  
-
-`bi`: data frame column to specify the number of non-events in group 1 (i.e., the treatment group).  
-
-`ci`:	data frame column to specify the number of events in group 2 (i.e., the control group).  
-
-`di`: data frame column to specify number of non-events in group 2 (i.e., the control group).  
-
-`n1i`: data frame column to specify the sample sizes in group 1 (i.e., the treatment group). 
-
-`n2i`: data frame column to specify the sample sizes in group 2 (i.e., the control group).  
-
-`data`: data frame.  
-
-#### Value
-An object of the class "rareData", which contains descriptives of the meta-analytic data.
-
-\newpage
-## rareBetabin
-**Conduct a meta-analysis using the beta-binomial model**
-
-#### Description
-Function to conduct a meta-analysis of a rare events using a beta-binomial model. 
-See below for more details on this model and its application in meta-analyses of rare events.
-
-#### Usage
-```{r, eval=FALSE}
-rareBetabin(x,ai,bi,ci,di,n1i,n2i,data,measure,common_rho=TRUE,drop00=FALSE,level=95,test="z",digits=4,verbose=FALSE,control,...)
-```
-
-#### Arguments
-`x`: an object of class "rareData".  
-
-`ai`: data frame column to specify the number of events in group 1 (i.e., the treatment group). 
-
-`bi`: data frame column to specify the number of non-events in group 1 (i.e., the treatment group). 
-
-`ci`:	data frame column to specify the number of events in group 2 (i.e., the control group).  
-
-`di`: data frame column to specify number of non-events in group 2 (i.e., the control group).  
-
-`n1i`: data frame column to specify the sample sizes in group 1 (i.e., the treatment group).   
-
-`n2i`: data frame column to specify the sample sizes in group 2 (i.e., the control group).  
-
-`data`: data frame.  
-
-`measure`: character string specifying the effect size or outcome measure to be used (either `"logOR"` for the log odds ratio or `"logRR"` for the log relative risk).  
-
-`common_rho`: logical specifying whether a common intraclass correlations shall be assumed for the two groups (`TRUE`), or whether the intraclass correlation shall be allowed to differ between the two groups (`FALSE`). See below for more detail.  
-
-`drop00`: logical indicating whether double-zero studies (i.e., studies with no events or only events in both groups) should be excluded prior to calculating the studies' effect sizes and sampling variances.  
-
-`level`: numeric between 0 and 100 specifying the confidence interval level (the default is 95).  
-
-`test`: character string specifying how test statistics and confidence intervals for the fixed effects should be computed (currently, only `"z"`, for Wald-type tests is available).  
-
-`digits`: integer specifying the number of decimal places to which the printed results should be rounded (if unspecified, the default is 4).    
-
-`verbose`: logical indicating whether output should be generated on the progress of model fitting (the default is `FALSE`). Can also be an integer. Values > 1 generate more verbose output.  
-
-`control`: optional list of control values for the iterative algorithms. If unspecified, default values are defined inside the functions.  
-
-... additional arguments
-
-#### Details
-##### Data input
-The data input can be specified either through the arguments `ai,bi,ci,di,n1i`, and `n2i` (columns of the data frame data) or through the argument `x`, which takes an object that results from applying the `rareDescribe()` function to the data (i.e., the input for argument x must be an object of type `rareData`). A `rareData` object can be produced from a data frame by applying the `rareDescribe()` function to it. The `rareDescribe()` function pre-processes the data frame and stores the information required by the `rareBetabin()` function in a list. See `?rareDescribe` for more details.
-
-##### Effect size measures
-The function includes different versions of the beta-binomial model (see Kuss (2014), for a description). The regression equation used in all these models can be expressed as
-
-\(g(\mu_j) = \alpha + \theta \cdot x_{ij}\),
-
-where \(i = 1, ..., k \) is the study index and \(j = 1, 2\) is the group index, \(x_{i1} = 1\) and \(x_{i2} = 0\).
-
-All models assume that the number of events in each group follows a beta-binomial distribution with mean \(n_{ij}\mu_j\) and intraclass correlation \(\rho_j\).
-
-For `measure = "logOR"`, \(g(\cdot)\) corresponds to the logit function, i.e., \(g(\mu_j) = \log \left( \frac{\mu_j}{1-\mu_j} \right)\).
-
-For `measure = "logRR"`, \(g(\cdot)\) correspond to the natural logarithm.
-
-It is currently not possible to use rareBetabin with `measure = "RD"`, but this functionality may be implemented in future versions of this package.
-
-##### Group-specific intraclass correlation
-Per default, it is assumed that \(\rho_1 = \rho_2\), i.e. the intraclass correlations are assumed to be equal for both groups. It is possible to fit the beta-binomial with different intraclass correlations by setting `common_rho` to `FALSE`. Internally, different intraclass correlations are modeled via the regression equation
-
-\(\log\left(\frac{\rho_j}{1-\rho_j}\right) = \zeta + \gamma \cdot x_{ij}\),
-
-where \(x_{i1} = 1\) and \(x_{i2} = 0\). Estimates for \(\rho_1\) and \(\rho_2\) are then obtained by back-transforming the results to the original scale.
-
-#### Value
-an object of class `"raremeta"`. The object is a list containing the following elements:
-
-`model`: name of the model used for conducting the meta-analysis.
-
-`beta`: estimated coefficients of the model.
-
-`se`: standard errors of the coefficients.
-
-`zval`: test statistics of the coefficients.
-
-`pval`: p-values corresponding to the test statistics.
-
-`ci.lb`: lower bound of the confidence intervals for the coefficients.
-
-`ci.ub`: upper bound of the confidence intervals for the coefficients.
-
-`vb`: variance-covariance matrix of the estimated coefficients.
-
-`rho`: estimated intraclass correlation. If `common_rho = FALSE`, rho is a vector which contains both intraclass correlations.
-
-`LRT.Chisq`: Test statistic of the likelihood ratio test testing for homogeneity.
-
-`LRT.df`: Degrees of freedom of the likelihood ratio test testing for homogeneity.
-
-`LRT.pval`: p-value of the likelihood ratio test testing for homogeneity.
-
-`fit.stats`: a list with log-likelihood, deviance, AIC, BIC, and AICc values under the unrestricted and restricted likelihood.
-
-`p`: number of coefficients in the model (including the intercept).
-
-`k`: number of studies included in the analysis.
-
-`k.all`: total number of studies (before exclusion).
-
-`kdz, ksz`: number of double-zero and single-zero studies.
-
-`k1sz, k2sz`: number of single-zero studies where the zero is in group 1 or group 2.
-
-`ai, bi, ci, di`: original entries of the 2x2 tables for all studies.
-
-`ni, n1i, n2i`: original total and group sample sizes.
-
-...
-
-#### References
-Kuss, O. (2014). Statistical methods for meta-analyses including information from studies without any events-add nothing to nothing and succeed nevertheless. Statistics in Medicine, 34 (7), 1097–1116. doi: 10.1002/sim.6383
-
-
-\newpage
-## rareCC 
-**Apply continuity correction to your data**
-
-#### Description
-Function to apply different kinds of continuity corrections to meta-analytic data.
-
-#### Usage
-```{r, eval=FALSE}
-rareCC(x,ai,bi,ci,di,n1i,n2i,data,cc="constant",ccval=0.5,tccval,cccval,ccsum=1,ccto="only0",drop00=TRUE,measure,method="FE")
-```
-
-#### Arguments
-`x`: an object of class `"rareData"`.  
-
-`ai`: data frame column to specify the number of events in group 1 (i.e., the treatment group).  
-
-`bi`: data frame column to specify the number of non-events in group 1 (i.e., the treatment group).  
-
-`ci`:	data frame column to specify the number of events in group 2 (i.e., the control group).  
-
-`di`: data frame column to specify number of non-events in group 2 (i.e., the control group).  
-
-`n1i`: data frame column to specify the sample sizes in group 1 (i.e., the treatment group).   
-
-`n2i`: data frame column to specify the sample sizes in group 2 (i.e., the control group).  
-
-`data`: data frame. 
-
-`cc`: character string specifying the type of continuity correction to be used (either `"constant"`, `"tacc"` or `"empirical"`). Default is `"constant"`. See 'Details'.  
-
-`ccval`: scalar or numerical vector specifying the value of the continuity correction if `cc = "constant"`. Must be a scalar or a vector of length equal to the number of studies. Default is `ccval = 0.5`. If a scalar is specified, the value is added to all studies for which the number of events is zero in at least one of the groups. This behavior can be changed using the argument `ccto`. The argument `ccval` is overwritten by `tccval` and `cccval` if both arguments are specified.  
-
-`tccval`: scalar or numerical vector specifying the value of the continuity correction applied to the observations from the treatment group (group 1) if `cc = "constant"`. Must be a scalar or a vector of length equal to the number of studies. If `cc = "constant"` and `tccval` is not specified, `tccval` is set to the value of `ccval` internally.  
-
-`cccval`: scalar or numerical vector specifying the value of the continuity correction applied to the observations from the control group (group 2) if `cc = "constant"`. Must be a scalar or a vector of length equal to the number of studies. If `cc = "constant"` and `cccval` is not specified, `cccval` is set to the value of `ccval` internally.  
-
-`ccsum`: numeric value specifying the value of the sum of the continuity correction applied to the observations from the treatment group and the continuity correction applied to the observations from the control group. Default is `ccsum = 1`. Currently, setting this argument to a different number only has an effect when `cc = "tacc"` or `cc = "empirical"`.  
-
-`ccto`: character string indicating which studies the continuity correction should be applied to. Either `"only0"`, for which the continuity correction is applied to all studies for which the number of events is zero in at least one of the groups, `"all"`, for which the continuity correction is applied to all studies, or `"if0all"`, for which the continuity correction is applied to all studies if any of the individual studies has zero events in at least one of the groups.  
-
-`drop00`: logical indicating whether double-zero studies (i.e., studies with no events or only events in both groups) should be excluded prior to calculating the studies' effect sizes and sampling variances.  
-
-`measure`: character string specifying the effect size or outcome measure to be used (either `"logOR"` for the log odds ratio, `"logRR"` for the log relative risk, or `"RD"` for the risk difference). Important when selecting continuity corrections dependent on the estimated summary effect size of some subset of the studies involved in the analyisis, i.e., `cc = "empirical"`.  
-
-`method`: character string specifying whether a fixed- or a random-effects model should be fitted. A fixed-effects model is fitted when using `method = "FE"` . A random-effects model is fitted by setting method equal to one of the following: `"DL", "HE", "SJ", "ML", "REML", "EB", "HS", "PM", "IPM", "GENQ", "PMM"` or `"GENQM"`. Important when selecting continuity corrections dependent on the estimated summary effect size of some subset of the studies involved in the analyisis, i.e., `cc = "empirical"`.
-
-#### Value 
-an object of class `"rareData"`. The object is a list containing the following elements:
-
-`ai, bi, ci, di`: original entries of the 2x2 tables for all studies.
-
-`ai.cc, bi.cc, ci.cc, di.cc`: entries of the 2x2 tables for all studies after application of the specified continuity correction.
-
-`ni, n1i, n2i`: original total and group sample sizes.
-
-`ni.cc, n1i.cc, n2i.cc`: total and group sample sizes after application of the specified continuity correction.
-
-`tcc, ccc`: value of the specified continuity correction for the treatment group (group 1) and control group (group 2).
-
-`cc.studies`: vector which indicates whether the continuity correction was applied to a study.
-
-`remove`: logical vector indicating which studies were removed before aplication of the continuity correction
-
-`kdz, ksz`: number of double-zero and single-zero studies.
-
-`k1sz, k2sz`: number of single-zero studies where the zero is in group 1 or group 2.
-
-`cc`: the type of continuity correction applied
-
-`drop00`: logical indicating whether double-zero studies were omitted
-
-...
-
-#### Details
-##### Data input
-The data input can be specified either through the arguments `ai,bi,ci,di,n1i`, and `n2i` (columns of the data frame data) or through the argument `x`, which takes an object that results from applying the `rareDescribe()` function to the data (i.e., the input for argument x must be an object of type `rareData`). A `rareData` object can be produced from a data frame by applying the `rareDescribe()` function to it. The `rareDescribe()` function pre-processes the data frame and stores the information required by the `rareCC()` function in a list. See `?rareDescribe` for more details.
-
-##### Types of continuity correction
-This function offers three kinds of continuity correction.
-
-###### Constant continuity correction
-When setting `cc = "constant"`, a constant value will be added to all cells of all studies specified via the `ccto` argument. The default is `ccval = 0.5`. Through specification of `tccval` and `cccval` different values can be specified for the cells of the treatment group and the control group, respectively. By inputting vectors in the afforementioned arguments, different values can be added to different studies (adding the k-th value to the k-th study), making it possible for the user to introduce their own continuity correction.
-
-###### Treatment-arm continuity correction
-When setting `cc = "tacc"` (treatment-arm continuity correction), the size of both of study arms is used to calculate a value for continuity correction. For a precise definition see Sweeting et al. (2004).
-
-###### Empirical correction
-When setting `cc = "empirical"`, the estimated summary effect size (`logOR, logRR` or `RD`) for all studies which enable the estimation of the corresponding individual effect size is used to calculate a value for continuity correction. This means that there must be at least one study enabling the estimation of the corresponding individual effect size and the measure- and method argument must be specified. For a precise definition see Sweeting et al. (2004). When it comes to model fitting, there is the possibility to fit fixed-effects models (also known as equal-effects models) and random-effects models using the inverse variance approach. A fixed-effects model is fitted when method is set to `"FE"` (or `"EE"`). A random-effects model is fitted when method is set to either `"DL", "HE", "SJ", "ML", "REML", "EB", "HS", "PM", "IPM", "GENQ", "PMM"` or `"GENQM"`. Currently, the model is fitted by applying the `rma()` function from the **metafor** package, see Viechtbauer (2010).
-
-##### Estimation of the between-study variance in random-effects meta-analysis
-Different estimators can be used to estimate the between-study variance, tau^2, in random-effects meta-analysis. The estimator to be used is specified via the methods argument.
-
-`"DL"`: DerSimonian-Laird estimator
-
-`"HE"`: Hedges estimator
-
-`"SJ"`: Sidik-Jonkman estimator
-
-`"ML"`: maximum likelihood estimator
-
-`"REML"`: restricted maximum likelihood estimator
-
-`"EB"`: empirical Bayes estimator
-
-`"HS"`: Hunter-Schmidt estimator
-
-`"PM"`: Paule-Mandel estimator
-
-`"IPM"`: improved Paule-Mandel estimator
-
-`"GENQ"`: generalized Q-statistic estimator
-
-`"PMM"`: median-unbiased Paule-Mandel estimator
-
-`"GENQM"`: median-unbiased generalized Q-statistic estimator
-
-Most of these estimators are described in Zhang et al. (2021). For details on the improved Paule-Mandel estimator, see also Bhaumik et al. (2012). The median-unbiased Paule-Mandel estimator and the median-unbiased generalized Q-statistic estimator are described in Viechtbauer (2021).
-
-#### References
-Borenstein, M., Hedges, L. V., Higgins, J. P., & Rothstein, H. R. (2021). Introduction to meta-analysis. John Wiley & Sons.
-
-Bhaumik, D. K., Amatya, A., Normand, S.-L. T., Greenhouse, J., Kaizar, E., Neelon, B., & Gibbons, R. D. (2012). Meta-analysis of rare binary adverse event data. Journal of the American Statistical Association 107, 555–567. doi: 10.1080/01621459.2012.664484
-
-Sweeting, M. J., Sutton, A. J., & Lambert, P. C. (2004). What to add to nothing? Use and avoidance of continuity corrections in meta-analysis of sparse data. Statistics in Medicine, 23, 1351–1375. doi: 10.1002/sim.1761
-
-Viechtbauer, W. (2010). Conducting Meta-Analyses in R with the metafor Package. Journal of Statistical Software, 36(3), 1–48. https://doi.org/10.18637/jss.v036.i03
-
-Viechtbauer, W. (2021). Median-unbiased estimators for the amount of heterogeneity in meta-analysis. European Congress of Methodology, Valencia, Spain. https://www.wvbauer.com/lib/exe/fetch.php/talks:2021_viechtbauer_eam_median_tau2.pdf
-
-Zhang, C., Chen, M., & Wang, X. (2020). Statistical methods for quantifying between-study heterogeneity in meta-analysis with focus on rare binary events. Statistics and its interface, 13(4), 449. doi: 10.4310/sii.2020.v13.n4.a3
-
-
-\newpage
-## rareES
-**Calculate individual effect sizes for meta-analyses of rare events.**
-
-#### Usage
-```{r, eval=FALSE}
-rareES(x,ai,bi,ci,di,n1i,n2i,data,measure,cc="none",ccval=0.5,tccval,cccval,ccsum=1,ccto="only0",drop00=TRUE,method="FE")
-```
-
-#### Arguments
-`x`: an object of class `"rareData"`.   
-
-`ai`: data frame column to specify the number of events in group 1 (i.e., the treatment group).  
-
-`bi`: data frame column to specify the number of non-events in group 1 (i.e., the treatment group).  
-
-`ci`:	data frame column to specify the number of events in group 2 (i.e., the control group).  
-
-`di`: data frame column to specify number of non-events in group 2 (i.e., the control group).  
-
-`n1i`: data frame column to specify the sample sizes in group 1 (i.e., the treatment group).   
-
-`n2i`: data frame column to specify the sample sizes in group 2 (i.e., the control group).  
-
-`data`: data frame. 
-
-`measure`: character string specifying the effect size or outcome measure to be used (either `"logOR"` for the log odds ratio, `"logRR"` for the log relative risk, or `"RD"` for the risk difference).  
-
-`cc`: character string specifying the type of continuity correction to be used (either `"constant"`, `"tacc"` or `"empirical"`). Default is `"none"`. See 'Details'.  
-
-`ccval`: scalar or numerical vector specifying the value of the continuity correction if `cc = "constant"`. Must be a scalar or a vector of length equal to the number of studies. Default is `ccval = 0.5`. If a scalar is specified, the value is added to all studies for which the number of events is zero in at least one of the groups. This behavior can be changed using the argument `ccto`. The argument `ccval` is overwritten by `tccval` and `cccval` if both arguments are specified.  
-
-`tccval`: scalar or numerical vector specifying the value of the continuity correction applied to the observations from the treatment group (group 1) if `cc = "constant"`. Must be a scalar or a vector of length equal to the number of studies. If `cc = "constant"` and `tccval` is not specified, `tccval` is set to the value of `ccval` internally.  
-
-`cccval`: scalar or numerical vector specifying the value of the continuity correction applied to the observations from the control group (group 2) if `cc = "constant"`. Must be a scalar or a vector of length equal to the number of studies. If `cc = "constant"` and `cccval` is not specified, `cccval` is set to the value of `ccval` internally.  
-
-`ccsum`: numeric value specifying the value of the sum of the continuity correction applied to the observations from the treatment group and the continuity correction applied to the observations from the control group. Default is `ccsum = 1`. Currently, setting this argument to a different number only has an effect when `cc = "tacc"` or `cc = "empirical"`.  
-
-`ccto`: character string indicating which studies the continuity correction should be applied to. Either `"only0"`, for which the continuity correction is applied to all studies for which the number of events is zero in at least one of the groups, `"all"`, for which the continuity correction is applied to all studies, or `"if0all"`, for which the continuity correction is applied to all studies if any of the individual studies has zero events in at least one of the groups.  
-
-`drop00`: logical indicating whether double-zero studies (i.e., studies with no events or only events in both groups) should be excluded prior to calculating the studies' effect sizes and sampling variances.  
-
-`method`: character string specifying whether a fixed- or a random-effects model should be fitted. A fixed-effects model is fitted when using `method = "FE"` . A random-effects model is fitted by setting method equal to one of the following: `"DL", "HE", "SJ", "ML", "REML", "EB", "HS", "PM", "IPM", "GENQ", "PMM"` or `"GENQM"`.  
-
-... additional arguments
-
-#### Value
-`x`: an object of class `"raremeta"`. The object is a list containing the following elements:
-
-`ai, bi, ci, di`: original entries of the 2x2 tables for all studies.
-
-`measure`: effect size estimand
-
-`yi`: vector which contains the estimated study effect sizes
-
-`vi`: vector which contains the estimated sampling variances
-
-`ai.cc, bi.cc, ci.cc, di.cc`: modified entries of the 2x2 tables for all studies after application of the specified continuity correction
-
-...
-
-#### Details
-
-##### Data input
-The data input can be specified either through the arguments `ai,bi,ci,di,n1i`, and `n2i` (columns of the data frame data) or through the argument `x`, which takes an object that results from applying the `rareDescribe()` function to the data (i.e., the input for argument x must be an object of type `rareData`). A `rareData` object can be produced from a data frame by applying the `rareDescribe()` function to it. The `rareDescribe()` function pre-processes the data frame and stores the information required by the `rareES()` function in a list. See `?rareDescribe` for more details.
-
-##### Effect size measures
-The function includes methods for calculating log odds ratios, log risk ratios, and risk differences. The effect size measure can be specified using the measure argument. The respective effect size, along with an estimate of its sampling variance, is then calculated for each study based on the entries of the study's 2x2 table:
-
-group                event	     no event
------------------    --------    ---------
-group1(treatment)      ai	            bi
-group2(control)	       ci	            di
-
-##### Handling single-zero and double-zero studies
-Single-zero studies are studies for which one entry of the 2x2 table is zero. Double-zero studies are studies for which two entries of the same column of the 2x2 table are zero. The function includes a variety of arguments to handle single-zero and double-zero studies. Per default, double-zero studies are currently excluded from the analysis (this behavior might be changed in the future). The inclusion of double-zero studies can be enforced by setting the argument `drop00` to `FALSE`. If the data includes at least one single-zero study, the function throws an error if the user did not specify whether or not a continuity correction shall be applied. By setting `cc = "none"`, any zero-studies (studies with at least one zero-cell) which remain in the data are excluded from the analysis. If it is desired that zero-studies are included, the user needs to specify which continuity correction shall be used, and to which studies it shall be applied. Per default, the continuity correction is only applied to zero-studies, while studies for which all cells are larger than zero are left uncorrected. This behavior can be changed using the argument `ccto`. Per default, the constant value 0.5 (`cc = "constant"`, `ccval = 0.5`) is added to all cells of the studies specified by `ccto`. This continuity correcton was desribed by Gart and Zweifel (1967). Alternative continuity corrections which were described by Sweeting et al. (2004) can be applied by setting `cc` to `"tacc"` for the treatment-arm continuity correction, and to `"empirical"` for the empirical continuity correction. Per default, the sum of the corrections for treatment and control groups is set to 1, but this can be changed by setting the the argument `ccsum` to a different value. It is possible to set the continuity correction to a user-defined value (or a vector of user-defined values) using the argument `ccval` (if the value). If the user wants to specify different values for the treatment and the control group, this is possible via the arguments `tccval` and `cccval`.
-
-##### Differences between effect size measures in the application of continuity corrections
-When either the log odds ratio or the log risk ratio is used as an effect size measure, both the effect sizes and their sampling variances are calculated based on the continuity-corrected 2x2 table. When the effect size measure is the risk difference, the continuity-corrected 2x2 table is only used in the calculation of the sampling variances.
-
-#### References
-Gart, John J, and James R Zweifel. 1967. On the bias of various estimators of the logit and its variance with application to quantal bioassay. Biometrika, 54, 181–187. doi:10.1093/BIOMET/54.1-2.181
-
-Sweeting, M. J., Sutton, A. J., & Lambert, P. C. (2004). What to add to nothing? Use and avoidance of continuity corrections in meta-analysis of sparse data. Statistics in Medicine, 23, 1351–1375. doi: 10.1002/sim.1761
-
-
-\newpage
-## rareGLMM
-**Conduct a meta-analysis using a generalized linear (mixed) model (GLMM)**
-
-#### Description
-Function to conduct a meta-analysis of a rare event using a generalized linear or generalized linear mixed model. See below for more details on these models and their application in meta-analyses of rare events.
-
-#### Usage
-```{r, eval = FALSE}
-rareGLMM(x,ai,bi,ci,di,n1i,n2i,data,measure,intercept="fixed",slope="random",conditional=FALSE,approx=FALSE,cor=FALSE,coding=1/2,drop00=FALSE,level=95,test="z",digits=4,verbose=FALSE,control,...)
-```
-
-#### Arguments
-`x`: an object of class `"rareData"`.  
-
-`ai`: data frame column to specify the number of events in group 1 (i.e., the treatment group).  
-
-`bi`: data frame column to specify the number of non-events in group 1 (i.e., the treatment group).  
-
-`ci`:	data frame column to specify the number of events in group 2 (i.e., the control group).  
-
-`di`: data frame column to specify number of non-events in group 2 (i.e., the control group).  
-
-`n1i`: data frame column to specify the sample sizes in group 1 (i.e., the treatment group).   
-
-`n2i`: data frame column to specify the sample sizes in group 2 (i.e., the control group).  
-
-`data`: data frame.  
-
-`measure`: character string specifying the effect size or outcome measure to be used (either `"logOR"` for the log odds ratio or `"logRR"` for the log relative risk). See below for more details.  
-
-`intercept`: character string specifying whether to fit a model with fixed, study-specific intercepts (`"fixed"`) or a random intercept (`"random"`). See below for more details.  
-
-`slope`: character string specifying whether to fit a model with a fixed slope (`"fixed"`) or a random slope (`"random"`). A model with a fixed slope is a model with homogeneous effects, that is, a fixed-effects model, while a model with a random slope is a model with heterogeneous effects, that is, a random effects model. See below for more details.  
-
-`conditional`: logical specifying whether to estimate a conditional generalized linear mixed model. Default is `FALSE`.  
-
-`approx`: logical specifying whether to use the approximate version of the conditional generalized linear mixed model (i.e., the conditional binomial model). Only relevant when `conditional = TRUE` and `⁠measure = "logOR"`⁠. Default is `FALSE`. See below for more details.  
-
-`cor`: logical specifying whether random effects should be modeled as correlated or uncorrelated. Default is `cor = FALSE`. This argument is only relevant if `intercept = "random"` and `slope = "random"`. See below for more details.  
-
-`coding`: numeric specifying the coding scheme used for the random effects structure. Values between 0 and 1 can be specified. Default is `coding = 1/2`. Given that `cor = FALSE` is specified, the default option implies equal variances in the two groups. Values closer to 0 imply a larger variance in the control group (group 2), while values closer to 1 imply a larger variance in the treatment group (group 1). See below for more details.  
-
-`drop00`: logical indicating whether double-zero studies (i.e., studies with no events or only events in both groups) should be excluded prior to calculating the studies' effect sizes and sampling variances.  
-
-`level`: numeric between 0 and 100 specifying the confidence interval level (the default is 95).  
-test: character string specifying how test statistics and confidence intervals for the fixed effects should be computed (currently, only `"z"`, for Wald-type tests is available).  
-
-`digits`: integer specifying the number of decimal places to which the printed results should be rounded (if unspecified, the default is 4).  
-
-`verbose`: logical indicating whether output should be generated on the progress of model fitting (the default is `FALSE`). Can also be an integer. Values > 1 generate more verbose output.  
-
-`control`: optional list of control values for the iterative algorithms. If unspecified, default values are defined inside the functions. 
-
-...	additional arguments.
-
-#### Details
-##### Data input
-The data input can be specified either through the arguments `ai,bi,ci,di,n1i`, and `n2i` (columns of the data frame data) or through the argument `x`, which takes an object that results from applying the `rareDescribe()` function to the data (i.e., the input for argument x must be an object of type `rareData`). A `rareData` object can be produced from a data frame by applying the `rareDescribe()` function to it. The `rareDescribe()` function pre-processes the data frame and stores the information required by the `rareGLMM()` function in a list. See `?rareDescribe` for more details.
-
-##### Effect size measures
-The function includes different versions of the generalized linear (mixed) model. The regression equation for the fixed-effects model (GLM) can be expressed as
-
-\(g(\pi_{ij}) = \alpha_i + \theta \cdot x_{ij}\),
-
-and the model equation for the random-effects model (GLMM) can be expressed as
-
-\(g(\pi_{ij}) = \alpha_i+ \theta \cdot x_{ij} + \epsilon_{i} \cdot z_{ij}\),
-
-where \(i = 1, ..., k \) is the study index and \(j = 1, 2\) is the group index, \(x_{i1} = 1\), \(x_{i2} = 0\), and \(z_{ij}\) is defined by the coding argument. Specifically, for coding = z, \(z_{i1} = z\) and \(z_{i2} = z-1\). Default is \(z = 1/2\). coding = 1 corresponds to Models 2 and 4 in Jackson et al. (2017), and coding = 1/2 corresponds to Models 3 and 5 in the same study.
-
-For `measure = "logOR"`, a GL(M)M with a binomial within-study distribution is used for the numbers of events in each group, with sample size \(n_{ij}\) and probability \(\pi_{ij}\). For this model, \(g(\cdot)\) corresponds to the logit function, i.e., \(g(\pi_{ij}) = \log \left( \frac{\pi_{ij}}{1-\pi_{ij}} \right)\). See Stijnen et al. (2011), for further details.
-
-For `measure = "logRR"`, a GL(M)M with a Poisson within-study distribution is used for the numbers of events in each group, with rate \(n_{ij}\pi_{ij}\). For this model, \(g(\cdot)\) corresponds to the natural logarithm. See Böhning et al. (2015), for further details.
-
-It is currently not possible to fit GL(M)Ms for `measure = "RD"`, but this functionality may be enabled in future versions of the package.
-
-##### Baseline and effect heterogeneity
-Baseline heterogeneity refers to the way the intercept is modeled. By specifying `intercept = "fixed"`, the intercepts \(\alpha_i\) are modeled as fixed, study-specific intercepts. By specifying `intercept = "random"`, it is assumed that \(\alpha_i \sim N(\alpha, \sigma_{\alpha}^2)\).
-
-Effect heterogeneity refers to the way the slope is modeled. By specifying `slope = "fixed"`, a fixed slope is modeled, corresponding to a fixed-effects meta-analysis. By specifying `⁠slope = "random"`⁠, it is assumed that \(\epsilon_i \sim N(0, \tau^2)\), corresponding to a random-effects meta-analysis with between-study variance \(\tau^2\).
-
-##### Correlated random effects
-When both `intercept = "random"` and `slope = "random"` is specified, the argument cor can be used to specify whether random-effects are assumed to be correlated. Per default, this is not the case, i.e. `cor = FALSE`.
-
-Value
-an object of class `"raremeta"`. The object is a list containing the following elements:
-
-`model`: name of the model used for conducting the meta-analysis.
-
-`beta`: estimated coefficients of the model.
-
-`se`: standard errors of the coefficients.
-
-`zval`: test statistics of the coefficients.
-
-`zval`: p-values corresponding to the test statistics.
-
-`ci.lb`: lower bound of the confidence intervals for the coefficients.
-
-`ci.ub`: upper bound of the confidence intervals for the coefficients.
-
-`vb`: variance-covariance matrix of the estimated coefficients.
-
-`tau2`: estimated amount of (residual) heterogeneity. Always 0 when `method = "FE"`.
-
-`LRT.Chisq`: Test statistic of the likelihood ratio test testing for homogeneity.
-
-`LRT.df`: Degrees of freedom of the likelihood ratio test testing for homogeneity.
-
-`LRT.pval`: p-value of the likelihood ratio test testing for homogeneity.
-
-`fit.stats`: a list with log-likelihood, deviance, AIC, BIC, and AICc values under the unrestricted and restricted likelihood.
-
-`p`: number of coefficients in the model (including the intercept).
-
-`k`: number of studies included in the analysis.
-
-`k.all`: total number of studies (before exclusion).
-
-`kdz, ksz`: number of double-zero and single-zero studies.
-
-`k1sz, k2sz`: number of single-zero studies where the zero is in group 1 or group 2.
-
-`ai, bi, ci, di`: original entries of the 2x2 tables for all studies.
-
-`ni, n1i, n2i`: original total and group sample sizes.
-
-...
-
-#### References
 Böhning, D., Mylona, K., & Kimber, A. (2015). Meta-analysis of clinical trials with rare events. Biometrical Journal, 57 (4), 633–648. doi: 10.1002/bimj.201400184
+
+Hoppen, T. H., Jehn, M., Holling, H., Mutz, J., Kip, A., & Morina, N. (2023). The efficacy and acceptability of psychological interventions for adult PTSD: A network and pairwise meta-analysis of randomized controlled trials. Journal of Consulting and Clinical Psychology. doi: 10.1037/ccp0000809
 
 Jackson, D., Law, M., Stijnen, T., Viechtbauer, W., & White, I. R. (2018). A comparison of seven random-effects models for meta-analyses that estimate the summary odds ratio. Statistics in Medicine, 37 (7), 1059–1085. doi: 10.1002/sim.7588
 
+Kuss, O. (2015). Statistical methods for meta-analyses including information from studies without any events–add nothing to nothing and succeed nevertheless. Statistics in Medicine, 34 (7), 1097–1116. doi: 10.1002/sim.6383
+
+Mantel, N., & Haenszel, W. (1959). Statistical Aspects of the Analysis of Data From Retrospective Studies of Disease. JNCI: Journal of the National Cancer Institute. doi: 10.1093/jnci/22.4.719
+
 Stijnen, T., Hamza, T. H., & Özdemir, P. (2010). Random effects meta-analysis of event outcome in the framework of the generalized linear mixed model with applications in sparse data. Statistics in Medicine, 29 (29), 3046–3067. doi: 10.1002/sim.4040
 
+Sweeting, M. J., Sutton, A. J., & Lambert, P. C. (2004). What to add to nothing? Use and avoidance of continuity corrections in meta-analysis of sparse data. Statistics in Medicine, 23 (9), 1351–1375. doi: 10.1002/sim.1761
+
+van Houwelingen, H. C., Zwinderman, K. H., & Stijnen, T. (1993). A bivariate approach to meta-analysis. Statistics in Medicine, 12 (24), 2273–2284. doi: 10.1002/sim.4780122405
+
+Yusuf, S., Peto, R., Lewis, J., Collins, R., & Sleight, P. (1985). Beta blockade during and after myocardial infarction: an overview of the randomized trials. Progress in Cardiovascular Diseases, 27 (5), 335–371. doi: 10.1016/s0033-0620(85)80003-7
+
+
+
+<!-- # A First Example: raremeta in Action -->
+
+<!-- We begin by setting up **raremeta** and examine the dataset -->
+<!-- `dat.nissen2007` which is based on a 2007 meta-analysis by Nissen and Wolski (Nissen and Wolski 2007) as a first example. -->
+
+
+<!-- ```{r, eval = FALSE}  -->
+<!-- install.packages("raremeta") -->
+<!-- ``` -->
+
+<!-- ```{r, eval=TRUE} -->
+<!-- library(raremeta) -->
+<!-- dat <- dat.nissen2007 -->
+<!-- head(dat,3) -->
+<!-- ``` -->
+
+<!-- We see that the -->
+<!-- dataset `dat` contains event counts for two different events, `cv` -->
+<!-- (cardiovascular death) and `mi` (myocardial infarction) under the -->
+<!-- treatment `Rosiglitazone`. Suppose we are interested in analyzing the -->
+<!-- effect of the treatment on `cv` - cardiovascular death. We use the -->
+<!-- function `rareDescribe` to prepare the dataset. -->
+<!-- ```{r, eval=TRUE} -->
+<!-- dat <- rareDescribe(ai=cvRosiglitazone,ci=cvControl,n1i=nRosiglitazone,n2i=nControl,data=dat)  -->
+<!-- ``` -->
+<!-- The object `dat` is of type `rareData`, -->
+<!-- which we can use as an argument for the `rareIV` function to model fit. -->
+<!-- Alternatively, the original data frame can be used directly as input in `rareIV()`, which will automatically create an object of type `rareData`, internally. -->
+<!-- Let us go through some example inputs. We begin by -->
+<!-- fitting a random effects model specifying the effect size to be the -->
+<!-- logarithm of the odds ratio, the heterogeneity estimator `"DL"` - -->
+<!-- *DerSimonian-Laird*, and the continuity correction to add $0.5$ to all -->
+<!-- cells of all studies if there is a single-zero study and to none of the -->
+<!-- cells if there is no single-zero study (double-zero studies got dropped -->
+<!-- by default). -->
+
+<!-- ```{r, eval=TRUE} -->
+<!-- Fit1 <- rareIV(x=dat,measure="logOR",method="DL",cc="constant",ccto="if0all") -->
+<!-- summary(Fit1) -->
+<!-- ``` -->
+
+<!-- Next, we fit a fixed effects model specifying the effect size to be the -->
+<!-- risk difference and the contiuity correction to add $0.1$ to all -->
+<!-- studies, without dropping double-zero studies. -->
+
+<!-- ```{r, eval=TRUE} -->
+<!-- Fit2 <- rareIV(x=dat,measure="RD",method="FE",cc="constant", ccval=0.1,ccto="all",drop00=FALSE) -->
+<!-- summary(Fit2) -->
+<!-- ``` -->
+
+<!-- For a exhaustive account of the possible inputs, continue reading or -->
+<!-- look into the corresponding documentation. -->
+
+<!-- # Calculation: An Overview of the raremeta-Workflow  -->
+
+<!-- Let us go through the process of calculating estimated effect sizes using the -->
+<!-- software package **raremeta** in `R`. We will introduce a common -->
+<!-- workflow: Preparing event-count-data using `rareDescribe` to calculate -->
+<!-- estimations of effect sizes using `rareIV`. -->
+
+<!-- ```{r, eval=FALSE} -->
+<!-- install.packages("raremeta")  -->
+<!-- ``` -->
+<!-- ```{r, eval=TRUE} -->
+<!-- library(raremeta) -->
+<!-- dat <- dat.nissen2007 -->
+<!-- ``` -->
+
+<!-- Suppose `dat` -->
+<!-- is a dataframe containing $k$ units of event-counts, i.e. for the $i$'th -->
+<!-- study -->
+
+<!-- ::: center -->
+<!--    $i$'th study   event   no-event  total -->
+<!--   -------------- ------- ---------- ---------- -->
+<!--     treatment     $a_i$    $b_i$     $n_{1i}$ -->
+<!--      control      $c_i$    $d_i$     $n_{2i}$ -->
+<!-- ::: -->
+
+<!-- in form of a table, i.e. $k$ rows (one for each study) and columns -->
+<!-- reporting the event-counts of the individual studies. -->
+
+<!-- ::: center -->
+<!--      `dat`     `ai`    `bi`    `ci`    `di`     `n1i`      `n2i` -->
+<!--   ----------- ------- ------- ------- ------- ---------- ---------- -->
+<!--    Study $1$   $a_1$   $b_1$   $c_1$   $d_1$   $n_{11}$   $n_{21}$ -->
+<!--    Study $2$   $a_2$   $b_2$   $c_2$   $d_2$   $n_{12}$   $n_{22}$ -->
+<!--        ⋮         ⋮       ⋮       ⋮       ⋮        ⋮          ⋮ -->
+<!--    Study $k$   $a_k$   $b_k$   $c_k$   $d_k$   $n_{1k}$   $n_{2k}$ -->
+<!-- ::: -->
+
+<!-- Let us look at `rareDescribe` and its parameters: -->
+<!-- `rareDescribe(ai,bi,ci,di,n1i,n2i,data)`. -->
+<!-- The meaning of its parameters -->
+<!-- becomes clear from the table above. The columns of `dat` are named in -->
+<!-- the same fashion as the parameters, e.g. `dat$ai` is a vector of length -->
+<!-- $k$ reporting the number of events in the treatment-group etc. If we -->
+<!-- then use `rareDescribe` on the dataframe `dat` an object of the class -->
+<!-- `rareData` is returned.  -->
+<!-- ```{r, eval=TRUE} -->
+<!-- dat <- rareDescribe(ai=cvRosiglitazone,ci=cvControl,n1i=nRosiglitazone,n2i=nControl,data=dat) -->
+<!-- ``` -->
+<!-- Just as before, `dat` includes the event-counts of the $k$ studies, now expanded by -->
+<!-- information about the number of double-zero studies, means and medians -->
+<!-- of event-counts and much more. Most importantly, `dat` is now in the -->
+<!-- right format to put into `rareIV` to calculate estimated effect sizes. Again, let -->
+<!-- us look at `rareIV` and its parameters:  -->
+<!-- ```{r, eval=FALSE} -->
+<!-- rareIV(x,measure,method,cc,ccval = 0.5,tccval,cccval,ccsum=1,ccto="only0",drop00=TRUE, weighted=TRUE,level=95,test="z",digits=4,verbose=FALSE,control) -->
+<!-- ```  -->
+<!-- The parameter `x` -->
+<!-- stands for an object of type `rareData`. Through `measure` we decide -->
+<!-- which effect size shall be estimated. Possible inputs are -->
+<!-- `logOR, logRR, RD` standing for the logarithm of the Odds-Ratio, the -->
+<!-- logarithm of the Relative-Risk and the Risk-Difference, respectively. By -->
+<!-- `method` we indicate the mathematical modeling, deciding between a -->
+<!-- fixed-effects and a random effects model and also decide the -->
+<!-- heterogeneity-estimator to be used. The arguments `cc` up to `ccto` -->
+<!-- specify the type of continuity correction to be applied. There is a -->
+<!-- dedicated section explaining the meaning and usage. The standard method -->
+<!-- of adding $0.5$ to all cells of all single- and double-zero studies is -->
+<!-- achieved by setting `cc="constant"`. The logical `drop00` indicates -->
+<!-- whether studies with no events in both the treatment-group and the -->
+<!-- control-group should be left out from the analysis. The argument -->
+<!-- `weighted` specifies whether estimation for effect sizes shall come by -->
+<!-- weighted averages (i.e. normed inverse variances) or unweighted averages -->
+<!-- (i.e. arithmetical means). The confidence interval is specified through -->
+<!-- `level` and through `test` we specify how test statistics and confidence -->
+<!-- intervals for the fixed effects should be computed. By `digits` we -->
+<!-- specify the number of decimal places to which the printed result should -->
+<!-- be rounded.  -->
+
+<!-- Let us now feed our dataset `dat` (now of type `rareData`) into this -->
+<!-- function. We choose to stick to the defaults as much as possible, -->
+<!-- specifying the effect size to be `logOR`, a fixed effects model and -->
+<!-- constant continuity correction. -->
+
+<!-- ```{r, eval=TRUE} -->
+<!-- Fit <- rareIV(x=dat,measure="logOR",method="FE",cc="constant") -->
+<!-- ``` -->
+
+<!-- The returned object `Fit` includes estimations of the parameters of -->
+<!-- interest, for example the effect size, $p$-value, $z$-value, confidence -->
+<!-- intervals and much more. We can display its information by way of the -->
+<!-- `summary()` function or simply through the command `head()`. -->
+<!-- ```{r, eval=TRUE} -->
+<!-- summary(Fit) -->
+<!-- ``` -->
+
+<!-- \newpage -->
+
+<!-- # List of Functions -->
+
+<!-- Function Name     | Short Description -->
+<!-- -------------     | ----------------- -->
+<!-- rareDesribe()     | pre-processing of a data-frame -->
+<!-- rareBetabin()     | meta-analysis using the beta binomial model  -->
+<!-- rareCC()          | continuity correction for binary data -->
+<!-- rareES()          | effect size estimation  -->
+<!-- rareGLMM()        | meta-analysis using the generalized linear mixed model -->
+<!-- rareIV()          | meta-analysis using the inverse variance method -->
+<!-- rareMH()          | meta-analysis using the Mantel-Haenszel method   -->
+<!-- rarePeto()        | meta-analysis using Peto's method -->
+
+
+
+<!-- # Continuity Corrections -->
+
+<!-- ## Theoretical Introduction  -->
+
+<!-- When confronted with rare event data expressed in terms of a $2 \times 2$-table -->
+<!-- many standard methods of estimating effect sizes may fail. -->
+
+<!-- ::: center -->
+<!--                event   no-event -->
+<!--   ----------- ------- ---------- -->
+<!--    treatment   $a_i$    $b_i$ -->
+<!--     control    $c_i$    $d_i$ -->
+<!-- ::: -->
+
+<!-- Let us, for example, consider the standard method of estimating the -->
+<!-- logarithm of the standard estimator of the relative-risk $RR_i$ of the -->
+<!-- two groups in the $i$-th study: -->
+<!-- $$\text{log}(\hat{RR_i}) := \text{log} \frac{a_i /(a_i + b_i)}{c_i /(c_i + d_i)}.$$ -->
+<!-- If either $a_i$, the number of events in the treatment group in study -->
+<!-- $i$, or $c_i$, the number of events in the control group in study $i$, -->
+<!-- is equal to zero, one is faced with an undefined term. Continuity -->
+<!-- corrections present a way of handling this problem. To apply the -->
+<!-- continuity correction we add specified values to the cells of the -->
+<!-- specified study. There are various methods to do so. Three of them will -->
+<!-- be discussed below. As an example consider the following study: -->
+
+<!-- ::: center -->
+<!--                event   no-event -->
+<!--   ----------- ------- ---------- -->
+<!--    treatment    $0$     $n_T$ -->
+<!--     control     $0$     $n_C$ -->
+<!-- ::: -->
+
+<!-- a *double-zero study* with $n_T$ and $n_C$ being the size of the -->
+<!-- treatment group and the control group, respectively. The standard method -->
+<!-- of continuity correction is adding $0.5$ to each cell of the study. If -->
+<!-- this method is applied, we end up with: -->
+
+<!-- ::: center -->
+<!--                event   no-event -->
+<!--   ----------- ------- ----------- -->
+<!--    treatment   $0.5$   $n_T+0.5$ -->
+<!--     control    $0.5$   $n_C+0.5$ -->
+<!-- ::: -->
+
+<!-- Now, many methods of estimating effect sizes are available again. -->
+
+<!-- Continuity corrections can be applied in various ways. Two main -->
+<!-- questions arise:  -->
+
+<!-- **Which studies should the continuity correction be applied to?** -->
+
+<!-- Assume -->
+<!-- we are conducting meta-analysis in the presence of studies where no -->
+<!-- event is observed in either the treatment or the control group. Besides -->
+<!-- the two obvious ways of applying the continuity correction to all or -->
+<!-- none of the studies it is standard to apply the continuity correction to -->
+<!-- only those studies with no event in either the control or the treatment -->
+<!-- group.  -->
+
+<!-- **Which method of continuity correction do I apply to the specified studies?** -->
+
+<!-- 1\. Constant Continuity Correction  -->
+
+<!-- We add a constant value to each cell of the specified studies. If we -->
+<!-- decide to add value $x_i$ in the $i$-th study, this amounts to -->
+
+<!-- ::: center -->
+<!--                   event        no-event -->
+<!--   ----------- ------------- -------------- -->
+<!--    treatment   $a_i + x_i$   $b_i + x_i$ -->
+<!--     control    $c_i + x_i$   $d_i + x_i$. -->
+<!-- ::: -->
+
+<!-- The default is adding $0.5$ to each cell of each specified study but it -->
+<!-- is also possible to add different values to different studies. The -->
+<!-- important characteristic of this approach is that the added value does -->
+<!-- not depend on the size or outcome of the studies. The possibility to do -->
+<!-- so is reflected in the next two approaches.  -->
+
+<!-- 2\. Treatment Arm Continuity Correction  -->
+
+<!-- In the specified studies, we add a value dependent on the size of the -->
+<!-- control group to the cells of the treatment group and vice versa. The -->
+<!-- value is calculated as the reciprocal of the total size of the other -->
+<!-- group. For the $i$-th study this amounts to: -->
+
+<!-- ::: center -->
+<!--                           event                        no-event -->
+<!--   ----------- ----------------------------- ------------------------------ -->
+<!--    treatment   $a_i + \frac{1}{c_i + d_i}$   $b_i + \frac{1}{c_i + d_i}$ -->
+<!--     control    $c_i + \frac{1}{a_i + b_i}$   $d_i + \frac{1}{a_i + b_i}$. -->
+<!-- ::: -->
+
+<!-- 3\. Empirical Continuity Correction  -->
+
+<!-- In the specified studies, we add a value dependent on the respective -->
+<!-- group sizes and an estimation of the effect size only considering the -->
+<!-- non-zero studies. Again, let us consider the $i$'th study -->
+
+<!-- ::: center -->
+<!--                event   no-event -->
+<!--   ----------- ------- ---------- -->
+<!--    treatment   $a_i$    $b_i$ -->
+<!--     control    $c_i$    $d_i$. -->
+<!-- ::: -->
+
+<!-- Suppose we are interested in estimating the Odds Ratio. Let $n_T$ be the -->
+<!-- size of the treatment group, $n_C$ be the size of the control group of -->
+<!-- the $i$'th study. Let $\hat{\Omega}_{OR}$ be the standard estimation of -->
+<!-- the pooled Odds Ratio calculated only considering the non-zero studies. -->
+<!-- We choose the continuity corrections $k_T$ for the treatment group and -->
+<!-- $k_C$ for the control group in such a way that $$\begin{aligned} -->
+<!-- \frac{k_T(n_C + k_C)}{k_C(n_T + k_T)} = \hat{\Omega}_{OR}. -->
+<!-- \end{aligned}$$ This ensures that the estimated Odds Ratio which is -->
+<!-- obtained for a double-zero study after the continuity correction is -->
+<!-- applied amounts to $\hat{\Omega}_{OR}$.\ -->
+<!-- Applying the continuity correction to the $i$-th study makes us end up -->
+<!-- with: -->
+
+<!-- ::: center -->
+<!--                   event        no-event -->
+<!--   ----------- ------------- -------------- -->
+<!--    treatment   $a_i + k_T$   $b_i + k_T$ -->
+<!--     control    $c_i + k_C$   $d_i + k_C$. -->
+<!-- ::: -->
+
+<!-- To receive unique solutions for $k_T$ and $k_C$ we use the following -->
+<!-- restriction: $$k_T + k_C = 1,$$ which, for example, holds true for the -->
+<!-- standard constant continuity correction of $k_T = k_C = 0.5$. Now, with -->
+<!-- $R  :=  \frac{n_C}{n_T}$, the group ratio imbalance, and the -->
+<!-- approximation -->
+<!-- $$\frac{k_T(n_C + k_C)}{k_C(n_T + k_T)} \approx \frac{Rk_T}{k_C}$$ which -->
+<!-- is true for large enough groups, we now see that this amounts to: -->
+<!-- $$k_C \approx \frac{R}{R + \hat{\Omega}_{OR}} \text{  and  } k_T \approx \frac{\hat{\Omega}_{OR}}{R + \hat{\Omega}_{OR}}.$$ -->
+
+<!-- ## Continuity Corrections in **raremeta** -->
+
+<!-- We have seen different ways of continuity correcting studies. Let us go -->
+<!-- through the syntax of **raremeta** to learn how to apply them. It all comes down to specifying parameters the parameters from `cc` up to -->
+<!-- `ccto` in -->
+<!-- ```{r, eval=FALSE} -->
+<!-- rareIV(x,measure,method,cc,ccval=0.5,tccval,cccval,ccsum=1,ccto ="only0",drop00=TRUE,weighted=TRUE,level=95,test="z",digits=4,verbose=FALSE,control) -->
+<!-- ``` -->
+<!-- The first parameter, `cc`, decides which of the three introduced methods -->
+<!-- of continuity correction should be applied. Possible inputs are `none`, -->
+<!-- which stands for the option to not apply any continuity correction and -->
+<!-- `"constant", "tacc"` and `"empirical"` which stand for the constant -->
+<!-- continuity correction, the treatment arm continuity correction and the -->
+<!-- empirical continuity correction, respectively. The argument `"ccto"` -->
+<!-- specifies the studies, continuity correction shall be applied to. -->
+<!-- Possible inputs are `"only0", "all", "if0all"`. While -->
+<!-- `"only0" and "all"` stand for applying continuity correction to those -->
+<!-- studies with no event in either the treatment- or the control group and -->
+<!-- all studies (regardless the existence of single-zero or double-zero -->
+<!-- studies), respectively, `"if0all"` leads to the application of -->
+<!-- continuity corrections to all studies if there is either a single-zero -->
+<!-- study or a double-zero study or none of the studies if there are neither -->
+<!-- single-zero studies nor double-zero studies. If one opts for -->
+<!-- `cc = "constant"`, it must be specified, which value should be applied -->
+<!-- to the relevant cells. This happens either through `"ccval"` or the two -->
+<!-- arguments `"tccval"` and `"cccval"`. While specifying `"ccval"` is used -->
+<!-- when continuity corrections in the control group and the treatment group -->
+<!-- shall be the same, the arguments `"tccval"` and `"cccval"` enable the -->
+<!-- user to input continuity corrections for the treatment group and the -->
+<!-- control group, respectively. In both cases, if a single value is put in, -->
+<!-- all corresponding cells of the specified studies will be continuity -->
+<!-- corrected with this value. If the input comes in form of vectors, whose -->
+<!-- length is equal to the number of studies, then the corresponding cells -->
+<!-- of the $i$'th study will be continuity corrected through the $i$'th -->
+<!-- entry of the vector. Obviously, this enables the user simulate her own -->
+<!-- way of continuity correcting studies. If one opts for `cc = "tacc"` or -->
+<!-- `cc = "empirical"`, it must be specified, to which value the values -->
+<!-- $k_T$ and $k_C$ from the theoretical introduction above should add up -->
+<!-- to. This happens through the argument `ccsum`. -->
+<!-- For the pooled effect size calculated only considering the non-zero studies needed for the empirical continuity correction, the arguments `measure` (`"logOR", "logRR", or "RD"`) and `method` (`"FE", "DL",...`) must be specified. -->
+
+<!-- If one, for example, wants to apply the treatment arm continuity -->
+<!-- correction where $k_T + k_C = 0.1$ to all studies of the -->
+<!-- `rareData`-object `dat`, one may input  -->
+<!-- ```{r, eval=FALSE} -->
+<!-- rareIV(x = dat,measure="logOR",method="FE",cc="tacc",ccsum=0.1,ccto="all"). -->
+<!-- ``` -->
+<!-- To apply the constant continuity correction with specified values -->
+<!-- (potentially vectors of length \> $1$) $t$ for the treatment group and -->
+<!-- $c$ for the control group to all single- and double-zero studies, one -->
+<!-- may input -->
+<!-- ```{r, eval=FALSE} -->
+<!-- rareIV(x=dat,measure="logOR",method="FE",cc="constant",tccval=t,cccval=c,ccto="only0",drop00=FALSE). -->
+<!-- ``` -->
+
+<!-- # Appendix -->
+
+<!-- ## Appendix A: Motivating the Empirical Continuity Correction  -->
+
+<!-- In this section we want to shed light on a certain aspect of continuity -->
+<!-- corrections by answering the following question: -->
+
+<!-- ::: center -->
+<!-- **What is the estimated effect size for a double-zero study after the -->
+<!-- continuity correction is applied?**\ -->
+<!-- ::: -->
+
+<!-- Suppose we are interested in the Odds Ratio. Let $n_T$ and $n_C$ refer -->
+<!-- to the size of the treatment group and the control group, respectively. -->
+
+<!-- ::: center -->
+<!--                event   no-event -->
+<!--   ----------- ------- ---------- -->
+<!--    treatment    $0$     $n_T$ -->
+<!--     control     $0$     $n_C$ -->
+<!-- ::: -->
+
+<!-- Let $k_T$ and $k_C$ be the continuity corrections applied to the -->
+<!-- treatment group and the control group, respectively. After the continuity -->
+<!-- correction is applied we end up with: -->
+
+<!-- ::: center -->
+<!--                event     no-event -->
+<!--   ----------- ------- --------------- -->
+<!--    treatment   $k_T$    $n_T + k_T$ -->
+<!--     control    $k_C$   $n_C + k_C$ . -->
+<!-- ::: -->
+
+<!-- Let $(\lnot)E$ stand for (no-)event, $T$ for the treatment group and $C$ -->
+<!-- for the control group. If we now estimate the Odds Ratio via plug in, -->
+<!-- using estimations of the risk in the two study arms: -->
+<!-- $$\widehat{\mathbb{P}(E | T)} = \frac{k_T}{n_T+2k_T} \text{  and  } \widehat{\mathbb{P}(E | C)} = \frac{k_C}{n_C+2k_C},$$ -->
+<!-- we end up with: $$\begin{aligned} -->
+<!-- \hat{OR} &  :=  \frac{\widehat{\mathbb{P}(E | T)}/(1-\widehat{\mathbb{P}(E | T)})}{\widehat{\mathbb{P}(E | C)}/(1-\widehat{\mathbb{P}(E | C)})}\\ -->
+<!-- &= \frac{\frac{k_T}{n_T +2k_T}/(1-\frac{k_T}{n_T+2k_T})}{\frac{k_C}{n_C +2k_C}/(1-\frac{k_C}{n_C+2k_C})}\\ -->
+<!-- & = \frac{\frac{k_T}{n_T +2k_T}/ \frac{n_T+k_T}{n_T+2k_T}}{\frac{k_C}{n_C +2k_C}/\frac{n_C+k_C}{n_C+2k_C}}\\ -->
+<!-- &=\frac{k_T/(n_T+k_T)}{k_C/(n_C+k_C)}\\ -->
+<!-- &=\frac{k_T(n_C+k_C)}{k_C(n_T+k_T)} -->
+<!-- \end{aligned}$$ -->
+
+<!-- Now, with the group ratio imbalance $R  :=  \frac{n_C}{n_T}$, we can -->
+<!-- easily describe what the three approaches amount to. For the constant -->
+<!-- continuity correction with $k_T = k_C = \alpha$ sufficiently small (e.g. -->
+<!-- $0.5$) we approximately get -->
+<!-- $$\hat{OR} = \frac{\alpha (n_T \ R + \alpha)}{\alpha(n_T + \alpha)} \approx \frac{\alpha\ n_T \ R}{\alpha\ n_T} = R.$$ -->
+<!-- For the reciprocal continuity correction with $k_T = 1/n_C$ and -->
+<!-- $k_C = 1/n_T$ get $$\begin{aligned} -->
+<!-- \hat{OR} &= \frac{1/n_C (n_C - 1/n_T)}{1/n_T(n_T - 1/n_C)} = 1 -->
+<!-- \end{aligned}$$ and, by definition, for the empirical continuity -->
+<!-- correction for the prior $\hat{\Omega}$ this amounts to -->
+<!-- $$\hat{OR} = \hat{\Omega}_{OR}.$$ In summary, the constant continuity -->
+<!-- correction pulls the estimated Odds Ratio towards the group ratio -->
+<!-- imbalance, the reciprocal continuity correction towards no effect and -->
+<!-- the empirical continuity correction towards the estimated pooled Odds -->
+<!-- Ratio using only the non-zero studies. -->
+
+<!-- \newpage -->
+
+<!-- # Appendix B: Documentation of all Functions -->
+<!-- ## rareDescribe -->
+
+<!-- **Descriptives for a meta-analysis of a rare events** -->
+
+<!-- #### Description -->
+<!-- Function to compute descriptives based on the 2x2 tables of the individual studies for meta-analytic rare event data. -->
+
+<!-- #### Usage -->
+<!-- ```{r, eval=FALSE} -->
+<!-- rareDescribe(ai, bi, ci, di, n1i, n2i, data) -->
+<!-- ``` -->
+
+<!-- #### Arguments -->
+<!-- `ai`: data frame column to specify the number of events in group 1 (i.e., the treatment group).   -->
+
+<!-- `bi`: data frame column to specify the number of non-events in group 1 (i.e., the treatment group).   -->
+
+<!-- `ci`:	data frame column to specify the number of events in group 2 (i.e., the control group).   -->
+
+<!-- `di`: data frame column to specify number of non-events in group 2 (i.e., the control group).   -->
+
+<!-- `n1i`: data frame column to specify the sample sizes in group 1 (i.e., the treatment group).  -->
+
+<!-- `n2i`: data frame column to specify the sample sizes in group 2 (i.e., the control group).   -->
+
+<!-- `data`: data frame.   -->
+
+<!-- #### Value -->
+<!-- An object of the class "rareData", which contains descriptives of the meta-analytic data. -->
+
+<!-- \newpage -->
+<!-- ## rareBetabin -->
+<!-- **Conduct a meta-analysis using the beta-binomial model** -->
+
+<!-- #### Description -->
+<!-- Function to conduct a meta-analysis of a rare events using a beta-binomial model.  -->
+<!-- See below for more details on this model and its application in meta-analyses of rare events. -->
+
+<!-- #### Usage -->
+<!-- ```{r, eval=FALSE} -->
+<!-- rareBetabin(x,ai,bi,ci,di,n1i,n2i,data,measure,common_rho=TRUE,drop00=FALSE,level=95,test="z",digits=4,verbose=FALSE,control,...) -->
+<!-- ``` -->
+
+<!-- #### Arguments -->
+<!-- `x`: an object of class "rareData".   -->
+
+<!-- `ai`: data frame column to specify the number of events in group 1 (i.e., the treatment group).  -->
+
+<!-- `bi`: data frame column to specify the number of non-events in group 1 (i.e., the treatment group).  -->
+
+<!-- `ci`:	data frame column to specify the number of events in group 2 (i.e., the control group).   -->
+
+<!-- `di`: data frame column to specify number of non-events in group 2 (i.e., the control group).   -->
+
+<!-- `n1i`: data frame column to specify the sample sizes in group 1 (i.e., the treatment group).    -->
+
+<!-- `n2i`: data frame column to specify the sample sizes in group 2 (i.e., the control group).   -->
+
+<!-- `data`: data frame.   -->
+
+<!-- `measure`: character string specifying the effect size or outcome measure to be used (either `"logOR"` for the log odds ratio or `"logRR"` for the log relative risk).   -->
+
+<!-- `common_rho`: logical specifying whether a common intraclass correlations shall be assumed for the two groups (`TRUE`), or whether the intraclass correlation shall be allowed to differ between the two groups (`FALSE`). See below for more detail.   -->
+
+<!-- `drop00`: logical indicating whether double-zero studies (i.e., studies with no events or only events in both groups) should be excluded prior to calculating the studies' effect sizes and sampling variances.   -->
+
+<!-- `level`: numeric between 0 and 100 specifying the confidence interval level (the default is 95).   -->
+
+<!-- `test`: character string specifying how test statistics and confidence intervals for the fixed effects should be computed (currently, only `"z"`, for Wald-type tests is available).   -->
+
+<!-- `digits`: integer specifying the number of decimal places to which the printed results should be rounded (if unspecified, the default is 4).     -->
+
+<!-- `verbose`: logical indicating whether output should be generated on the progress of model fitting (the default is `FALSE`). Can also be an integer. Values > 1 generate more verbose output.   -->
+
+<!-- `control`: optional list of control values for the iterative algorithms. If unspecified, default values are defined inside the functions.   -->
+
+<!-- ... additional arguments -->
+
+<!-- #### Details -->
+<!-- ##### Data input -->
+<!-- The data input can be specified either through the arguments `ai,bi,ci,di,n1i`, and `n2i` (columns of the data frame data) or through the argument `x`, which takes an object that results from applying the `rareDescribe()` function to the data (i.e., the input for argument x must be an object of type `rareData`). A `rareData` object can be produced from a data frame by applying the `rareDescribe()` function to it. The `rareDescribe()` function pre-processes the data frame and stores the information required by the `rareBetabin()` function in a list. See `?rareDescribe` for more details. -->
+
+<!-- ##### Effect size measures -->
+<!-- The function includes different versions of the beta-binomial model (see Kuss (2014), for a description). The regression equation used in all these models can be expressed as -->
+
+<!-- \(g(\mu_j) = \alpha + \theta \cdot x_{ij}\), -->
 
-\newpage
-## rareIV
-**Conduct a meta-analysis of a rare event using the inverse variance model**
+<!-- where \(i = 1, ..., k \) is the study index and \(j = 1, 2\) is the group index, \(x_{i1} = 1\) and \(x_{i2} = 0\). -->
 
-#### Description
-Function to conduct a meta-analysis of a rare event using the fixed- or random-effects model of the inverse variance approach. See below for more details on these models and their application in meta-analyses of rare events.
+<!-- All models assume that the number of events in each group follows a beta-binomial distribution with mean \(n_{ij}\mu_j\) and intraclass correlation \(\rho_j\). -->
 
-#### Usage
-```{r, eval=FALSE}
-rareIV(x,ai,bi,ci,di,n1i,n2i,data,measure,method,cc="none",ccval=0.5,tccval,cccval,ccsum=1,ccto="only0",drop00=TRUE,weighted=TRUE,weights,level=95,test="z",digits=4,verbose=FALSE,control,...)
-```
+<!-- For `measure = "logOR"`, \(g(\cdot)\) corresponds to the logit function, i.e., \(g(\mu_j) = \log \left( \frac{\mu_j}{1-\mu_j} \right)\). -->
 
-#### Arguments
-`x`: an object of class `"rareData"`.   
+<!-- For `measure = "logRR"`, \(g(\cdot)\) correspond to the natural logarithm. -->
 
-`ai`: data frame column to specify the number of events in group 1 (i.e., the treatment group).  
+<!-- It is currently not possible to use rareBetabin with `measure = "RD"`, but this functionality may be implemented in future versions of this package. -->
 
-`bi`: data frame column to specify the number of non-events in group 1 (i.e., the treatment group).  
+<!-- ##### Group-specific intraclass correlation -->
+<!-- Per default, it is assumed that \(\rho_1 = \rho_2\), i.e. the intraclass correlations are assumed to be equal for both groups. It is possible to fit the beta-binomial with different intraclass correlations by setting `common_rho` to `FALSE`. Internally, different intraclass correlations are modeled via the regression equation -->
 
-`ci`:	data frame column to specify the number of events in group 2 (i.e., the control group).  
+<!-- \(\log\left(\frac{\rho_j}{1-\rho_j}\right) = \zeta + \gamma \cdot x_{ij}\), -->
 
-`di`: data frame column to specify number of non-events in group 2 (i.e., the control group).  
+<!-- where \(x_{i1} = 1\) and \(x_{i2} = 0\). Estimates for \(\rho_1\) and \(\rho_2\) are then obtained by back-transforming the results to the original scale. -->
 
-`n1i`: data frame column to specify the sample sizes in group 1 (i.e., the treatment group).   
+<!-- #### Value -->
+<!-- an object of class `"raremeta"`. The object is a list containing the following elements: -->
 
-`n2i`: data frame column to specify the sample sizes in group 2 (i.e., the control group).  
+<!-- `model`: name of the model used for conducting the meta-analysis. -->
 
-`data`: data frame. 
+<!-- `beta`: estimated coefficients of the model. -->
 
-`measure`: character string specifying the effect size or outcome measure to be used (either `"logOR"` for the log odds ratio, `"logRR"` for the log relative risk, or `"RD"` for the risk difference).   
+<!-- `se`: standard errors of the coefficients. -->
 
-`method`: character string specifying whether a fixed- or a random-effects model should be fitted. A fixed-effects model is fitted when using  `method = "FE"` . A random-effects model is fitted by setting method equal to one of the following: `"DL", "HE", "SJ", "ML", "REML", "EB", "HS", "PM", "IPM", "GENQ", "PMM"` or `"GENQM"`.    
+<!-- `zval`: test statistics of the coefficients. -->
 
-`cc`: character string specifying the type of continuity correction to be used (either `"constant"`, `"tacc"` or `"empirical"`). Default is `"none"`. See 'Details'.  
+<!-- `pval`: p-values corresponding to the test statistics. -->
 
-`ccval`: scalar or numerical vector specifying the value of the continuity correction if `cc = "constant"`. Must be a scalar or a vector of length equal to the number of studies. Default is `ccval = 0.5`. If a scalar is specified, the value is added to all studies for which the number of events is zero in at least one of the groups. This behavior can be changed using the argument `ccto`. The argument `ccval` is overwritten by `tccval` and `cccval` if both arguments are specified.  
+<!-- `ci.lb`: lower bound of the confidence intervals for the coefficients. -->
 
-`tccval`: scalar or numerical vector specifying the value of the continuity correction applied to the observations from the treatment group (group 1) if `cc = "constant"`. Must be a scalar or a vector of length equal to the number of studies. If `cc = "constant"` and `tccval` is not specified, `tccval` is set to the value of `ccval` internally.  
+<!-- `ci.ub`: upper bound of the confidence intervals for the coefficients. -->
 
-`cccval`: scalar or numerical vector specifying the value of the continuity correction applied to the observations from the control group (group 2) if `cc = "constant"`. Must be a scalar or a vector of length equal to the number of studies. If `cc = "constant"` and `cccval` is not specified, `cccval` is set to the value of `ccval` internally.  
+<!-- `vb`: variance-covariance matrix of the estimated coefficients. -->
 
-`ccsum`: numeric value specifying the value of the sum of the continuity correction applied to the observations from the treatment group and the continuity correction applied to the observations from the control group. Default is `ccsum = 1`. Currently, setting this argument to a different number only has an effect when `cc = "tacc"` or `cc = "empirical"`.  
+<!-- `rho`: estimated intraclass correlation. If `common_rho = FALSE`, rho is a vector which contains both intraclass correlations. -->
 
-`ccto`: character string indicating which studies the continuity correction should be applied to. Either `"only0"`, for which the continuity correction is applied to all studies for which the number of events is zero in at least one of the groups, `"all"`, for which the continuity correction is applied to all studies, or `"if0all"`, for which the continuity correction is applied to all studies if any of the individual studies has zero events in at least one of the groups.  
+<!-- `LRT.Chisq`: Test statistic of the likelihood ratio test testing for homogeneity. -->
 
-`drop00`: logical indicating whether double-zero studies (i.e., studies with no events or only events in both groups) should be excluded prior to calculating the studies' effect sizes and sampling variances.    
+<!-- `LRT.df`: Degrees of freedom of the likelihood ratio test testing for homogeneity. -->
 
-`weights`: numeric specifying user-defined weights to be used when fitting the model.  
+<!-- `LRT.pval`: p-value of the likelihood ratio test testing for homogeneity. -->
 
-`level`: numeric between 0 and 100 specifying the confidence interval level (the default is 95).  
+<!-- `fit.stats`: a list with log-likelihood, deviance, AIC, BIC, and AICc values under the unrestricted and restricted likelihood. -->
 
-`test`: character string specifying how test statistics and confidence intervals for the fixed effects should be computed (either `"z"`, for Wald-type tests and CIs, or `"hksj"`, for tests and CIs based on the method by Knapp and Hartung (2003) and Sidik and Jonkman (2002). Specifying `test = "knha"` instead of `test = "hksj"` will produce the same results).  
+<!-- `p`: number of coefficients in the model (including the intercept). -->
 
-`digits`: integer specifying the number of decimal places to which the printed results should be rounded (if unspecified, the default is 4).  
+<!-- `k`: number of studies included in the analysis. -->
 
-`verbose`: logical indicating whether output should be generated on the progress of model fitting (the default is `FALSE`). Can also be an integer. Values > 1 generate more verbose output.  
+<!-- `k.all`: total number of studies (before exclusion). -->
 
-`control`: optional list of control values for the iterative algorithms. If unspecified, default values are defined inside the functions.  
+<!-- `kdz, ksz`: number of double-zero and single-zero studies. -->
 
-... additional arguments
+<!-- `k1sz, k2sz`: number of single-zero studies where the zero is in group 1 or group 2. -->
 
+<!-- `ai, bi, ci, di`: original entries of the 2x2 tables for all studies. -->
 
-#### Value
-an object of class `"raremeta"`. The object is a list containing the following elements:
+<!-- `ni, n1i, n2i`: original total and group sample sizes. -->
 
-`model`: name of the model used for conducting the meta-analysis.
+<!-- ... -->
 
-`beta`: estimated coefficients of the model.
+<!-- #### References -->
+<!-- Kuss, O. (2014). Statistical methods for meta-analyses including information from studies without any events-add nothing to nothing and succeed nevertheless. Statistics in Medicine, 34 (7), 1097–1116. doi: 10.1002/sim.6383 -->
 
-`se`: standard errors of the coefficients.
 
-`zval`: test statistics of the coefficients.
+<!-- \newpage -->
+<!-- ## rareCC  -->
+<!-- **Apply continuity correction to your data** -->
 
-`pval`: p-values corresponding to the test statistics.
+<!-- #### Description -->
+<!-- Function to apply different kinds of continuity corrections to meta-analytic data. -->
 
-`ci.lb`: lower bound of the confidence intervals for the coefficients.
+<!-- #### Usage -->
+<!-- ```{r, eval=FALSE} -->
+<!-- rareCC(x,ai,bi,ci,di,n1i,n2i,data,cc="constant",ccval=0.5,tccval,cccval,ccsum=1,ccto="only0",drop00=TRUE,measure,method="FE") -->
+<!-- ``` -->
 
-`ci.ub`: upper bound of the confidence intervals for the coefficients.
+<!-- #### Arguments -->
+<!-- `x`: an object of class `"rareData"`.   -->
 
-`vb`: variance-covariance matrix of the estimated coefficients.
+<!-- `ai`: data frame column to specify the number of events in group 1 (i.e., the treatment group).   -->
 
-`tau2`: estimated amount of (residual) heterogeneity. Always 0 when `method = "FE"`.
+<!-- `bi`: data frame column to specify the number of non-events in group 1 (i.e., the treatment group).   -->
 
-`se.tau2`: standard error of the estimated amount of (residual) heterogeneity.
+<!-- `ci`:	data frame column to specify the number of events in group 2 (i.e., the control group).   -->
 
-`I2`: value of I^2 (total heterogeneity/total variability).
+<!-- `di`: data frame column to specify number of non-events in group 2 (i.e., the control group).   -->
 
-`H2`: value of H^2 (total variability/sampling variability).
+<!-- `n1i`: data frame column to specify the sample sizes in group 1 (i.e., the treatment group).    -->
 
-`R2`: value of R^2.
+<!-- `n2i`: data frame column to specify the sample sizes in group 2 (i.e., the control group).   -->
 
-`QE`: test statistic of the test for (residual) heterogeneity.
+<!-- `data`: data frame.  -->
 
-`QEp`: p-value corresponding to the test statistic.
+<!-- `cc`: character string specifying the type of continuity correction to be used (either `"constant"`, `"tacc"` or `"empirical"`). Default is `"constant"`. See 'Details'.   -->
 
-`fit.stats`: a list with log-likelihood, deviance, AIC, BIC, and AICc values under the unrestricted and restricted likelihood.
+<!-- `ccval`: scalar or numerical vector specifying the value of the continuity correction if `cc = "constant"`. Must be a scalar or a vector of length equal to the number of studies. Default is `ccval = 0.5`. If a scalar is specified, the value is added to all studies for which the number of events is zero in at least one of the groups. This behavior can be changed using the argument `ccto`. The argument `ccval` is overwritten by `tccval` and `cccval` if both arguments are specified.   -->
 
-`p`: number of coefficients in the model (including the intercept).
+<!-- `tccval`: scalar or numerical vector specifying the value of the continuity correction applied to the observations from the treatment group (group 1) if `cc = "constant"`. Must be a scalar or a vector of length equal to the number of studies. If `cc = "constant"` and `tccval` is not specified, `tccval` is set to the value of `ccval` internally.   -->
 
-`k`: number of studies included in the analysis.
+<!-- `cccval`: scalar or numerical vector specifying the value of the continuity correction applied to the observations from the control group (group 2) if `cc = "constant"`. Must be a scalar or a vector of length equal to the number of studies. If `cc = "constant"` and `cccval` is not specified, `cccval` is set to the value of `ccval` internally.   -->
 
-`k.all`: total number of studies (before exclusion).
+<!-- `ccsum`: numeric value specifying the value of the sum of the continuity correction applied to the observations from the treatment group and the continuity correction applied to the observations from the control group. Default is `ccsum = 1`. Currently, setting this argument to a different number only has an effect when `cc = "tacc"` or `cc = "empirical"`.   -->
 
-`kdz, ksz`: number of double-zero and single-zero studies.
+<!-- `ccto`: character string indicating which studies the continuity correction should be applied to. Either `"only0"`, for which the continuity correction is applied to all studies for which the number of events is zero in at least one of the groups, `"all"`, for which the continuity correction is applied to all studies, or `"if0all"`, for which the continuity correction is applied to all studies if any of the individual studies has zero events in at least one of the groups.   -->
 
-`k1sz, k2sz`: number of single-zero studies where the zero is in group 1 or group 2.
+<!-- `drop00`: logical indicating whether double-zero studies (i.e., studies with no events or only events in both groups) should be excluded prior to calculating the studies' effect sizes and sampling variances.   -->
 
-`yi, vi`: vectors containing the estimated effect sizes and their estimated sampling variances for all study.
+<!-- `measure`: character string specifying the effect size or outcome measure to be used (either `"logOR"` for the log odds ratio, `"logRR"` for the log relative risk, or `"RD"` for the risk difference). Important when selecting continuity corrections dependent on the estimated summary effect size of some subset of the studies involved in the analyisis, i.e., `cc = "empirical"`.   -->
 
-`ai, bi, ci, di`: original entries of the 2x2 tables for all studies.
+<!-- `method`: character string specifying whether a fixed- or a random-effects model should be fitted. A fixed-effects model is fitted when using `method = "FE"` . A random-effects model is fitted by setting method equal to one of the following: `"DL", "HE", "SJ", "ML", "REML", "EB", "HS", "PM", "IPM", "GENQ", "PMM"` or `"GENQM"`. Important when selecting continuity corrections dependent on the estimated summary effect size of some subset of the studies involved in the analyisis, i.e., `cc = "empirical"`. -->
 
-`ai.cc, bi.cc, ci.cc, di.cc`: entries of the 2x2 tables for all studies after application of the specified continuity correction.
+<!-- #### Value  -->
+<!-- an object of class `"rareData"`. The object is a list containing the following elements: -->
 
-`ni, n1i, n2i`: original total and group sample sizes.
+<!-- `ai, bi, ci, di`: original entries of the 2x2 tables for all studies. -->
 
-`ni.cc, n1i.cc, n2i.cc`: total and group sample sizes after application of the specified continuity correction.
+<!-- `ai.cc, bi.cc, ci.cc, di.cc`: entries of the 2x2 tables for all studies after application of the specified continuity correction. -->
 
-`tcc, ccc`: value of the specified continuity correction for the treatment group (group 1) and control group (group 2).
+<!-- `ni, n1i, n2i`: original total and group sample sizes. -->
 
-`cc.studies`: vector which indicates whether the continuity correction was applied to a study.
+<!-- `ni.cc, n1i.cc, n2i.cc`: total and group sample sizes after application of the specified continuity correction. -->
 
-...
+<!-- `tcc, ccc`: value of the specified continuity correction for the treatment group (group 1) and control group (group 2). -->
 
-#### Details
-##### Data input
-The data input can be specified either through the arguments `ai,bi,ci,di,n1i`, and `n2i` (columns of the data frame data) or through the argument `x`, which takes an object that results from applying the `rareDescribe()` function to the data (i.e., the input for argument x must be an object of type `rareData`). A `rareData` object can be produced from a data frame by applying the `rareDescribe()` function to it. The `rareDescribe()` function pre-processes the data frame and stores the information required by the `rareIV()` function in a list. See `?rareDescribe` for more details.
+<!-- `cc.studies`: vector which indicates whether the continuity correction was applied to a study. -->
 
-##### Effect size measures
-The function includes methods for calculating log odds ratios, log risk ratios, and risk differences. The effect size measure can be specified using the measure argument. The respective effect size, along with an estimate of its sampling variance, is then calculated for each study based on the entries of the study's 2x2 table:
+<!-- `remove`: logical vector indicating which studies were removed before aplication of the continuity correction -->
 
-group                event	     no event
------------------    --------    ---------
-group1(treatment)      ai	            bi
-group2(control)	       ci	            di
+<!-- `kdz, ksz`: number of double-zero and single-zero studies. -->
 
-##### Handling single-zero and double-zero studies
-Single-zero studies are studies for which one entry of the 2x2 table is zero. Double-zero studies are studies for which two entries of the same column of the 2x2 table are zero. The function includes a variety of arguments to handle single-zero and double-zero studies. Per default, double-zero studies are currently excluded from the analysis (this behavior might be changed in the future). The inclusion of double-zero studies can be enforced by setting the argument `drop00` to `FALSE`. If the data includes at least one single-zero study, the function throws an error if the user did not specify whether or not a continuity correction shall be applied. By setting `cc = "none"`, any zero-studies (studies with at least one zero-cell) which remain in the data are excluded from the analysis. If it is desired that zero-studies are included, the user needs to specify which continuity correction shall be used, and to which studies it shall be applied. Per default, the continuity correction is only applied to zero-studies, while studies for which all cells are larger than zero are left uncorrected. This behavior can be changed using the argument `ccto`. Per default, the constant value 0.5 (`cc = "constant"`, `ccval = 0.5`) is added to all cells of the studies specified by `ccto`. This continuity correcton was desribed by Gart and Zweifel (1967). Alternative continuity corrections which were described by Sweeting et al. (2004) can be applied by setting `cc` to `"tacc"` for the treatment-arm continuity correction, and to `"empirical"` for the empirical continuity correction. Per default, the sum of the corrections for treatment and control groups is set to 1, but this can be changed by setting the the argument `ccsum` to a different value. It is possible to set the continuity correction to a user-defined value (or a vector of user-defined values) using the argument `ccval` (if the value). If the user wants to specify different values for the treatment and the control group, this is possible via the arguments `tccval` and `cccval`.
+<!-- `k1sz, k2sz`: number of single-zero studies where the zero is in group 1 or group 2. -->
 
-##### Differences between effect size measures in the application of continuity corrections
-When either the log odds ratio or the log risk ratio is used as an effect size measure, both the effect sizes and their sampling variances are calculated based on the continuity-corrected 2x2 table. When the effect size measure is the risk difference, the continuity-corrected 2x2 table is only used in the calculation of the sampling variances.
+<!-- `cc`: the type of continuity correction applied -->
 
+<!-- `drop00`: logical indicating whether double-zero studies were omitted -->
 
-#### Model specification
-The function can be used to fit fixed-effects models (also known as equal-effects models) and random-effects models using the inverse variance approach. Currently, it is not possible to include moderators in any of these models. A fixed-effects model is fitted when method is set to `"FE"` (or `"EE"`). A random-effects model is fitted when method is set to either `"DL", "HE", "SJ", "ML", "REML", "EB", "HS", "PM", "IPM", "GENQ", "PMM"` or `"GENQM"`. See below for details on heterogeneity estimation in random-effects meta-analysis. For a basic introduction to fixed-effects and random-effects meta-analysis, please refer to Borenstein et al. (2021) In usual applications of fixed- and random-effects meta-analyses, weighted estimation is used, i.e., the pooled effect size is calculated as a weighted average of the study effect sizes, where the weights are defined as the inverse variances of the effect sizes. It is possible to switch to unweighted estimation via `weighted = FALSE`.
+<!-- ... -->
 
-##### Estimation of the between-study variance in random-effects meta-analysis
-Different estimators can be used to estimate the between-study variance, tau^2, in random-effects meta-analysis. The estimator to be used is specified via the methods argument.
+<!-- #### Details -->
+<!-- ##### Data input -->
+<!-- The data input can be specified either through the arguments `ai,bi,ci,di,n1i`, and `n2i` (columns of the data frame data) or through the argument `x`, which takes an object that results from applying the `rareDescribe()` function to the data (i.e., the input for argument x must be an object of type `rareData`). A `rareData` object can be produced from a data frame by applying the `rareDescribe()` function to it. The `rareDescribe()` function pre-processes the data frame and stores the information required by the `rareCC()` function in a list. See `?rareDescribe` for more details. -->
 
-`"DL"`: DerSimonian-Laird estimator
+<!-- ##### Types of continuity correction -->
+<!-- This function offers three kinds of continuity correction. -->
 
-`"HE"`: Hedges estimator
+<!-- ###### Constant continuity correction -->
+<!-- When setting `cc = "constant"`, a constant value will be added to all cells of all studies specified via the `ccto` argument. The default is `ccval = 0.5`. Through specification of `tccval` and `cccval` different values can be specified for the cells of the treatment group and the control group, respectively. By inputting vectors in the afforementioned arguments, different values can be added to different studies (adding the k-th value to the k-th study), making it possible for the user to introduce their own continuity correction. -->
 
-`"SJ"`: Sidik-Jonkman estimator
+<!-- ###### Treatment-arm continuity correction -->
+<!-- When setting `cc = "tacc"` (treatment-arm continuity correction), the size of both of study arms is used to calculate a value for continuity correction. For a precise definition see Sweeting et al. (2004). -->
 
-`"ML"`: maximum likelihood estimator
+<!-- ###### Empirical correction -->
+<!-- When setting `cc = "empirical"`, the estimated summary effect size (`logOR, logRR` or `RD`) for all studies which enable the estimation of the corresponding individual effect size is used to calculate a value for continuity correction. This means that there must be at least one study enabling the estimation of the corresponding individual effect size and the measure- and method argument must be specified. For a precise definition see Sweeting et al. (2004). When it comes to model fitting, there is the possibility to fit fixed-effects models (also known as equal-effects models) and random-effects models using the inverse variance approach. A fixed-effects model is fitted when method is set to `"FE"` (or `"EE"`). A random-effects model is fitted when method is set to either `"DL", "HE", "SJ", "ML", "REML", "EB", "HS", "PM", "IPM", "GENQ", "PMM"` or `"GENQM"`. Currently, the model is fitted by applying the `rma()` function from the **metafor** package, see Viechtbauer (2010). -->
 
-`"REML"`: restricted maximum likelihood estimator
+<!-- ##### Estimation of the between-study variance in random-effects meta-analysis -->
+<!-- Different estimators can be used to estimate the between-study variance, tau^2, in random-effects meta-analysis. The estimator to be used is specified via the methods argument. -->
 
-`"EB"`: empirical Bayes estimator
+<!-- `"DL"`: DerSimonian-Laird estimator -->
 
-`"HS"`: Hunter-Schmidt estimator
+<!-- `"HE"`: Hedges estimator -->
 
-`"PM"`: Paule-Mandel estimator
+<!-- `"SJ"`: Sidik-Jonkman estimator -->
 
-`"IPM"`: improved Paule-Mandel estimator
+<!-- `"ML"`: maximum likelihood estimator -->
 
-`"GENQ"`: generalized Q-statistic estimator
+<!-- `"REML"`: restricted maximum likelihood estimator -->
 
-`"PMM"`: median-unbiased Paule-Mandel estimator
+<!-- `"EB"`: empirical Bayes estimator -->
 
-`"GENQM"`: median-unbiased generalized Q-statistic estimator
+<!-- `"HS"`: Hunter-Schmidt estimator -->
 
-Most of these estimators are described in Zhang et al. (2021). For details on the improved Paule-Mandel estimator, see also Bhaumik et al. (2012). The median-unbiased Paule-Mandel estimator and the median-unbiased generalized Q-statistic estimator are described in Viechtbauer (2021).
+<!-- `"PM"`: Paule-Mandel estimator -->
 
-##### Tests and confidence intervals for model coefficients
-Currently, tests and confidence intervals for model coefficients are obtained from the output of the function `rma()` from the **metafor** package. Note that setting the argument test to `"hksj"` produces the same result as setting it to `"knha"`. See `?metafor::rma` for further details.
+<!-- `"IPM"`: improved Paule-Mandel estimator -->
 
-##### Tests for residual heterogeneity
-Currently, the results of the test for residual heterogeneity are obtained from the output of the function `rma()` from the `metafor()` package. See `?metafor::rma` for further details.
+<!-- `"GENQ"`: generalized Q-statistic estimator -->
 
-#### References
-Borenstein, M., Hedges, L. V., Higgins, J. P., & Rothstein, H. R. (2021). Introduction to meta-analysis. John Wiley & Sons.
+<!-- `"PMM"`: median-unbiased Paule-Mandel estimator -->
 
-Bhaumik, D. K., Amatya, A., Normand, S.-L. T., Greenhouse, J., Kaizar, E., Neelon, B., & Gibbons, R. D. (2012). Meta-analysis of rare binary adverse event data. Journal of the American Statistical Association 107, 555–567. doi: 10.1080/01621459.2012.664484
+<!-- `"GENQM"`: median-unbiased generalized Q-statistic estimator -->
 
-Gart, John J, and James R Zweifel. 1967. On the bias of various estimators of the logit and its variance with application to quantal bioassay. Biometrika, 54, 181–187. doi:10.1093/BIOMET/54.1-2.181
+<!-- Most of these estimators are described in Zhang et al. (2021). For details on the improved Paule-Mandel estimator, see also Bhaumik et al. (2012). The median-unbiased Paule-Mandel estimator and the median-unbiased generalized Q-statistic estimator are described in Viechtbauer (2021). -->
 
-Hartung, J., and Knapp, G. (2001). A refined method for the meta-analysis of controlled clinical trials with binary outcome. Statistics in Medicine, 20, 3875-3889. doi: 10.1002/sim.1009
+<!-- #### References -->
+<!-- Borenstein, M., Hedges, L. V., Higgins, J. P., & Rothstein, H. R. (2021). Introduction to meta-analysis. John Wiley & Sons. -->
 
-Sidik, K., and Jonkman, J. N. (2002). A simple confidence interval for meta-analysis. Statistics in Medicine, 21, 3153-3159. doi: 10.1002/sim.1262
+<!-- Bhaumik, D. K., Amatya, A., Normand, S.-L. T., Greenhouse, J., Kaizar, E., Neelon, B., & Gibbons, R. D. (2012). Meta-analysis of rare binary adverse event data. Journal of the American Statistical Association 107, 555–567. doi: 10.1080/01621459.2012.664484 -->
 
-Sweeting, M. J., Sutton, A. J., & Lambert, P. C. (2004). What to add to nothing? Use and avoidance of continuity corrections in meta-analysis of sparse data. Statistics in Medicine, 23, 1351–1375. doi: 10.1002/sim.1761
+<!-- Sweeting, M. J., Sutton, A. J., & Lambert, P. C. (2004). What to add to nothing? Use and avoidance of continuity corrections in meta-analysis of sparse data. Statistics in Medicine, 23, 1351–1375. doi: 10.1002/sim.1761 -->
 
-Viechtbauer, W. (2021). Median-unbiased estimators for the amount of heterogeneity in meta-analysis. European Congress of Methodology, Valencia, Spain. https://www.wvbauer.com/lib/exe/fetch.php/talks:2021_viechtbauer_eam_median_tau2.pdf
+<!-- Viechtbauer, W. (2010). Conducting Meta-Analyses in R with the metafor Package. Journal of Statistical Software, 36(3), 1–48. https://doi.org/10.18637/jss.v036.i03 -->
 
-Zhang, C., Chen, M., & Wang, X. (2020). Statistical methods for quantifying between-study heterogeneity in meta-analysis with focus on rare binary events. Statistics and its interface, 13(4), 449. doi: 10.4310/sii.2020.v13.n4.a3
+<!-- Viechtbauer, W. (2021). Median-unbiased estimators for the amount of heterogeneity in meta-analysis. European Congress of Methodology, Valencia, Spain. https://www.wvbauer.com/lib/exe/fetch.php/talks:2021_viechtbauer_eam_median_tau2.pdf -->
 
-\newpage
+<!-- Zhang, C., Chen, M., & Wang, X. (2020). Statistical methods for quantifying between-study heterogeneity in meta-analysis with focus on rare binary events. Statistics and its interface, 13(4), 449. doi: 10.4310/sii.2020.v13.n4.a3 -->
 
-## rareMH
 
-**Conduct a meta-analysis using Mantel-Haenszel type estimators**
+<!-- \newpage -->
+<!-- ## rareES -->
+<!-- **Calculate individual effect sizes for meta-analyses of rare events.** -->
 
-#### Description
-Function to conduct a meta-analysis. Effect sizes are the log odds ratio, log relative risk and risk difference estimated from event counts in form of 2x2 contingency tables using Mantel-Haenszel type estimators.
+<!-- #### Usage -->
+<!-- ```{r, eval=FALSE} -->
+<!-- rareES(x,ai,bi,ci,di,n1i,n2i,data,measure,cc="none",ccval=0.5,tccval,cccval,ccsum=1,ccto="only0",drop00=TRUE,method="FE") -->
+<!-- ``` -->
 
-#### Usage
-```{r, eval=FALSE}
-rareMH(x,ai,bi,ci,di,n1i,n2i,data,measure,level=95,digits=4,correct=FALSE,cc="constant",ccval=0.5,tccval,cccval,ccsum=1,ccto="only0",method="FE")
-```
+<!-- #### Arguments -->
+<!-- `x`: an object of class `"rareData"`.    -->
 
-#### Arguments
-`x`: an object of class `"rareData"`.   
+<!-- `ai`: data frame column to specify the number of events in group 1 (i.e., the treatment group).   -->
 
-`ai`: data frame column to specify the number of events in group 1 (i.e., the treatment group).  
+<!-- `bi`: data frame column to specify the number of non-events in group 1 (i.e., the treatment group).   -->
 
-`bi`: data frame column to specify the number of non-events in group 1 (i.e., the treatment group).  
+<!-- `ci`:	data frame column to specify the number of events in group 2 (i.e., the control group).   -->
 
-`ci`:	data frame column to specify the number of events in group 2 (i.e., the control group).  
+<!-- `di`: data frame column to specify number of non-events in group 2 (i.e., the control group).   -->
 
-`di`: data frame column to specify number of non-events in group 2 (i.e., the control group).  
+<!-- `n1i`: data frame column to specify the sample sizes in group 1 (i.e., the treatment group).    -->
 
-`n1i`: data frame column to specify the sample sizes in group 1 (i.e., the treatment group).   
+<!-- `n2i`: data frame column to specify the sample sizes in group 2 (i.e., the control group).   -->
 
-`n2i`: data frame column to specify the sample sizes in group 2 (i.e., the control group).  
+<!-- `data`: data frame.  -->
 
-`data`: data frame. 
+<!-- `measure`: character string specifying the effect size or outcome measure to be used (either `"logOR"` for the log odds ratio, `"logRR"` for the log relative risk, or `"RD"` for the risk difference).   -->
 
-`measure`: character string specifying the effect size or outcome measure to be used (either `"logOR"` for the log odds ratio, `"logRR"` for the log relative risk, or `"RD"` for the risk difference). Important when selecting continuity corrections dependent on the estimated summary effect size of some subset of the studies involved in the analysis, i.e., `cc = "empirical"`.  
+<!-- `cc`: character string specifying the type of continuity correction to be used (either `"constant"`, `"tacc"` or `"empirical"`). Default is `"none"`. See 'Details'.   -->
 
-`level`: numeric between 0 and 100 specifying the confidence interval level (the default is 95).  
+<!-- `ccval`: scalar or numerical vector specifying the value of the continuity correction if `cc = "constant"`. Must be a scalar or a vector of length equal to the number of studies. Default is `ccval = 0.5`. If a scalar is specified, the value is added to all studies for which the number of events is zero in at least one of the groups. This behavior can be changed using the argument `ccto`. The argument `ccval` is overwritten by `tccval` and `cccval` if both arguments are specified.   -->
 
-`digits`: integer specifying the number of decimal places to which the printed results should be rounded (if unspecified, the default is 4). 
+<!-- `tccval`: scalar or numerical vector specifying the value of the continuity correction applied to the observations from the treatment group (group 1) if `cc = "constant"`. Must be a scalar or a vector of length equal to the number of studies. If `cc = "constant"` and `tccval` is not specified, `tccval` is set to the value of `ccval` internally.   -->
 
-`correct`: logical specifying whether the data shall be continuity corrected before application of rareMH(). Default is `FALSE`.  
+<!-- `cccval`: scalar or numerical vector specifying the value of the continuity correction applied to the observations from the control group (group 2) if `cc = "constant"`. Must be a scalar or a vector of length equal to the number of studies. If `cc = "constant"` and `cccval` is not specified, `cccval` is set to the value of `ccval` internally.   -->
 
-`cc`: character string specifying the type of continuity correction to be used (either `"constant"`, `"tacc"` or `"empirical"`). Default is `"constant"`.  
+<!-- `ccsum`: numeric value specifying the value of the sum of the continuity correction applied to the observations from the treatment group and the continuity correction applied to the observations from the control group. Default is `ccsum = 1`. Currently, setting this argument to a different number only has an effect when `cc = "tacc"` or `cc = "empirical"`.   -->
 
-`ccval`: scalar or numerical vector specifying the value of the continuity correction if `cc = "constant"`. Must be a scalar or a vector of length equal to the number of studies. Default is `ccval = 0.5`. If a scalar is specified, the value is added to all studies for which the number of events is zero in at least one of the groups. This behavior can be changed using the argument `ccto`. The argument `ccval` is overwritten by `tccval` and `cccval` if both arguments are specified.  
+<!-- `ccto`: character string indicating which studies the continuity correction should be applied to. Either `"only0"`, for which the continuity correction is applied to all studies for which the number of events is zero in at least one of the groups, `"all"`, for which the continuity correction is applied to all studies, or `"if0all"`, for which the continuity correction is applied to all studies if any of the individual studies has zero events in at least one of the groups.   -->
 
-`tccval`: scalar or numerical vector specifying the value of the continuity correction applied to the observations from the treatment group (group 1) if `cc = "constant"`. Must be a scalar or a vector of length equal to the number of studies. If `cc = "constant"` and `tccval` is not specified, `tccval` is set to the value of `ccval` internally.  
+<!-- `drop00`: logical indicating whether double-zero studies (i.e., studies with no events or only events in both groups) should be excluded prior to calculating the studies' effect sizes and sampling variances.   -->
 
-`cccval`: scalar or numerical vector specifying the value of the continuity correction applied to the observations from the control group (group 2) if `cc = "constant"`. Must be a scalar or a vector of length equal to the number of studies. If `cc = "constant"` and `cccval` is not specified, `cccval` is set to the value of `ccval` internally.  
+<!-- `method`: character string specifying whether a fixed- or a random-effects model should be fitted. A fixed-effects model is fitted when using `method = "FE"` . A random-effects model is fitted by setting method equal to one of the following: `"DL", "HE", "SJ", "ML", "REML", "EB", "HS", "PM", "IPM", "GENQ", "PMM"` or `"GENQM"`.   -->
 
-`ccsum`: numeric value specifying the value of the sum of the continuity correction applied to the observations from the treatment group and the continuity correction applied to the observations from the control group. Default is `ccsum = 1`. Currently, setting this argument to a different number only has an effect when `cc = "tacc"` or `cc = "empirical"`.  
+<!-- ... additional arguments -->
 
-`ccto`: character string indicating which studies the continuity correction should be applied to. Either `"only0"`, for which the continuity correction is applied to all studies for which the number of events is zero in at least one of the groups, `"all"`, for which the continuity correction is applied to all studies, or `"if0all"`, for which the continuity correction is applied to all studies if any of the individual studies has zero events in at least one of the groups.  
+<!-- #### Value -->
+<!-- `x`: an object of class `"raremeta"`. The object is a list containing the following elements: -->
 
-`method`: character string specifying whether a fixed- or a random-effects model should be fitted. A fixed-effects model is fitted when using `method = "FE"` . A random-effects model is fitted by setting method equal to one of the following: `"DL", "HE", "SJ", "ML", "REML", "EB", "HS", "PM", "IPM", "GENQ", "PMM"` or `"GENQM"`. Important when selecting continuity corrections dependent on the estimated summary effect size of some subset of the studies involved in the analyisis, i.e., `cc = "empirical"`.  
+<!-- `ai, bi, ci, di`: original entries of the 2x2 tables for all studies. -->
 
-`drop00`: logical indicating whether double-zero studies (i.e., studies with no events or only events in both groups) should be excluded prior to calculating the studies' effect sizes and sampling variances.  
+<!-- `measure`: effect size estimand -->
 
-#### Value
-an object of class "raremeta". The object is a list containing the following elements:
+<!-- `yi`: vector which contains the estimated study effect sizes -->
 
-`beta, b`: estimated effect size.
+<!-- `vi`: vector which contains the estimated sampling variances -->
 
-`se`: estimated standard error of the estimator.
+<!-- `ai.cc, bi.cc, ci.cc, di.cc`: modified entries of the 2x2 tables for all studies after application of the specified continuity correction -->
 
-`zval`: test statistics of the coefficients.
+<!-- ... -->
 
-`pval`: p-values corresponding to the test statistics.
+<!-- #### Details -->
 
-`ci.lb`: lower bound of the confidence intervals for the coefficients.
+<!-- ##### Data input -->
+<!-- The data input can be specified either through the arguments `ai,bi,ci,di,n1i`, and `n2i` (columns of the data frame data) or through the argument `x`, which takes an object that results from applying the `rareDescribe()` function to the data (i.e., the input for argument x must be an object of type `rareData`). A `rareData` object can be produced from a data frame by applying the `rareDescribe()` function to it. The `rareDescribe()` function pre-processes the data frame and stores the information required by the `rareES()` function in a list. See `?rareDescribe` for more details. -->
 
-`ci.ub`: upper bound of the confidence intervals for the coefficients.
+<!-- ##### Effect size measures -->
+<!-- The function includes methods for calculating log odds ratios, log risk ratios, and risk differences. The effect size measure can be specified using the measure argument. The respective effect size, along with an estimate of its sampling variance, is then calculated for each study based on the entries of the study's 2x2 table: -->
 
-`k`: number of studies included in the analysis.
+<!-- group                event	     no event -->
+<!-- -----------------    --------    --------- -->
+<!-- group1(treatment)      ai	            bi -->
+<!-- group2(control)	       ci	            di -->
 
-`kdz, ksz`: number of double-zero and single-zero studies.
+<!-- ##### Handling single-zero and double-zero studies -->
+<!-- Single-zero studies are studies for which one entry of the 2x2 table is zero. Double-zero studies are studies for which two entries of the same column of the 2x2 table are zero. The function includes a variety of arguments to handle single-zero and double-zero studies. Per default, double-zero studies are currently excluded from the analysis (this behavior might be changed in the future). The inclusion of double-zero studies can be enforced by setting the argument `drop00` to `FALSE`. If the data includes at least one single-zero study, the function throws an error if the user did not specify whether or not a continuity correction shall be applied. By setting `cc = "none"`, any zero-studies (studies with at least one zero-cell) which remain in the data are excluded from the analysis. If it is desired that zero-studies are included, the user needs to specify which continuity correction shall be used, and to which studies it shall be applied. Per default, the continuity correction is only applied to zero-studies, while studies for which all cells are larger than zero are left uncorrected. This behavior can be changed using the argument `ccto`. Per default, the constant value 0.5 (`cc = "constant"`, `ccval = 0.5`) is added to all cells of the studies specified by `ccto`. This continuity correcton was desribed by Gart and Zweifel (1967). Alternative continuity corrections which were described by Sweeting et al. (2004) can be applied by setting `cc` to `"tacc"` for the treatment-arm continuity correction, and to `"empirical"` for the empirical continuity correction. Per default, the sum of the corrections for treatment and control groups is set to 1, but this can be changed by setting the the argument `ccsum` to a different value. It is possible to set the continuity correction to a user-defined value (or a vector of user-defined values) using the argument `ccval` (if the value). If the user wants to specify different values for the treatment and the control group, this is possible via the arguments `tccval` and `cccval`. -->
 
-`k1sz, k2sz`: number of single-zero studies where the zero is in group 1 or group 2.
+<!-- ##### Differences between effect size measures in the application of continuity corrections -->
+<!-- When either the log odds ratio or the log risk ratio is used as an effect size measure, both the effect sizes and their sampling variances are calculated based on the continuity-corrected 2x2 table. When the effect size measure is the risk difference, the continuity-corrected 2x2 table is only used in the calculation of the sampling variances. -->
 
-`ai, bi, ci, di`: original entries of the 2x2 tables for all studies.
+<!-- #### References -->
+<!-- Gart, John J, and James R Zweifel. 1967. On the bias of various estimators of the logit and its variance with application to quantal bioassay. Biometrika, 54, 181–187. doi:10.1093/BIOMET/54.1-2.181 -->
 
-`ni, n1i, n2i`: original total and group sample sizes.
+<!-- Sweeting, M. J., Sutton, A. J., & Lambert, P. C. (2004). What to add to nothing? Use and avoidance of continuity corrections in meta-analysis of sparse data. Statistics in Medicine, 23, 1351–1375. doi: 10.1002/sim.1761 -->
 
-...
 
-#### Details
-##### Data input
-The data input can be specified either through the arguments `ai,bi,ci,di,n1i`, and `n2i` (columns of the data frame data) or through the argument `x`, which takes an object that results from applying the `rareDescribe()` function to the data (i.e., the input for argument x must be an object of type `rareData`). A `rareData` object can be produced from a data frame by applying the `rareDescribe()` function to it. The `rareDescribe()` function pre-processes the data frame and stores the information required by the `rareMH()` function in a list. See `?rareDescribe` for more details.
+<!-- \newpage -->
+<!-- ## rareGLMM -->
+<!-- **Conduct a meta-analysis using a generalized linear (mixed) model (GLMM)** -->
 
-##### Effect size measures
-The function includes meta-analytic methods for log odds ratios, log risk ratios, and risk differences. The effect size measure can be specified using the measure argument. The respective effect size, along with an estimate of its sampling variance, is then calculated for each study based on the entries of the study's 2x2 table:
+<!-- #### Description -->
+<!-- Function to conduct a meta-analysis of a rare event using a generalized linear or generalized linear mixed model. See below for more details on these models and their application in meta-analyses of rare events. -->
 
-::: center
-               event   no-event
-  ----------- ------- ----------
-   treatment   $a_i$    $b_i$
-    control    $c_i$    $d_i$
-:::
+<!-- #### Usage -->
+<!-- ```{r, eval = FALSE} -->
+<!-- rareGLMM(x,ai,bi,ci,di,n1i,n2i,data,measure,intercept="fixed",slope="random",conditional=FALSE,approx=FALSE,cor=FALSE,coding=1/2,drop00=FALSE,level=95,test="z",digits=4,verbose=FALSE,control,...) -->
+<!-- ``` -->
 
-#### Mantel-Haenszel type estimators
-A prominent class of estimators for the common effect size under the the equal-effects model was proposed by Mantel and Haenszel in 1959. Mantel-Haenszel type estimators are particularly useful in meta-analysis of rare events. As a quotient of sums rather than a sum of quotients, the Mantel-Haenszel estimator of the overall effect is oftentimes defined even though the standard estimator for the corresponding effect size for some individual studies may not be defined. The variance estimation is due to Greenland et al. (1985) and Robins et al. (1986). For a summary of the implemented estimators see e.g. sections 9.2-9.4 of Jewell (2013).
+<!-- #### Arguments -->
+<!-- `x`: an object of class `"rareData"`.   -->
 
-#### References
-Mantel, N., & Haenszel, W. (1959). Statistical aspects of the analysis of data from retrospective studies of disease. Journal of the national cancer institute, 22(4), 719-748.
+<!-- `ai`: data frame column to specify the number of events in group 1 (i.e., the treatment group).   -->
 
-Greenland, S., & Robins, J. M. (1985). Estimation of a common effect parameter from sparse follow-up data. Biometrics, 55-68.
+<!-- `bi`: data frame column to specify the number of non-events in group 1 (i.e., the treatment group).   -->
 
-Robins, J., Breslow, N., & Greenland, S. (1986). Estimators of the Mantel-Haenszel variance consistent in both sparse data and large-strata limiting models. Biometrics, 311-323.
+<!-- `ci`:	data frame column to specify the number of events in group 2 (i.e., the control group).   -->
 
-Jewell, N. P. (2003). Statistics for epidemiology. Chapman and Hall/CRC.
+<!-- `di`: data frame column to specify number of non-events in group 2 (i.e., the control group).   -->
 
+<!-- `n1i`: data frame column to specify the sample sizes in group 1 (i.e., the treatment group).    -->
 
+<!-- `n2i`: data frame column to specify the sample sizes in group 2 (i.e., the control group).   -->
 
-\newpage
-## rarePeto
-**Conduct a meta-analysis using Peto's method**
+<!-- `data`: data frame.   -->
 
-#### Description
-Function to conduct a meta-analysis. Effect size is the log odds ratio which is estimated from event counts in form of 2x2 contingency tables using Peto's method (see Yusuf et al., 1985).
+<!-- `measure`: character string specifying the effect size or outcome measure to be used (either `"logOR"` for the log odds ratio or `"logRR"` for the log relative risk). See below for more details.   -->
 
-#### Usage
-```{r, eval=FALSE}
-rarePeto(x,ai,bi,ci,di,n1i,n2i,data,level=95,digits=4)
-```
+<!-- `intercept`: character string specifying whether to fit a model with fixed, study-specific intercepts (`"fixed"`) or a random intercept (`"random"`). See below for more details.   -->
 
-#### Arguments
-`x`: an object of class "rareData".
+<!-- `slope`: character string specifying whether to fit a model with a fixed slope (`"fixed"`) or a random slope (`"random"`). A model with a fixed slope is a model with homogeneous effects, that is, a fixed-effects model, while a model with a random slope is a model with heterogeneous effects, that is, a random effects model. See below for more details.   -->
 
-`ai`: data frame column to specify the number of events in group 1 (i.e., the treatment group).
+<!-- `conditional`: logical specifying whether to estimate a conditional generalized linear mixed model. Default is `FALSE`.   -->
 
-`bi`: data frame column to specify the number of non-events in group 1 (i.e., the treatment group).
+<!-- `approx`: logical specifying whether to use the approximate version of the conditional generalized linear mixed model (i.e., the conditional binomial model). Only relevant when `conditional = TRUE` and `⁠measure = "logOR"`⁠. Default is `FALSE`. See below for more details.   -->
 
-`ci`: data frame column to specify the number of events in group 2 (i.e., the control group).
+<!-- `cor`: logical specifying whether random effects should be modeled as correlated or uncorrelated. Default is `cor = FALSE`. This argument is only relevant if `intercept = "random"` and `slope = "random"`. See below for more details.   -->
 
-`di`: data frame column to specify number of non-events in group 2 (i.e., the control group).
+<!-- `coding`: numeric specifying the coding scheme used for the random effects structure. Values between 0 and 1 can be specified. Default is `coding = 1/2`. Given that `cor = FALSE` is specified, the default option implies equal variances in the two groups. Values closer to 0 imply a larger variance in the control group (group 2), while values closer to 1 imply a larger variance in the treatment group (group 1). See below for more details.   -->
 
-`n1i`: data frame column to specify the sample sizes in group 1 (i.e., the treatment group).
+<!-- `drop00`: logical indicating whether double-zero studies (i.e., studies with no events or only events in both groups) should be excluded prior to calculating the studies' effect sizes and sampling variances.   -->
 
-`n2i`: data frame column to specify the sample sizes in group 2 (i.e., the control group).
+<!-- `level`: numeric between 0 and 100 specifying the confidence interval level (the default is 95).   -->
+<!-- test: character string specifying how test statistics and confidence intervals for the fixed effects should be computed (currently, only `"z"`, for Wald-type tests is available).   -->
 
-`data`: data frame
+<!-- `digits`: integer specifying the number of decimal places to which the printed results should be rounded (if unspecified, the default is 4).   -->
 
-`level`: numeric nbetween 0 and 100 specifying the confidence interval level (the default is 95)
+<!-- `verbose`: logical indicating whether output should be generated on the progress of model fitting (the default is `FALSE`). Can also be an integer. Values > 1 generate more verbose output.   -->
 
-`digits`: integer specifying the number of decimal places to which the printed results should be rounded (if unspecified, the default is 4).
+<!-- `control`: optional list of control values for the iterative algorithms. If unspecified, default values are defined inside the functions.  -->
 
-#### Value
-an object of class "raremeta". The object is a list containing the following elements:
+<!-- ...	additional arguments. -->
 
-`beta, b`: estimated effect size.
+<!-- #### Details -->
+<!-- ##### Data input -->
+<!-- The data input can be specified either through the arguments `ai,bi,ci,di,n1i`, and `n2i` (columns of the data frame data) or through the argument `x`, which takes an object that results from applying the `rareDescribe()` function to the data (i.e., the input for argument x must be an object of type `rareData`). A `rareData` object can be produced from a data frame by applying the `rareDescribe()` function to it. The `rareDescribe()` function pre-processes the data frame and stores the information required by the `rareGLMM()` function in a list. See `?rareDescribe` for more details. -->
 
-`se`: standard error of the estimator.
+<!-- ##### Effect size measures -->
+<!-- The function includes different versions of the generalized linear (mixed) model. The regression equation for the fixed-effects model (GLM) can be expressed as -->
 
-`zval`: test statistics of the coefficients.
+<!-- \(g(\pi_{ij}) = \alpha_i + \theta \cdot x_{ij}\), -->
 
-`pval`: p-values corresponding to the test statistics.
+<!-- and the model equation for the random-effects model (GLMM) can be expressed as -->
 
-`ci.lb`: lower bound of the confidence intervals for the coefficients.
+<!-- \(g(\pi_{ij}) = \alpha_i+ \theta \cdot x_{ij} + \epsilon_{i} \cdot z_{ij}\), -->
 
-`ci.ub`: upper bound of the confidence intervals for the coefficients.
+<!-- where \(i = 1, ..., k \) is the study index and \(j = 1, 2\) is the group index, \(x_{i1} = 1\), \(x_{i2} = 0\), and \(z_{ij}\) is defined by the coding argument. Specifically, for coding = z, \(z_{i1} = z\) and \(z_{i2} = z-1\). Default is \(z = 1/2\). coding = 1 corresponds to Models 2 and 4 in Jackson et al. (2017), and coding = 1/2 corresponds to Models 3 and 5 in the same study. -->
 
-`k`: number of studies included in the analysis.
+<!-- For `measure = "logOR"`, a GL(M)M with a binomial within-study distribution is used for the numbers of events in each group, with sample size \(n_{ij}\) and probability \(\pi_{ij}\). For this model, \(g(\cdot)\) corresponds to the logit function, i.e., \(g(\pi_{ij}) = \log \left( \frac{\pi_{ij}}{1-\pi_{ij}} \right)\). See Stijnen et al. (2011), for further details. -->
 
-`kdz,ksz`: number of double-zero and single-zero studies.
+<!-- For `measure = "logRR"`, a GL(M)M with a Poisson within-study distribution is used for the numbers of events in each group, with rate \(n_{ij}\pi_{ij}\). For this model, \(g(\cdot)\) corresponds to the natural logarithm. See Böhning et al. (2015), for further details. -->
 
-`k1sz, k2sz`: number of single-zero studies where the zero is in group 1 or group 2.
+<!-- It is currently not possible to fit GL(M)Ms for `measure = "RD"`, but this functionality may be enabled in future versions of the package. -->
 
-`ai, bi, ci, di`: original entries of the 2x2 tables for all studies.
+<!-- ##### Baseline and effect heterogeneity -->
+<!-- Baseline heterogeneity refers to the way the intercept is modeled. By specifying `intercept = "fixed"`, the intercepts \(\alpha_i\) are modeled as fixed, study-specific intercepts. By specifying `intercept = "random"`, it is assumed that \(\alpha_i \sim N(\alpha, \sigma_{\alpha}^2)\). -->
 
-`ni, n1i, n2i`: original total and group sample sizes.
+<!-- Effect heterogeneity refers to the way the slope is modeled. By specifying `slope = "fixed"`, a fixed slope is modeled, corresponding to a fixed-effects meta-analysis. By specifying `⁠slope = "random"`⁠, it is assumed that \(\epsilon_i \sim N(0, \tau^2)\), corresponding to a random-effects meta-analysis with between-study variance \(\tau^2\). -->
 
-...
+<!-- ##### Correlated random effects -->
+<!-- When both `intercept = "random"` and `slope = "random"` is specified, the argument cor can be used to specify whether random-effects are assumed to be correlated. Per default, this is not the case, i.e. `cor = FALSE`. -->
 
-#### Details
-##### Data input
-The data input can be specified either through the arguments `ai,bi,ci,di,n1i`, and `n2i` (columns of the data frame data) or through the argument `x`, which takes an object that results from applying the `rareDescribe()` function to the data (i.e., the input for argument x must be an object of type `rareData`). A `rareData` object can be produced from a data frame by applying the `rareDescribe()` function to it. The `rareDescribe()` function pre-processes the data frame and stores the information required by the `rarePeto()` function in a list. See `?rareDescribe` for more details.
+<!-- Value -->
+<!-- an object of class `"raremeta"`. The object is a list containing the following elements: -->
 
-##### Effect size measure
-The function is a meta-analytic method for estimating log odds ratios. Data comes in form of event counts in 2x2 contingency tables.
+<!-- `model`: name of the model used for conducting the meta-analysis. -->
 
-::: center
-               event   no-event
-  ----------- ------- ----------
-   treatment   $a_i$    $b_i$
-    control    $c_i$    $d_i$
-:::
+<!-- `beta`: estimated coefficients of the model. -->
 
-#### References
-Yusuf, S., Peto, R., Lewis, J., Collins, R., & Sleight, P. (1985). Beta blockade during and after myocardial infarction: an overview of the randomized trials. Progress in cardiovascular diseases, 27(5), 335-371.
+<!-- `se`: standard errors of the coefficients. -->
 
+<!-- `zval`: test statistics of the coefficients. -->
 
+<!-- `zval`: p-values corresponding to the test statistics. -->
 
+<!-- `ci.lb`: lower bound of the confidence intervals for the coefficients. -->
 
-\newpage
+<!-- `ci.ub`: upper bound of the confidence intervals for the coefficients. -->
 
+<!-- `vb`: variance-covariance matrix of the estimated coefficients. -->
 
+<!-- `tau2`: estimated amount of (residual) heterogeneity. Always 0 when `method = "FE"`. -->
 
-## References 
-Greenland, S., & Robins, J. M. (1985). Estimation of a common effect parameter from sparse follow-up data. Biometrics, 55-68.
+<!-- `LRT.Chisq`: Test statistic of the likelihood ratio test testing for homogeneity. -->
 
-Robins, J., Breslow, N., & Greenland, S. (1986). Estimators of the Mantel-Haenszel variance consistent in both sparse data and large-strata limiting models. Biometrics, 311-323.
+<!-- `LRT.df`: Degrees of freedom of the likelihood ratio test testing for homogeneity. -->
 
-Jewell, N. P. (2003). Statistics for epidemiology. Chapman and Hall/CRC.
+<!-- `LRT.pval`: p-value of the likelihood ratio test testing for homogeneity. -->
+
+<!-- `fit.stats`: a list with log-likelihood, deviance, AIC, BIC, and AICc values under the unrestricted and restricted likelihood. -->
+
+<!-- `p`: number of coefficients in the model (including the intercept). -->
+
+<!-- `k`: number of studies included in the analysis. -->
+
+<!-- `k.all`: total number of studies (before exclusion). -->
+
+<!-- `kdz, ksz`: number of double-zero and single-zero studies. -->
+
+<!-- `k1sz, k2sz`: number of single-zero studies where the zero is in group 1 or group 2. -->
+
+<!-- `ai, bi, ci, di`: original entries of the 2x2 tables for all studies. -->
+
+<!-- `ni, n1i, n2i`: original total and group sample sizes. -->
+
+<!-- ... -->
+
+<!-- #### References -->
+<!-- Böhning, D., Mylona, K., & Kimber, A. (2015). Meta-analysis of clinical trials with rare events. Biometrical Journal, 57 (4), 633–648. doi: 10.1002/bimj.201400184 -->
+
+<!-- Jackson, D., Law, M., Stijnen, T., Viechtbauer, W., & White, I. R. (2018). A comparison of seven random-effects models for meta-analyses that estimate the summary odds ratio. Statistics in Medicine, 37 (7), 1059–1085. doi: 10.1002/sim.7588 -->
+
+<!-- Stijnen, T., Hamza, T. H., & Özdemir, P. (2010). Random effects meta-analysis of event outcome in the framework of the generalized linear mixed model with applications in sparse data. Statistics in Medicine, 29 (29), 3046–3067. doi: 10.1002/sim.4040 -->
+
+
+<!-- \newpage -->
+<!-- ## rareIV -->
+<!-- **Conduct a meta-analysis of a rare event using the inverse variance model** -->
+
+<!-- #### Description -->
+<!-- Function to conduct a meta-analysis of a rare event using the fixed- or random-effects model of the inverse variance approach. See below for more details on these models and their application in meta-analyses of rare events. -->
+
+<!-- #### Usage -->
+<!-- ```{r, eval=FALSE} -->
+<!-- rareIV(x,ai,bi,ci,di,n1i,n2i,data,measure,method,cc="none",ccval=0.5,tccval,cccval,ccsum=1,ccto="only0",drop00=TRUE,weighted=TRUE,weights,level=95,test="z",digits=4,verbose=FALSE,control,...) -->
+<!-- ``` -->
+
+<!-- #### Arguments -->
+<!-- `x`: an object of class `"rareData"`.    -->
+
+<!-- `ai`: data frame column to specify the number of events in group 1 (i.e., the treatment group).   -->
+
+<!-- `bi`: data frame column to specify the number of non-events in group 1 (i.e., the treatment group).   -->
+
+<!-- `ci`:	data frame column to specify the number of events in group 2 (i.e., the control group).   -->
+
+<!-- `di`: data frame column to specify number of non-events in group 2 (i.e., the control group).   -->
+
+<!-- `n1i`: data frame column to specify the sample sizes in group 1 (i.e., the treatment group).    -->
+
+<!-- `n2i`: data frame column to specify the sample sizes in group 2 (i.e., the control group).   -->
+
+<!-- `data`: data frame.  -->
+
+<!-- `measure`: character string specifying the effect size or outcome measure to be used (either `"logOR"` for the log odds ratio, `"logRR"` for the log relative risk, or `"RD"` for the risk difference).    -->
+
+<!-- `method`: character string specifying whether a fixed- or a random-effects model should be fitted. A fixed-effects model is fitted when using  `method = "FE"` . A random-effects model is fitted by setting method equal to one of the following: `"DL", "HE", "SJ", "ML", "REML", "EB", "HS", "PM", "IPM", "GENQ", "PMM"` or `"GENQM"`.     -->
+
+<!-- `cc`: character string specifying the type of continuity correction to be used (either `"constant"`, `"tacc"` or `"empirical"`). Default is `"none"`. See 'Details'.   -->
+
+<!-- `ccval`: scalar or numerical vector specifying the value of the continuity correction if `cc = "constant"`. Must be a scalar or a vector of length equal to the number of studies. Default is `ccval = 0.5`. If a scalar is specified, the value is added to all studies for which the number of events is zero in at least one of the groups. This behavior can be changed using the argument `ccto`. The argument `ccval` is overwritten by `tccval` and `cccval` if both arguments are specified.   -->
+
+<!-- `tccval`: scalar or numerical vector specifying the value of the continuity correction applied to the observations from the treatment group (group 1) if `cc = "constant"`. Must be a scalar or a vector of length equal to the number of studies. If `cc = "constant"` and `tccval` is not specified, `tccval` is set to the value of `ccval` internally.   -->
+
+<!-- `cccval`: scalar or numerical vector specifying the value of the continuity correction applied to the observations from the control group (group 2) if `cc = "constant"`. Must be a scalar or a vector of length equal to the number of studies. If `cc = "constant"` and `cccval` is not specified, `cccval` is set to the value of `ccval` internally.   -->
+
+<!-- `ccsum`: numeric value specifying the value of the sum of the continuity correction applied to the observations from the treatment group and the continuity correction applied to the observations from the control group. Default is `ccsum = 1`. Currently, setting this argument to a different number only has an effect when `cc = "tacc"` or `cc = "empirical"`.   -->
+
+<!-- `ccto`: character string indicating which studies the continuity correction should be applied to. Either `"only0"`, for which the continuity correction is applied to all studies for which the number of events is zero in at least one of the groups, `"all"`, for which the continuity correction is applied to all studies, or `"if0all"`, for which the continuity correction is applied to all studies if any of the individual studies has zero events in at least one of the groups.   -->
+
+<!-- `drop00`: logical indicating whether double-zero studies (i.e., studies with no events or only events in both groups) should be excluded prior to calculating the studies' effect sizes and sampling variances.     -->
+
+<!-- `weights`: numeric specifying user-defined weights to be used when fitting the model.   -->
+
+<!-- `level`: numeric between 0 and 100 specifying the confidence interval level (the default is 95).   -->
+
+<!-- `test`: character string specifying how test statistics and confidence intervals for the fixed effects should be computed (either `"z"`, for Wald-type tests and CIs, or `"hksj"`, for tests and CIs based on the method by Knapp and Hartung (2003) and Sidik and Jonkman (2002). Specifying `test = "knha"` instead of `test = "hksj"` will produce the same results).   -->
+
+<!-- `digits`: integer specifying the number of decimal places to which the printed results should be rounded (if unspecified, the default is 4).   -->
+
+<!-- `verbose`: logical indicating whether output should be generated on the progress of model fitting (the default is `FALSE`). Can also be an integer. Values > 1 generate more verbose output.   -->
+
+<!-- `control`: optional list of control values for the iterative algorithms. If unspecified, default values are defined inside the functions.   -->
+
+<!-- ... additional arguments -->
+
+
+<!-- #### Value -->
+<!-- an object of class `"raremeta"`. The object is a list containing the following elements: -->
+
+<!-- `model`: name of the model used for conducting the meta-analysis. -->
+
+<!-- `beta`: estimated coefficients of the model. -->
+
+<!-- `se`: standard errors of the coefficients. -->
+
+<!-- `zval`: test statistics of the coefficients. -->
+
+<!-- `pval`: p-values corresponding to the test statistics. -->
+
+<!-- `ci.lb`: lower bound of the confidence intervals for the coefficients. -->
+
+<!-- `ci.ub`: upper bound of the confidence intervals for the coefficients. -->
+
+<!-- `vb`: variance-covariance matrix of the estimated coefficients. -->
+
+<!-- `tau2`: estimated amount of (residual) heterogeneity. Always 0 when `method = "FE"`. -->
+
+<!-- `se.tau2`: standard error of the estimated amount of (residual) heterogeneity. -->
+
+<!-- `I2`: value of I^2 (total heterogeneity/total variability). -->
+
+<!-- `H2`: value of H^2 (total variability/sampling variability). -->
+
+<!-- `R2`: value of R^2. -->
+
+<!-- `QE`: test statistic of the test for (residual) heterogeneity. -->
+
+<!-- `QEp`: p-value corresponding to the test statistic. -->
+
+<!-- `fit.stats`: a list with log-likelihood, deviance, AIC, BIC, and AICc values under the unrestricted and restricted likelihood. -->
+
+<!-- `p`: number of coefficients in the model (including the intercept). -->
+
+<!-- `k`: number of studies included in the analysis. -->
+
+<!-- `k.all`: total number of studies (before exclusion). -->
+
+<!-- `kdz, ksz`: number of double-zero and single-zero studies. -->
+
+<!-- `k1sz, k2sz`: number of single-zero studies where the zero is in group 1 or group 2. -->
+
+<!-- `yi, vi`: vectors containing the estimated effect sizes and their estimated sampling variances for all study. -->
+
+<!-- `ai, bi, ci, di`: original entries of the 2x2 tables for all studies. -->
+
+<!-- `ai.cc, bi.cc, ci.cc, di.cc`: entries of the 2x2 tables for all studies after application of the specified continuity correction. -->
+
+<!-- `ni, n1i, n2i`: original total and group sample sizes. -->
+
+<!-- `ni.cc, n1i.cc, n2i.cc`: total and group sample sizes after application of the specified continuity correction. -->
+
+<!-- `tcc, ccc`: value of the specified continuity correction for the treatment group (group 1) and control group (group 2). -->
+
+<!-- `cc.studies`: vector which indicates whether the continuity correction was applied to a study. -->
+
+<!-- ... -->
+
+<!-- #### Details -->
+<!-- ##### Data input -->
+<!-- The data input can be specified either through the arguments `ai,bi,ci,di,n1i`, and `n2i` (columns of the data frame data) or through the argument `x`, which takes an object that results from applying the `rareDescribe()` function to the data (i.e., the input for argument x must be an object of type `rareData`). A `rareData` object can be produced from a data frame by applying the `rareDescribe()` function to it. The `rareDescribe()` function pre-processes the data frame and stores the information required by the `rareIV()` function in a list. See `?rareDescribe` for more details. -->
+
+<!-- ##### Effect size measures -->
+<!-- The function includes methods for calculating log odds ratios, log risk ratios, and risk differences. The effect size measure can be specified using the measure argument. The respective effect size, along with an estimate of its sampling variance, is then calculated for each study based on the entries of the study's 2x2 table: -->
+
+<!-- group                event	     no event -->
+<!-- -----------------    --------    --------- -->
+<!-- group1(treatment)      ai	            bi -->
+<!-- group2(control)	       ci	            di -->
+
+<!-- ##### Handling single-zero and double-zero studies -->
+<!-- Single-zero studies are studies for which one entry of the 2x2 table is zero. Double-zero studies are studies for which two entries of the same column of the 2x2 table are zero. The function includes a variety of arguments to handle single-zero and double-zero studies. Per default, double-zero studies are currently excluded from the analysis (this behavior might be changed in the future). The inclusion of double-zero studies can be enforced by setting the argument `drop00` to `FALSE`. If the data includes at least one single-zero study, the function throws an error if the user did not specify whether or not a continuity correction shall be applied. By setting `cc = "none"`, any zero-studies (studies with at least one zero-cell) which remain in the data are excluded from the analysis. If it is desired that zero-studies are included, the user needs to specify which continuity correction shall be used, and to which studies it shall be applied. Per default, the continuity correction is only applied to zero-studies, while studies for which all cells are larger than zero are left uncorrected. This behavior can be changed using the argument `ccto`. Per default, the constant value 0.5 (`cc = "constant"`, `ccval = 0.5`) is added to all cells of the studies specified by `ccto`. This continuity correcton was desribed by Gart and Zweifel (1967). Alternative continuity corrections which were described by Sweeting et al. (2004) can be applied by setting `cc` to `"tacc"` for the treatment-arm continuity correction, and to `"empirical"` for the empirical continuity correction. Per default, the sum of the corrections for treatment and control groups is set to 1, but this can be changed by setting the the argument `ccsum` to a different value. It is possible to set the continuity correction to a user-defined value (or a vector of user-defined values) using the argument `ccval` (if the value). If the user wants to specify different values for the treatment and the control group, this is possible via the arguments `tccval` and `cccval`. -->
+
+<!-- ##### Differences between effect size measures in the application of continuity corrections -->
+<!-- When either the log odds ratio or the log risk ratio is used as an effect size measure, both the effect sizes and their sampling variances are calculated based on the continuity-corrected 2x2 table. When the effect size measure is the risk difference, the continuity-corrected 2x2 table is only used in the calculation of the sampling variances. -->
+
+
+<!-- #### Model specification -->
+<!-- The function can be used to fit fixed-effects models (also known as equal-effects models) and random-effects models using the inverse variance approach. Currently, it is not possible to include moderators in any of these models. A fixed-effects model is fitted when method is set to `"FE"` (or `"EE"`). A random-effects model is fitted when method is set to either `"DL", "HE", "SJ", "ML", "REML", "EB", "HS", "PM", "IPM", "GENQ", "PMM"` or `"GENQM"`. See below for details on heterogeneity estimation in random-effects meta-analysis. For a basic introduction to fixed-effects and random-effects meta-analysis, please refer to Borenstein et al. (2021) In usual applications of fixed- and random-effects meta-analyses, weighted estimation is used, i.e., the pooled effect size is calculated as a weighted average of the study effect sizes, where the weights are defined as the inverse variances of the effect sizes. It is possible to switch to unweighted estimation via `weighted = FALSE`. -->
+
+<!-- ##### Estimation of the between-study variance in random-effects meta-analysis -->
+<!-- Different estimators can be used to estimate the between-study variance, tau^2, in random-effects meta-analysis. The estimator to be used is specified via the methods argument. -->
+
+<!-- `"DL"`: DerSimonian-Laird estimator -->
+
+<!-- `"HE"`: Hedges estimator -->
+
+<!-- `"SJ"`: Sidik-Jonkman estimator -->
+
+<!-- `"ML"`: maximum likelihood estimator -->
+
+<!-- `"REML"`: restricted maximum likelihood estimator -->
+
+<!-- `"EB"`: empirical Bayes estimator -->
+
+<!-- `"HS"`: Hunter-Schmidt estimator -->
+
+<!-- `"PM"`: Paule-Mandel estimator -->
+
+<!-- `"IPM"`: improved Paule-Mandel estimator -->
+
+<!-- `"GENQ"`: generalized Q-statistic estimator -->
+
+<!-- `"PMM"`: median-unbiased Paule-Mandel estimator -->
+
+<!-- `"GENQM"`: median-unbiased generalized Q-statistic estimator -->
+
+<!-- Most of these estimators are described in Zhang et al. (2021). For details on the improved Paule-Mandel estimator, see also Bhaumik et al. (2012). The median-unbiased Paule-Mandel estimator and the median-unbiased generalized Q-statistic estimator are described in Viechtbauer (2021). -->
+
+<!-- ##### Tests and confidence intervals for model coefficients -->
+<!-- Currently, tests and confidence intervals for model coefficients are obtained from the output of the function `rma()` from the **metafor** package. Note that setting the argument test to `"hksj"` produces the same result as setting it to `"knha"`. See `?metafor::rma` for further details. -->
+
+<!-- ##### Tests for residual heterogeneity -->
+<!-- Currently, the results of the test for residual heterogeneity are obtained from the output of the function `rma()` from the `metafor()` package. See `?metafor::rma` for further details. -->
+
+<!-- #### References -->
+<!-- Borenstein, M., Hedges, L. V., Higgins, J. P., & Rothstein, H. R. (2021). Introduction to meta-analysis. John Wiley & Sons. -->
+
+<!-- Bhaumik, D. K., Amatya, A., Normand, S.-L. T., Greenhouse, J., Kaizar, E., Neelon, B., & Gibbons, R. D. (2012). Meta-analysis of rare binary adverse event data. Journal of the American Statistical Association 107, 555–567. doi: 10.1080/01621459.2012.664484 -->
+
+<!-- Gart, John J, and James R Zweifel. 1967. On the bias of various estimators of the logit and its variance with application to quantal bioassay. Biometrika, 54, 181–187. doi:10.1093/BIOMET/54.1-2.181 -->
+
+<!-- Hartung, J., and Knapp, G. (2001). A refined method for the meta-analysis of controlled clinical trials with binary outcome. Statistics in Medicine, 20, 3875-3889. doi: 10.1002/sim.1009 -->
+
+<!-- Sidik, K., and Jonkman, J. N. (2002). A simple confidence interval for meta-analysis. Statistics in Medicine, 21, 3153-3159. doi: 10.1002/sim.1262 -->
+
+<!-- Sweeting, M. J., Sutton, A. J., & Lambert, P. C. (2004). What to add to nothing? Use and avoidance of continuity corrections in meta-analysis of sparse data. Statistics in Medicine, 23, 1351–1375. doi: 10.1002/sim.1761 -->
+
+<!-- Viechtbauer, W. (2021). Median-unbiased estimators for the amount of heterogeneity in meta-analysis. European Congress of Methodology, Valencia, Spain. https://www.wvbauer.com/lib/exe/fetch.php/talks:2021_viechtbauer_eam_median_tau2.pdf -->
+
+<!-- Zhang, C., Chen, M., & Wang, X. (2020). Statistical methods for quantifying between-study heterogeneity in meta-analysis with focus on rare binary events. Statistics and its interface, 13(4), 449. doi: 10.4310/sii.2020.v13.n4.a3 -->
+
+<!-- \newpage -->
+
+<!-- ## rareMH -->
+
+<!-- **Conduct a meta-analysis using Mantel-Haenszel type estimators** -->
+
+<!-- #### Description -->
+<!-- Function to conduct a meta-analysis. Effect sizes are the log odds ratio, log relative risk and risk difference estimated from event counts in form of 2x2 contingency tables using Mantel-Haenszel type estimators. -->
+
+<!-- #### Usage -->
+<!-- ```{r, eval=FALSE} -->
+<!-- rareMH(x,ai,bi,ci,di,n1i,n2i,data,measure,level=95,digits=4,correct=FALSE,cc="constant",ccval=0.5,tccval,cccval,ccsum=1,ccto="only0",method="FE") -->
+<!-- ``` -->
+
+<!-- #### Arguments -->
+<!-- `x`: an object of class `"rareData"`.    -->
+
+<!-- `ai`: data frame column to specify the number of events in group 1 (i.e., the treatment group).   -->
+
+<!-- `bi`: data frame column to specify the number of non-events in group 1 (i.e., the treatment group).   -->
+
+<!-- `ci`:	data frame column to specify the number of events in group 2 (i.e., the control group).   -->
+
+<!-- `di`: data frame column to specify number of non-events in group 2 (i.e., the control group).   -->
+
+<!-- `n1i`: data frame column to specify the sample sizes in group 1 (i.e., the treatment group).    -->
+
+<!-- `n2i`: data frame column to specify the sample sizes in group 2 (i.e., the control group).   -->
+
+<!-- `data`: data frame.  -->
+
+<!-- `measure`: character string specifying the effect size or outcome measure to be used (either `"logOR"` for the log odds ratio, `"logRR"` for the log relative risk, or `"RD"` for the risk difference). Important when selecting continuity corrections dependent on the estimated summary effect size of some subset of the studies involved in the analysis, i.e., `cc = "empirical"`.   -->
+
+<!-- `level`: numeric between 0 and 100 specifying the confidence interval level (the default is 95).   -->
+
+<!-- `digits`: integer specifying the number of decimal places to which the printed results should be rounded (if unspecified, the default is 4).  -->
+
+<!-- `correct`: logical specifying whether the data shall be continuity corrected before application of rareMH(). Default is `FALSE`.   -->
+
+<!-- `cc`: character string specifying the type of continuity correction to be used (either `"constant"`, `"tacc"` or `"empirical"`). Default is `"constant"`.   -->
+
+<!-- `ccval`: scalar or numerical vector specifying the value of the continuity correction if `cc = "constant"`. Must be a scalar or a vector of length equal to the number of studies. Default is `ccval = 0.5`. If a scalar is specified, the value is added to all studies for which the number of events is zero in at least one of the groups. This behavior can be changed using the argument `ccto`. The argument `ccval` is overwritten by `tccval` and `cccval` if both arguments are specified.   -->
+
+<!-- `tccval`: scalar or numerical vector specifying the value of the continuity correction applied to the observations from the treatment group (group 1) if `cc = "constant"`. Must be a scalar or a vector of length equal to the number of studies. If `cc = "constant"` and `tccval` is not specified, `tccval` is set to the value of `ccval` internally.   -->
+
+<!-- `cccval`: scalar or numerical vector specifying the value of the continuity correction applied to the observations from the control group (group 2) if `cc = "constant"`. Must be a scalar or a vector of length equal to the number of studies. If `cc = "constant"` and `cccval` is not specified, `cccval` is set to the value of `ccval` internally.   -->
+
+<!-- `ccsum`: numeric value specifying the value of the sum of the continuity correction applied to the observations from the treatment group and the continuity correction applied to the observations from the control group. Default is `ccsum = 1`. Currently, setting this argument to a different number only has an effect when `cc = "tacc"` or `cc = "empirical"`.   -->
+
+<!-- `ccto`: character string indicating which studies the continuity correction should be applied to. Either `"only0"`, for which the continuity correction is applied to all studies for which the number of events is zero in at least one of the groups, `"all"`, for which the continuity correction is applied to all studies, or `"if0all"`, for which the continuity correction is applied to all studies if any of the individual studies has zero events in at least one of the groups.   -->
+
+<!-- `method`: character string specifying whether a fixed- or a random-effects model should be fitted. A fixed-effects model is fitted when using `method = "FE"` . A random-effects model is fitted by setting method equal to one of the following: `"DL", "HE", "SJ", "ML", "REML", "EB", "HS", "PM", "IPM", "GENQ", "PMM"` or `"GENQM"`. Important when selecting continuity corrections dependent on the estimated summary effect size of some subset of the studies involved in the analyisis, i.e., `cc = "empirical"`.   -->
+
+<!-- `drop00`: logical indicating whether double-zero studies (i.e., studies with no events or only events in both groups) should be excluded prior to calculating the studies' effect sizes and sampling variances.   -->
+
+<!-- #### Value -->
+<!-- an object of class "raremeta". The object is a list containing the following elements: -->
+
+<!-- `beta, b`: estimated effect size. -->
+
+<!-- `se`: estimated standard error of the estimator. -->
+
+<!-- `zval`: test statistics of the coefficients. -->
+
+<!-- `pval`: p-values corresponding to the test statistics. -->
+
+<!-- `ci.lb`: lower bound of the confidence intervals for the coefficients. -->
+
+<!-- `ci.ub`: upper bound of the confidence intervals for the coefficients. -->
+
+<!-- `k`: number of studies included in the analysis. -->
+
+<!-- `kdz, ksz`: number of double-zero and single-zero studies. -->
+
+<!-- `k1sz, k2sz`: number of single-zero studies where the zero is in group 1 or group 2. -->
+
+<!-- `ai, bi, ci, di`: original entries of the 2x2 tables for all studies. -->
+
+<!-- `ni, n1i, n2i`: original total and group sample sizes. -->
+
+<!-- ... -->
+
+<!-- #### Details -->
+<!-- ##### Data input -->
+<!-- The data input can be specified either through the arguments `ai,bi,ci,di,n1i`, and `n2i` (columns of the data frame data) or through the argument `x`, which takes an object that results from applying the `rareDescribe()` function to the data (i.e., the input for argument x must be an object of type `rareData`). A `rareData` object can be produced from a data frame by applying the `rareDescribe()` function to it. The `rareDescribe()` function pre-processes the data frame and stores the information required by the `rareMH()` function in a list. See `?rareDescribe` for more details. -->
+
+<!-- ##### Effect size measures -->
+<!-- The function includes meta-analytic methods for log odds ratios, log risk ratios, and risk differences. The effect size measure can be specified using the measure argument. The respective effect size, along with an estimate of its sampling variance, is then calculated for each study based on the entries of the study's 2x2 table: -->
+
+<!-- ::: center -->
+<!--                event   no-event -->
+<!--   ----------- ------- ---------- -->
+<!--    treatment   $a_i$    $b_i$ -->
+<!--     control    $c_i$    $d_i$ -->
+<!-- ::: -->
+
+<!-- #### Mantel-Haenszel type estimators -->
+<!-- A prominent class of estimators for the common effect size under the the equal-effects model was proposed by Mantel and Haenszel in 1959. Mantel-Haenszel type estimators are particularly useful in meta-analysis of rare events. As a quotient of sums rather than a sum of quotients, the Mantel-Haenszel estimator of the overall effect is oftentimes defined even though the standard estimator for the corresponding effect size for some individual studies may not be defined. The variance estimation is due to Greenland et al. (1985) and Robins et al. (1986). For a summary of the implemented estimators see e.g. sections 9.2-9.4 of Jewell (2013). -->
+
+<!-- #### References -->
+<!-- Mantel, N., & Haenszel, W. (1959). Statistical aspects of the analysis of data from retrospective studies of disease. Journal of the national cancer institute, 22(4), 719-748. -->
+
+<!-- Greenland, S., & Robins, J. M. (1985). Estimation of a common effect parameter from sparse follow-up data. Biometrics, 55-68. -->
+
+<!-- Robins, J., Breslow, N., & Greenland, S. (1986). Estimators of the Mantel-Haenszel variance consistent in both sparse data and large-strata limiting models. Biometrics, 311-323. -->
+
+<!-- Jewell, N. P. (2003). Statistics for epidemiology. Chapman and Hall/CRC. -->
+
+
+
+<!-- \newpage -->
+<!-- ## rarePeto -->
+<!-- **Conduct a meta-analysis using Peto's method** -->
+
+<!-- #### Description -->
+<!-- Function to conduct a meta-analysis. Effect size is the log odds ratio which is estimated from event counts in form of 2x2 contingency tables using Peto's method (see Yusuf et al., 1985). -->
+
+<!-- #### Usage -->
+<!-- ```{r, eval=FALSE} -->
+<!-- rarePeto(x,ai,bi,ci,di,n1i,n2i,data,level=95,digits=4) -->
+<!-- ``` -->
+
+<!-- #### Arguments -->
+<!-- `x`: an object of class "rareData". -->
+
+<!-- `ai`: data frame column to specify the number of events in group 1 (i.e., the treatment group). -->
+
+<!-- `bi`: data frame column to specify the number of non-events in group 1 (i.e., the treatment group). -->
+
+<!-- `ci`: data frame column to specify the number of events in group 2 (i.e., the control group). -->
+
+<!-- `di`: data frame column to specify number of non-events in group 2 (i.e., the control group). -->
+
+<!-- `n1i`: data frame column to specify the sample sizes in group 1 (i.e., the treatment group). -->
+
+<!-- `n2i`: data frame column to specify the sample sizes in group 2 (i.e., the control group). -->
+
+<!-- `data`: data frame -->
+
+<!-- `level`: numeric nbetween 0 and 100 specifying the confidence interval level (the default is 95) -->
+
+<!-- `digits`: integer specifying the number of decimal places to which the printed results should be rounded (if unspecified, the default is 4). -->
+
+<!-- #### Value -->
+<!-- an object of class "raremeta". The object is a list containing the following elements: -->
+
+<!-- `beta, b`: estimated effect size. -->
+
+<!-- `se`: standard error of the estimator. -->
+
+<!-- `zval`: test statistics of the coefficients. -->
+
+<!-- `pval`: p-values corresponding to the test statistics. -->
+
+<!-- `ci.lb`: lower bound of the confidence intervals for the coefficients. -->
+
+<!-- `ci.ub`: upper bound of the confidence intervals for the coefficients. -->
+
+<!-- `k`: number of studies included in the analysis. -->
+
+<!-- `kdz,ksz`: number of double-zero and single-zero studies. -->
+
+<!-- `k1sz, k2sz`: number of single-zero studies where the zero is in group 1 or group 2. -->
+
+<!-- `ai, bi, ci, di`: original entries of the 2x2 tables for all studies. -->
+
+<!-- `ni, n1i, n2i`: original total and group sample sizes. -->
+
+<!-- ... -->
+
+<!-- #### Details -->
+<!-- ##### Data input -->
+<!-- The data input can be specified either through the arguments `ai,bi,ci,di,n1i`, and `n2i` (columns of the data frame data) or through the argument `x`, which takes an object that results from applying the `rareDescribe()` function to the data (i.e., the input for argument x must be an object of type `rareData`). A `rareData` object can be produced from a data frame by applying the `rareDescribe()` function to it. The `rareDescribe()` function pre-processes the data frame and stores the information required by the `rarePeto()` function in a list. See `?rareDescribe` for more details. -->
+
+<!-- ##### Effect size measure -->
+<!-- The function is a meta-analytic method for estimating log odds ratios. Data comes in form of event counts in 2x2 contingency tables. -->
+
+<!-- ::: center -->
+<!--                event   no-event -->
+<!--   ----------- ------- ---------- -->
+<!--    treatment   $a_i$    $b_i$ -->
+<!--     control    $c_i$    $d_i$ -->
+<!-- ::: -->
+
+<!-- #### References -->
+<!-- Yusuf, S., Peto, R., Lewis, J., Collins, R., & Sleight, P. (1985). Beta blockade during and after myocardial infarction: an overview of the randomized trials. Progress in cardiovascular diseases, 27(5), 335-371. -->
+
+
+
+
+<!-- \newpage -->
+
+
+
+<!-- ## References  -->
+<!-- Greenland, S., & Robins, J. M. (1985). Estimation of a common effect parameter from sparse follow-up data. Biometrics, 55-68. -->
+
+<!-- Robins, J., Breslow, N., & Greenland, S. (1986). Estimators of the Mantel-Haenszel variance consistent in both sparse data and large-strata limiting models. Biometrics, 311-323. -->
+
+<!-- Jewell, N. P. (2003). Statistics for epidemiology. Chapman and Hall/CRC. -->
