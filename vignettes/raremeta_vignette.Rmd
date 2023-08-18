@@ -129,7 +129,7 @@ The argument `measure` specifies the effect size or outcome measure to be used (
 The argument `method` specifies whether a fixed- or a random-effects model should be fitted. A fixed-effects model is fitted when using `method = "FE"` . 
 A random-effects model is fitted by setting method equal to one of the following: `"DL", "HE", "SJ", "ML", "REML", "EB", "HS", "PM", "IPM", "GENQ", "PMM"` or `"GENQM"`, which specifies the type of between-study variance estimator to be used.
 
-The arguments `cc` to `ccto` define the type of continuity correction applied to the data before. Specifically, `cc` describes the type of continuity correction to be used, and can be set to "constant" (application of a constant continuity correction which adds the same value to all cells of the contingency table), "reciprocal" (application of a continuity correction for which the value added to the cells of the contingency table depends on the sample size ratio of the study), or "empirical" (application of a continuity correction for which the value is based on the pooled effect size obtained from non-zero studies). See Sweeting et al. (2004), for a description of the reciprocal and the empirical continuity correction. The argument `ccto` can be used to specify to which studies the continuity correction shall be added, and can either be set to "all" (apply continuity correction to all studies), "only0" (apply continuity correction only to zero-studies), "if0all" (apply continuity correction to all studies if the data frame contains any zero-study) or "none".
+The arguments `cc` to `ccto` define the type of continuity correction applied to the data before. Specifically, `cc` describes the type of continuity correction to be used, and can be set to `"constant"` (application of a constant continuity correction which adds the same value to all cells of the contingency table), `"reciprocal"` (application of a continuity correction for which the value added to the cells of the contingency table depends on the sample size ratio of the study), or `"empirical"` (application of a continuity correction for which the value is based on the pooled effect size obtained from non-zero studies). See Sweeting et al. (2004), for a description of the reciprocal and the empirical continuity correction. The argument `ccto` can be used to specify to which studies the continuity correction shall be added, and can either be set to `"all"` (apply continuity correction to all studies), `"only0"` (apply continuity correction only to zero-studies), `"if0all"` (apply continuity correction to all studies if the data frame contains any zero-study) or `"none"`.
 The argument `drop00` specifies whether double-zero studies shall be excluded from the analysis, and can be set to `TRUE` or `FALSE`. The arguments `ccval`, `cccval` and `tccval` allow for a flexible specification of alternative continuity corrections defined by the user, see `?rareIV` for more details.
 
 The `rareIV` function allows for the specification of several additional arguments. These are explained in detail in the function documentation (`?rareIV`).
@@ -148,7 +148,7 @@ In this case, the total number of studies in the Hoppen data is 7, while 6 studi
 This stems from the fact, that, by default, the argument `drop00` was set to `TRUE`, which implies that double-zero studies are excluded from the analysis.  
 The next part of the output reports the $Q$-statistic along with its $p$-value, heterogeneity estimate and $I^2$-statistic.
 
-The output ends with information on the estimated pooled effect size. For the given example, we obtain a pooled log odds ratio of 0.5847, indicating dropout is somewhat larger in the EMDR group. 
+The output ends with information on the estimated pooled effect size. For the given example, we obtain a pooled log odds ratio of $0.5847$, indicating dropout is somewhat larger in the EMDR group. 
 
 The odds ratio implied by the analysis can be obtained by executing
 
@@ -156,9 +156,9 @@ The odds ratio implied by the analysis can be obtained by executing
 exp(fitIV$beta)
 ```
 
-indicating that on average the odds of dropout are about 1.79 times as large in EMDR groups as compared to passive control groups.
+indicating that on average the odds of dropout are about $1.79$ times as large in EMDR groups as compared to passive control groups.
 
-The standard error associated with the pooled log odds ratio is estimated at 0.5649. The Wald test for which the test statistic and the $p$-value are reported ($z = 1.0351$, $p = 0.3006$) indicates that the treatment effect is not significantly different from zero. This information can also be obtained from the confidence interval $(-0.5225, 1.6920)$, which overlaps 0. 
+The standard error associated with the pooled log odds ratio is estimated at $0.5649$. The Wald test for which the test statistic and the $p$-value are reported ($z = 1.0351$, $p = 0.3006$) indicates that the treatment effect is not significantly different from zero. This information can also be obtained from the confidence interval $(-0.5225, 1.6920)$, which overlaps $0$. 
 
 ## rareMH: meta-analysis using the Mantel-Haenszel method
 
