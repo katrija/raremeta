@@ -175,7 +175,7 @@ Data input and argument interpretation work in the same way as for the `rareIV` 
 
 The additional argument `correct` allows the user to decide whether continuity correction shall be applied. Note that there is a difference between setting the options `correct=FALSE` and `cc="none"`: While setting `correct=FALSE` implies no change of the data before estimation whatsoever, the option `cc="none"` excludes all single- (and double-) zero studies from the analysis. Note that when using the Mantel-Haenszel method, continuity corrections are only necessary if all studies report a zero in one of the groups, as this is the only situation in which an estimate of the pooled effect size cannot be obtained without a continuity correction.
 
-We now apply the `rareMH` to our data set. We aim to estimate the pooled log odds ratio without applying any continuity correction.
+We now apply the `rareMH` function to our data set. We aim to estimate the pooled log odds ratio without applying any continuity correction.
 
 ```{r,eval=FALSE}
 rareMH()
@@ -220,7 +220,7 @@ rarePeto()
 In the following subsection, we explain the usage of different functions allowing for pre-processing meta-analytic rare event data, specifically:
 
 - `rareDescribe`: function for pre-processing a data frame and obtaining descriptive statistics with respect to sample sizes, numbers of events, as well as the numbers of single- and double-zero studies
-- `rareCC`: function for applying continuity corrections to meta-analytic dat
+- `rareCC`: function for applying continuity corrections to meta-analytic data
 - `rareES`: function for calculating study-specific effect size estimates for different types of effect sizes, such as log odds ratios, log relative risks, and risk differences
 
 
@@ -312,7 +312,7 @@ rareES(x,ai,bi,ci,di,n1i,n2i,data,measure,cc="constant",ccval=0.5,tccval,cccval,
 ```
 
 Data input is done in the usual way.
-Through `measure` we may specify the effect size or outcome measure to be used (either `"logOR"` for the log odds ratio, ``"logRR"` for the log relative risk, or `"RD"` for the risk difference). 
+Through `measure` we may specify the effect size or outcome measure to be used (either `"logOR"` for the log odds ratio, `"logRR"` for the log relative risk, or `"RD"` for the risk difference). 
 The arguments from `cc` to `ccto` and `method` specify the continuity correction to be applied before calculation of the effect size estimate. 
 Again, the argument `drop00` is a  logical indicating whether double-zero studies should be excluded prior to calculating the studies’ effect sizes and sampling variances.    
 
