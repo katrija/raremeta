@@ -91,22 +91,24 @@ Readers who are already familiar with other `R`-packages for meta analysis might
 The `raremeta` package contains several functions for fitting models for rare events meta-analysis:
 
 Function Name     | Short Description
--------------     | -----------------
-rareIV()          | meta-analysis using the inverse-variance method
-rareMH()          | meta-analysis using the Mantel-Haenszel method  
-rarePeto()        | meta-analysis using Peto's method
-rareBetabin()     | meta-analysis using the beta-binomial model 
-rareGLMM()        | meta-analysis using the generalized linear mixed model
+:-------------    | :-----------------
+`rareIV()`        | meta-analysis using the inverse-variance method
+`rareMH()`        | meta-analysis using the Mantel-Haenszel method  
+`rarePeto()`      | meta-analysis using Peto's method
+`rareBetabin()`   | meta-analysis using the beta-binomial model 
+`rareGLMM()`      | meta-analysis using the generalized linear mixed model  
+
 
 The application of these functions is explained in detail in the following sections.
 
 In addition, the package includes three functions for pre-processing of meta-analytic data, in particular:
 
 Function Name     | Short Description
--------------     | -----------------
-rareDescribe()    | pre-processing of a data-frame
-rareCC()          | continuity correction for binary data
-rareES()          | effect size estimation 
+:-------------    | :-----------------
+`rareDescribe()`  | pre-processing of a data-frame
+`rareCC()`        | continuity correction for binary data
+`rareES()`        | effect size estimation   
+
 
 An explanation of the purpose and usage of these functions is given further below.
 
@@ -173,21 +175,32 @@ rareMH(x,ai,bi,ci,di,n1i,n2i,data,measure,
 
 Data input and argument interpretation work in the same way as for the `rareIV` function (see above), for instance by specifying the arguments `data, ai, bi, ci, di` or `data, ai, n1i, ci, n2i`.
 
-The additional argument `correct` allows the user to decide whether continuity correction shall be applied. Note that there is a difference between setting the options `correct=FALSE` and `cc="none"`: While setting `correct=FALSE` implies no change of the data before estimation whatsoever, the option `cc="none"` excludes all single- (and double-) zero studies from the analysis. Note that when using the Mantel-Haenszel method, continuity corrections are only necessary if all studies report a zero in one of the groups, as this is the only situation in which an estimate of the pooled effect size cannot be obtained without a continuity correction.
+The additional argument `correct` allows the user to decide whether continuity correction shall be applied. Note that there is a difference between setting the options `correct=FALSE` and `cc="none"`: While setting `correct=FALSE` implies no change of the data before estimation whatsoever, the option `cc="none"` excludes all single- (and double-) zero studies from the analysis. 
+Note that when using the Mantel-Haenszel method, continuity corrections are only necessary if all studies report a zero in one of the groups, as this is the only situation in which an estimate of the pooled effect size cannot be obtained without a continuity correction.
+Even though we do not fit an inverse-variance meta-analysis here, it is possible to specify the `method` argument.
+This stems from the fact that we can opt for the `empirical` continuity correction, which does fit an inverse-variance meta-analysis in the process of calculating the value to be added to the specified studies. 
 
-We now apply the `rareMH` function to our data set. We aim to estimate the pooled log odds ratio without applying any continuity correction.
+We now apply the `rareMH` function to our data set. 
+We aim to estimate the pooled log relative risk without applying any continuity correction.
 
-```{r,eval=FALSE}
-rareMH()
+```{r,eval=TRUE}
+fitMH <- rareMH(ai=ai,ci=ci,n1i=n1i,n2i=n2i,data=dat.hoppen2023,
+       measure="logRR",correct=FALSE)
+fitMH
 ```
-
-[Output interpretaion]
-
-A meta-analysis using the Mantel-Haenszel method for the log relative risk can be obtained using the following code:
-
-```{r,eval=FALSE}
-rareMH()
+The output begins with a short description of the applied method and follows up with the number of studies which were part of the analysis.
+For model results, the estimated logarithmised relative risk, standard error, z-val, p-val and lower- and upper bound of the confidence interval are stated. 
+The estimated relative risk amounts to 
+```{r, eval=TRUE}
+exp(fitMH$b)
 ```
+which indicates that on average the risk of dropout are about $1.44$ times as large in EMDR groups as compared to passive control groups.
+
+The standard error associated with the pooled log risk ratio is estimated at $0.1942$. 
+The Wald test for which the test statistic and the $p$-value are reported ($z = 1.8740$, $p = 0.0609$) indicates that the treatment effect is not significantly different from zero. 
+This information can also be obtained from the confidence interval $(-0.0167, 0.7447)$, which overlaps $0$.
+
+
 
 ## rarePeto: meta-analysis using Peto's method
 
@@ -203,11 +216,22 @@ Peto's method allows for estimation of the pooled log odds ratio without the use
 
 We now apply the `rarePeto` function to our data set:
 
-```{r, eval=FALSE}
-rarePeto()
+```{r, eval=TRUE}
+fitPeto <- rarePeto(ai=ai,ci=ci,n1i=n1i,n2i=n2i,data=dat.hoppen2023)
+fitPeto
 ```
+Just as before, the output states a short description of the used model, the number of studies and the model results.  
 
-[Output interpretaion]
+The estimated odds ratio amounts to 
+```{r, eval=TRUE}
+exp(fitPeto$b)
+```
+which indicates that on average the odds of dropout are about $1.58$ times as large in EMDR groups as compared to passive control groups.
+
+The standard error associated with the pooled log relative risk is estimated at $0.2386$. 
+The Wald test for which the test statistic and the $p$-value are reported ($z = 1.9092$, $p = 0.0562$) indicates that the treatment effect is not significantly different from zero. 
+This information can also be obtained from the confidence interval $(-0.0121, 0.9233)$, which overlaps $0$.
+
 
 ## rareBetabin: meta-analysis using the beta-binomial model
 
@@ -237,23 +261,16 @@ rareDescribe(ai, bi, ci, di, n1i, n2i, data)
 ```
 
 The data input works the usual way.  
-Let us recall some of the examples above and see how the input is simplified.
+Let us recall the examples above and see how the input is simplified, i.e. the following calls are equivalent to the calls seen in the three subsections above.
 
 
 ```{r, eval=FALSE}
 x <- rareDescribe(ai=ai,ci=ci,n1i=n1i,n2i=n2i,data=dat.hoppen2023)
-rareIV()
+rareIV(x, measure="logOR",method="IPM",cc="constant",ccval=0.5,ccto="all")
+rareMH(x,measure="logRR",correct=FALSE)
+rarePeto(x)
 ```
 
-```{r, eval=FALSE}
-x <- rareDescribe(ai=ai,ci=ci,n1i=n1i,n2i=n2i,data=dat.hoppen2023)
-rareMH()
-```
-
-```{r, eval=FALSE}
-x <- rareDescribe(ai=ai,ci=ci,n1i=n1i,n2i=n2i,data=dat.hoppen2023)
-rarePeto()
-```
 
 ## rareCC
 The `rareCC` function enables the user to apply continuity correcion to the data.
@@ -287,19 +304,29 @@ Currently, the model is fitted by applying the `rma()` function from the **metaf
 As always, `drop00` is a logical, indicating whether double-zero studies shall be dropped from the analysis.  
 The argument `ccto` is a character string indicating which studies the continuity correction should be applied to. Either `"only0"`, for which the continuity correction is applied to all studies for which the number of events is zero in at least one of the groups, `"all"`, for which the continuity correction is applied to all studies, or `"if0all"`, for which the continuity correction is applied to all studies if any of the individual studies has zero events in at least one of the groups.  
 
-Let us go through some examples and see where how we can attain the continuity corrected data from the generated object. 
+Let us go through some examples and see  how we can attain the continuity corrected data from the generated object.  
+We begin with the classical continuity correction of adding $0.5$ to all cells of all studies with zero events in one of the groups.
 
-```{r, eval=FALSE}
-x <- rareCC()
+```{r, eval=TRUE}
+x <- rareCC(ai=ai,ci=ci,n1i=n1i,n2i=n2i,data=dat.hoppen2023,
+            cc="constant",ccval=0.5,ccto="only0",drop=TRUE)
+data.frame(x$ai,x$ci,x$n1i,x$n2i)
+data.frame(x$ai.cc,x$ci.cc,x$n1i.cc,x$n2i.cc)
 ```
 
-```{r, eval=FALSE}
-x <- rareCC()
+As one can see from the output above, it is possible to call for the values of the original data via the column names and the values of the continuity corrected data via the column names with an added `.cc`.
+Since we opted for `drop00=TRUE` and `ccto="only0"`, the double-zero study was excluded and the single-zero study was continuity corrected.  
+
+If we want apply the `empirical` continuity correction to all studies, not excluding the double-zero studies, we call for:
+```{r, eval=TRUE}
+x <- rareCC(ai=ai,ci=ci,n1i=n1i,n2i=n2i,data=dat.hoppen2023,
+            cc="empirical",measure="logOR",method="FE",ccto="all",drop=FALSE)
+data.frame(x$ai,x$ci,x$n1i,x$n2i)
+round(data.frame(x$ai.cc,x$ci.cc,x$n1i.cc,x$n2i.cc),2)
 ```
 
-```{r, eval=FALSE}
-x <- rareCC()
-```
+
+
 
 
 
