@@ -188,19 +188,18 @@ fitMH <- rareMH(ai=ai,ci=ci,n1i=n1i,n2i=n2i,data=dat.hoppen2023,
        measure="logRR",correct=FALSE)
 fitMH
 ```
-The output begins with a short description of the applied method and follows up with the number of studies which were part of the analysis.
-For model results, the estimated logarithmised relative risk, standard error, z-val, p-val and lower- and upper bound of the confidence interval are stated. 
+
+The output begins with a short description of the method applied and continues with the number of studies which were part of the analysis.
+
+Then, the model results are given, i.e., the estimated log relative risk, standard error, z-val, p-val and lower- and upper bound of the confidence interval.
+
 The estimated relative risk amounts to 
 ```{r, eval=TRUE}
 exp(fitMH$b)
 ```
-which indicates that on average the risk of dropout are about $1.44$ times as large in EMDR groups as compared to passive control groups.
+which indicates that on average the risk of dropout is about $1.44$ times as large in EMDR groups as compared to passive control groups.
 
-The standard error associated with the pooled log risk ratio is estimated at $0.1942$. 
-The Wald test for which the test statistic and the $p$-value are reported ($z = 1.8740$, $p = 0.0609$) indicates that the treatment effect is not significantly different from zero. 
-This information can also be obtained from the confidence interval $(-0.0167, 0.7447)$, which overlaps $0$.
-
-
+The standard error associated with the pooled log relative risk is estimated at $0.1942$. The Wald test indicates that the treatment effect is not significantly different from zero ($z = 1.8740$, $p = 0.0609$). The confidence interval for the pooled log relative risk is given by $(-0.0167, 0.7447)$.
 
 ## rarePeto: meta-analysis using Peto's method
 
@@ -220,7 +219,8 @@ We now apply the `rarePeto` function to our data set:
 fitPeto <- rarePeto(ai=ai,ci=ci,n1i=n1i,n2i=n2i,data=dat.hoppen2023)
 fitPeto
 ```
-Just as before, the output states a short description of the used model, the number of studies and the model results.  
+
+The output shows a short description of the model which has been fitted, the number of studies and the model results.  
 
 The estimated odds ratio amounts to 
 ```{r, eval=TRUE}
@@ -228,10 +228,7 @@ exp(fitPeto$b)
 ```
 which indicates that on average the odds of dropout are about $1.58$ times as large in EMDR groups as compared to passive control groups.
 
-The standard error associated with the pooled log relative risk is estimated at $0.2386$. 
-The Wald test for which the test statistic and the $p$-value are reported ($z = 1.9092$, $p = 0.0562$) indicates that the treatment effect is not significantly different from zero. 
-This information can also be obtained from the confidence interval $(-0.0121, 0.9233)$, which overlaps $0$.
-
+The standard error associated with the pooled log odds ratio is estimated at $0.2386$. The Wald test indicates that the treatment effect is not significantly different from zero ($z = 1.9092$, $p = 0.0562$). The confidence interval for the pooled effect is $(-0.0121, 0.9233)$.
 
 ## rareBetabin: meta-analysis using the beta-binomial model
 
@@ -239,7 +236,7 @@ This information can also be obtained from the confidence interval $(-0.0121, 0.
 ## rareGLMM: meta-analysis using the generalized linear mixed model
 
 
-# Pre-processing of meta-analytic rare event data
+# Pre-processing meta-analytic rare event data
 
 In the following subsection, we explain the usage of different functions allowing for pre-processing meta-analytic rare event data, specifically:
 
@@ -251,17 +248,20 @@ In the following subsection, we explain the usage of different functions allowin
 ## rareDescribe
 Instead of data input via columns of a specified data frame, there is also the option of pre-processing the data to make it easier to handle.
 This can be done by turning the data into an object of type `rareData` by using the `rareDescribe` function.
-The `rareDescribe` function computes descriptives on the 2x2 tables of the individual studies and stores them in a list. 
-This list can then be used as data input into all of the other functions.
-This is especially useful when the user wants to use more than one `raremeta` functions on the same data. 
-Firstly, because it simplifies the input syntax and secondly, because this way, some of the computation is only done once and not at every call of an other `raremeta` function.
+The `rareDescribe` function computes descriptive statistics of the meta-analytic data and stores them in a list object. 
+This object can then be used as data input into all of the other functions.
+This feature is especially useful when the user wants to use more than one `raremeta` function on the same data, e.g., when fitting several different models as a sensitivity analysis. We will now show how to produce a `rareData` object using the `rareDescribe` function:
 
 ```{r, eval=FALSE}
 rareDescribe(ai, bi, ci, di, n1i, n2i, data)
 ```
 
-The data input works the usual way.  
-Let us recall the examples above and see how the input is simplified, i.e. the following calls are equivalent to the calls seen in the three subsections above.
+The data input can be achieved by specifying the arguments `data, ai, bi, ci, di` or `data, ai, n1i, ci, n2i`. For the data by Hoppen et al. (2023), we can use the following lines of code to 
+
+1. Produce a `rareData` object (`x`) using `rareDescribe`.
+2. Conduct a meta-analysis using the inverse-variance method with the `rareIV` function.
+3. Conduct a meta-analysis using the Mantel-Haenszel method.
+4. Conduct a meta-analysis using the Peto method.
 
 
 ```{r, eval=FALSE}
@@ -271,93 +271,112 @@ rareMH(x,measure="logRR",correct=FALSE)
 rarePeto(x)
 ```
 
+Note that for steps 2-4, we have used the `rareData` object `x` as input instead of specifying the data input using the arguments `data, ai, n1i, ci, n2i`.
+
+When using the `print` method on a `rareData` object, the user obtains an overview of several descriptive statistics of the meta-analytic data:
+
+```{r, include=FALSE}
+x <- rareDescribe(ai=ai,ci=ci,n1i=n1i,n2i=n2i,data=dat.hoppen2023)
+```
+
+```{r}
+print(x)
+```
+
+The output begins with a summary of the original data:
+First, the number of studies, the number of single-zero studies and the number of double-zero studies are given, followed by descriptive statistics of the sample sizes of the treatment group (group 1) and the control group (group 2) (mean, standard deviation, minimum, 25 % quantile, median, 75 % quantile, maximum, and interquartile range). The same descriptive statistics are then given for the sample size ratio (n1i/n2i). Finally, descriptive statistics of the relative frequencies of the event in the two groups and in the whole sample are displayed.
 
 ## rareCC
-The `rareCC` function enables the user to apply continuity correcion to the data.
-Eventhough most functions allow to apply the correction internally, users may find it easier to pre-process the data this way and then input it to the other functions.
-Since the functions above are set up in a way that a already continuity corrected data input will not be continuity corrected again, the user must not fear applying it twice.  
-Let us have a look at the arguments.
+The `rareCC` function enables the user to apply continuity correction to the data before fitting meta-analytic models. Although with most functions, such as `rareIV` or `rareMH`, the continuity correction can be applied internally, users may find it easier to pre-process the data using the `rareCC` function and then use the object obtained as a data input for the model functions.
+
+We will now have a look at the arguments of the `rareCC` function:
+
 ```{r, eval=FALSE}
 rareCC(x,ai,bi,ci,di,n1i,n2i,data,cc="constant",ccval=0.5,tccval,cccval,ccsum=1,
        ccto="only0",drop00=TRUE,measure,method="FE")
 ``` 
-As always, data input can be done by specifying the `x` argument or the columns of the data frame at hand. 
-We have implemented three different families of continuity correction: The *constant*, *treatment arm*, and *empirical* continuity correction.
+
+As always, data input can be achieved by specifying the `x` argument or the arguments `data, ai, bi, ci, di` or `data, ai, n1i, ci, n2i`.
+
+The built-in options of the `rareCC` function include three different families of continuity corrections: The *constant*, *treatment-arm*, and *empirical* continuity corrections. Beyond that, the user can flexibly specify their own continuity correction using the arguments `ccval` or `tccval` and `cccval` (see below).
 
 ###### Constant continuity correction
 When setting `cc = "constant"`, a constant value will be added to all cells of all studies specified via the `ccto` argument. The default is `ccval = 0.5`. 
 Through specification of `tccval` and `cccval` different values can be specified for the cells of the treatment group and the control group, respectively. 
-By inputting vectors in the afforementioned arguments, different values can be added to different studies (adding the k-th value to the k-th study), making it possible for the user to introduce their own continuity correction.
+By specifying vectors as inputs for the `tccval` and `cccval` arguments, different values can be added to different studies (adding the k-th value to the k-th study), making it possible for the user to introduce their own continuity correction.
 
 ###### Treatment-arm continuity correction
-When setting `cc = "tacc"` (treatment-arm continuity correction), the size of both of study arms is used to calculate a value for continuity correction. For a precise definition see Sweeting et al. (2004).
+When setting `cc = "tacc"` (treatment-arm continuity correction), the values of the continuity correction that are applied to the treatment and control groups are based on the ratios of their sample sizes. For a detailed description of this type of continuity correction, see Sweeting et al. (2004).
 
 ###### Empirical correction
-When setting `cc = "empirical"`, the estimated summary effect size (`logOR, logRR` or `RD`) for all studies which enable the estimation of the corresponding individual effect size is used to calculate a value for continuity correction. 
-This means that there must be at least one study enabling the estimation of the corresponding individual effect size and the measure- and method argument must be specified. 
-For a precise definition (including an interpretation of the argument `ccsum`) see Sweeting et al. (2004).
-This kind of continuity correction obviously depends on the effect size, which can be set by changing the `measure` argument.
-Possible effect sizes are `"logOR`, `"logRR"`, and `"RD"`.
-When it comes to model fitting, there is the possibility to fit fixed-effects models (also known as equal-effects models) and random-effects models using the inverse-variance approach. 
-A fixed-effects model is fitted when `method` is set to `"FE"` (or `"EE"`). A random-effects model is fitted when method is set to either `"DL", "HE", "SJ", "ML", "REML", "EB", "HS", "PM", "IPM", "GENQ", "PMM"` or `"GENQM"`. 
-Currently, the model is fitted by applying the `rma()` function from the **metafor** package, see Viechtbauer (2010).  
-As always, `drop00` is a logical, indicating whether double-zero studies shall be dropped from the analysis.  
-The argument `ccto` is a character string indicating which studies the continuity correction should be applied to. Either `"only0"`, for which the continuity correction is applied to all studies for which the number of events is zero in at least one of the groups, `"all"`, for which the continuity correction is applied to all studies, or `"if0all"`, for which the continuity correction is applied to all studies if any of the individual studies has zero events in at least one of the groups.  
+When setting `cc = "empirical"`, the value of the continuity correction is obtained based on an estimate of the pooled effect that is obtained from the inverse-variance model excluding all zero-studies. This means that there must be at least one non-zero study providing an estimate of the study-specific effect size. For a detailed description of the empirical continuity correction, see Sweeting et al. (2004).
 
-Let us go through some examples and see  how we can attain the continuity corrected data from the generated object.  
-We begin with the classical continuity correction of adding $0.5$ to all cells of all studies with zero events in one of the groups.
+Since the value of the empirical continuity correction depends on the effect size, it is necessary to specify the `measure` argument when using this continuity correction. Possible effect sizes are `"logOR`, `"logRR"`, and `"RD"`. The estimate of the pooled effect used to calculate the value of the continuity correction may be based on different models, i.e., on the fixed-effects model (also known as equal-effects model) or on the random-effects model. A fixed-effects model is fitted when `method` is set to `"FE"` (or `"EE"`). A random-effects model is fitted when `method` is set to either `"DL", "HE", "SJ", "ML", "REML", "EB", "HS", "PM", "IPM", "GENQ", "PMM"` or `"GENQM"`, which also specifies the type of between-study variance estimator to be used. 
+Currently, the model is fitted by applying the `rma()` function from the **metafor** package, see Viechtbauer (2010).  
+
+<!-- As always, `drop00` is a logical, indicating whether double-zero studies shall be dropped from the analysis.   -->
+<!-- The argument `ccto` is a character string indicating which studies the continuity correction should be applied to. Either `"only0"`, for which the continuity correction is applied to all studies for which the number of events is zero in at least one of the groups, `"all"`, for which the continuity correction is applied to all studies, or `"if0all"`, for which the continuity correction is applied to all studies if any of the individual studies has zero events in at least one of the groups.   -->
+
+We will now show how to use the `rareCC` function using the data by Hoppen et al. (2023) as an example.  
+
+We begin with the constant continuity correction and add $0.5$ to all cells of all studies with zero events in one of the groups.
 
 ```{r, eval=TRUE}
 x <- rareCC(ai=ai,ci=ci,n1i=n1i,n2i=n2i,data=dat.hoppen2023,
-            cc="constant",ccval=0.5,ccto="only0",drop=TRUE)
-data.frame(x$ai,x$ci,x$n1i,x$n2i)
+            cc="constant",ccval=0.5,ccto="only0", drop00=TRUE)
+
 data.frame(x$ai.cc,x$ci.cc,x$n1i.cc,x$n2i.cc)
+data.frame(x$ai,x$ci,x$n1i,x$n2i)
+
 ```
 
-As one can see from the output above, it is possible to call for the values of the original data via the column names and the values of the continuity corrected data via the column names with an added `.cc`.
-Since we opted for `drop00=TRUE` and `ccto="only0"`, the double-zero study was excluded and the single-zero study was continuity corrected.  
+As the output above shows, it is possible to obtain the values of the cells of the continuity-corrected data by calling `x$ai.cc`, `x$ci.cc`, `x$n1i.cc` and `x$n2i.cc`. For comparison, we also show the values of the cells of the original data. Since we excluded double-zero studies by specifying `drop00=TRUE`, the double-zero study. The continuity correction was only applied to the single-zero study, as specified by `ccto = "only0"`.
 
-If we want apply the `empirical` continuity correction to all studies, not excluding the double-zero studies, we call for:
+If we want apply the `empirical` continuity correction to all studies, not excluding the double-zero studies, we call:
+
 ```{r, eval=TRUE}
 x <- rareCC(ai=ai,ci=ci,n1i=n1i,n2i=n2i,data=dat.hoppen2023,
             cc="empirical",measure="logOR",method="FE",ccto="all",drop=FALSE)
-data.frame(x$ai,x$ci,x$n1i,x$n2i)
+
 round(data.frame(x$ai.cc,x$ci.cc,x$n1i.cc,x$n2i.cc),2)
+data.frame(x$ai,x$ci,x$n1i,x$n2i)
+
 ```
 
+The object `x` which is produced by the `rareCC` function is a `rareData` object, which can be used as a data input for other functions, such as for the `rareIV` function:
 
+```{r, eval=TRUE}
+rareIV(x, measure = "logOR", method = "IPM")
+```
 
-
-
+The model functions are set up in such a way that a data set to which a continuity correction has already been applied using the `rareCC` function will not be corrected again. Therefore, the user must not fear applying a continuity correction twice when using this approach.
 
 ## rareES
-To calculate individual effect sizes for meta-analysis of rare events, the `rareES` function can be used. 
+To calculate study-specific effect sizes for meta-analysis of rare events, the `rareES` function can be used. 
 
 ```{r, eval=FALSE}
-rareES(x,ai,bi,ci,di,n1i,n2i,data,measure,cc="constant",ccval=0.5,tccval,cccval,ccsum=1,
+rareES(x,ai,bi,ci,di,n1i,n2i,data,measure,
+       cc="constant",ccval=0.5,tccval,cccval,ccsum=1,
        ccto="only0",drop00=TRUE,method="FE")
 ```
 
-Data input is done in the usual way.
-Through `measure` we may specify the effect size or outcome measure to be used (either `"logOR"` for the log odds ratio, `"logRR"` for the log relative risk, or `"RD"` for the risk difference). 
-The arguments from `cc` to `ccto` and `method` specify the continuity correction to be applied before calculation of the effect size estimate. 
-Again, the argument `drop00` is a  logical indicating whether double-zero studies should be excluded prior to calculating the studies’ effect sizes and sampling variances.    
+Data input can be achieved by specifying the `x` argument or the arguments `data, ai, bi, ci, di` or `data, ai, n1i, ci, n2i`. 
 
-Let us have a look at the output of an application of the `rareES` function. 
+The argument `measure` specifies the effect size or outcome measure to be used (either `"logOR"` for the log odds ratio, `"logRR"` for the log relative risk, or `"RD"` for the risk difference). 
+
+The arguments from `cc` to `ccto` and `method` specify the continuity correction to be applied before calculation of the effect size estimate. Note that the `method` argument is only required when specifying `cc = "empirical"`. For this type of continuity correction, the `method` argument specifies the model used in the calculation of the values for the continuity corrections (see above). The argument `drop00` is a  logical indicating whether double-zero studies should be excluded prior to calculating the study-specific effect sizes and sampling variances.    
+
+We will now show how to use the `rareES` function. 
 We calculate the log odds ratio on the study level for the Hoppen data set. 
-```{r, eval=TRUE}
-x <- rareES(ai=ai,ci=ci,n1i=n1i,n2i=n2i,data=dat.hoppen2023,measure="logOR")
-x
-```
-The `rareES` function turned the Hoppen data into an object of type `rareData`, adding the information about the estimated effect size and the inside study variances.
-This is reflected by the output being a summary of all the information saved in this object.   
-The output begins with a summary of the original data. 
-After the counts of different kinds total number of studies and number of single- (double-) zero studies follows a list of descriptive statistics of the total size of the the treatment group (group 1) and the control group (group 2), respectively.
-The list consists of the mean, standard deviation, minimum, 25% quantile, median, 75% quantile, maximum and interquartile range.
-Following that, we look at the same descriptive statistics for the sample size ratio, i.e. the size of the treatment group divided by the size of the control group.
-It ends with analogue descriptives of the relative event-frequencies. 
 
-The calculated estimates for the log odds ratio and the variance are added to the object and can be printed by referring to their names, `"yi"` for the effect size estimates and `"vi"` for the variance estimates.
+```{r, eval=TRUE}
+x <- rareES(ai=ai,ci=ci,n1i=n1i,n2i=n2i,data=dat.hoppen2023,
+            measure="logOR")
+```
+
+The `rareES` function turned the Hoppen data into an object of type `rareData`, adding the information about the estimated effect size and the sampling variances.
+
+The estimates of the study-specific effect sizes and their sampling variances can be obtained by calling `x$yi` and `x$vi`, respectively:
 
 ```{r, eval=TRUE}
 x$yi
@@ -1163,7 +1182,7 @@ Yusuf, S., Peto, R., Lewis, J., Collins, R., & Sleight, P. (1985). Beta blockade
 <!-- The data input can be specified either through the arguments `ai,bi,ci,di,n1i`, and `n2i` (columns of the data frame data) or through the argument `x`, which takes an object that results from applying the `rareDescribe()` function to the data (i.e., the input for argument x must be an object of type `rareData`). A `rareData` object can be produced from a data frame by applying the `rareDescribe()` function to it. The `rareDescribe()` function pre-processes the data frame and stores the information required by the `rareES()` function in a list. See `?rareDescribe` for more details. -->
 
 <!-- ##### Effect size measures -->
-<!-- The function includes methods for calculating log odds ratios, log risk ratios, and risk differences. The effect size measure can be specified using the measure argument. The respective effect size, along with an estimate of its sampling variance, is then calculated for each study based on the entries of the study's 2x2 table: -->
+<!-- The function includes methods for calculating log odds ratios, log relative risks, and risk differences. The effect size measure can be specified using the measure argument. The respective effect size, along with an estimate of its sampling variance, is then calculated for each study based on the entries of the study's 2x2 table: -->
 
 <!-- group                event	     no event -->
 <!-- -----------------    --------    --------- -->
@@ -1174,7 +1193,7 @@ Yusuf, S., Peto, R., Lewis, J., Collins, R., & Sleight, P. (1985). Beta blockade
 <!-- Single-zero studies are studies for which one entry of the 2x2 table is zero. Double-zero studies are studies for which two entries of the same column of the 2x2 table are zero. The function includes a variety of arguments to handle single-zero and double-zero studies. Per default, double-zero studies are currently excluded from the analysis (this behavior might be changed in the future). The inclusion of double-zero studies can be enforced by setting the argument `drop00` to `FALSE`. If the data includes at least one single-zero study, the function throws an error if the user did not specify whether or not a continuity correction shall be applied. By setting `cc = "none"`, any zero-studies (studies with at least one zero-cell) which remain in the data are excluded from the analysis. If it is desired that zero-studies are included, the user needs to specify which continuity correction shall be used, and to which studies it shall be applied. Per default, the continuity correction is only applied to zero-studies, while studies for which all cells are larger than zero are left uncorrected. This behavior can be changed using the argument `ccto`. Per default, the constant value 0.5 (`cc = "constant"`, `ccval = 0.5`) is added to all cells of the studies specified by `ccto`. This continuity correcton was desribed by Gart and Zweifel (1967). Alternative continuity corrections which were described by Sweeting et al. (2004) can be applied by setting `cc` to `"tacc"` for the treatment-arm continuity correction, and to `"empirical"` for the empirical continuity correction. Per default, the sum of the corrections for treatment and control groups is set to 1, but this can be changed by setting the the argument `ccsum` to a different value. It is possible to set the continuity correction to a user-defined value (or a vector of user-defined values) using the argument `ccval` (if the value). If the user wants to specify different values for the treatment and the control group, this is possible via the arguments `tccval` and `cccval`. -->
 
 <!-- ##### Differences between effect size measures in the application of continuity corrections -->
-<!-- When either the log odds ratio or the log risk ratio is used as an effect size measure, both the effect sizes and their sampling variances are calculated based on the continuity-corrected 2x2 table. When the effect size measure is the risk difference, the continuity-corrected 2x2 table is only used in the calculation of the sampling variances. -->
+<!-- When either the log odds ratio or the log relative risk is used as an effect size measure, both the effect sizes and their sampling variances are calculated based on the continuity-corrected 2x2 table. When the effect size measure is the risk difference, the continuity-corrected 2x2 table is only used in the calculation of the sampling variances. -->
 
 <!-- #### References -->
 <!-- Gart, John J, and James R Zweifel. 1967. On the bias of various estimators of the logit and its variance with application to quantal bioassay. Biometrika, 54, 181–187. doi:10.1093/BIOMET/54.1-2.181 -->
@@ -1448,7 +1467,7 @@ Yusuf, S., Peto, R., Lewis, J., Collins, R., & Sleight, P. (1985). Beta blockade
 <!-- The data input can be specified either through the arguments `ai,bi,ci,di,n1i`, and `n2i` (columns of the data frame data) or through the argument `x`, which takes an object that results from applying the `rareDescribe()` function to the data (i.e., the input for argument x must be an object of type `rareData`). A `rareData` object can be produced from a data frame by applying the `rareDescribe()` function to it. The `rareDescribe()` function pre-processes the data frame and stores the information required by the `rareIV()` function in a list. See `?rareDescribe` for more details. -->
 
 <!-- ##### Effect size measures -->
-<!-- The function includes methods for calculating log odds ratios, log risk ratios, and risk differences. The effect size measure can be specified using the measure argument. The respective effect size, along with an estimate of its sampling variance, is then calculated for each study based on the entries of the study's 2x2 table: -->
+<!-- The function includes methods for calculating log odds ratios, log relative risks, and risk differences. The effect size measure can be specified using the measure argument. The respective effect size, along with an estimate of its sampling variance, is then calculated for each study based on the entries of the study's 2x2 table: -->
 
 <!-- group                event	     no event -->
 <!-- -----------------    --------    --------- -->
@@ -1459,7 +1478,7 @@ Yusuf, S., Peto, R., Lewis, J., Collins, R., & Sleight, P. (1985). Beta blockade
 <!-- Single-zero studies are studies for which one entry of the 2x2 table is zero. Double-zero studies are studies for which two entries of the same column of the 2x2 table are zero. The function includes a variety of arguments to handle single-zero and double-zero studies. Per default, double-zero studies are currently excluded from the analysis (this behavior might be changed in the future). The inclusion of double-zero studies can be enforced by setting the argument `drop00` to `FALSE`. If the data includes at least one single-zero study, the function throws an error if the user did not specify whether or not a continuity correction shall be applied. By setting `cc = "none"`, any zero-studies (studies with at least one zero-cell) which remain in the data are excluded from the analysis. If it is desired that zero-studies are included, the user needs to specify which continuity correction shall be used, and to which studies it shall be applied. Per default, the continuity correction is only applied to zero-studies, while studies for which all cells are larger than zero are left uncorrected. This behavior can be changed using the argument `ccto`. Per default, the constant value 0.5 (`cc = "constant"`, `ccval = 0.5`) is added to all cells of the studies specified by `ccto`. This continuity correcton was desribed by Gart and Zweifel (1967). Alternative continuity corrections which were described by Sweeting et al. (2004) can be applied by setting `cc` to `"tacc"` for the treatment-arm continuity correction, and to `"empirical"` for the empirical continuity correction. Per default, the sum of the corrections for treatment and control groups is set to 1, but this can be changed by setting the the argument `ccsum` to a different value. It is possible to set the continuity correction to a user-defined value (or a vector of user-defined values) using the argument `ccval` (if the value). If the user wants to specify different values for the treatment and the control group, this is possible via the arguments `tccval` and `cccval`. -->
 
 <!-- ##### Differences between effect size measures in the application of continuity corrections -->
-<!-- When either the log odds ratio or the log risk ratio is used as an effect size measure, both the effect sizes and their sampling variances are calculated based on the continuity-corrected 2x2 table. When the effect size measure is the risk difference, the continuity-corrected 2x2 table is only used in the calculation of the sampling variances. -->
+<!-- When either the log odds ratio or the log relative risk is used as an effect size measure, both the effect sizes and their sampling variances are calculated based on the continuity-corrected 2x2 table. When the effect size measure is the risk difference, the continuity-corrected 2x2 table is only used in the calculation of the sampling variances. -->
 
 
 <!-- #### Model specification -->
@@ -1604,7 +1623,7 @@ Yusuf, S., Peto, R., Lewis, J., Collins, R., & Sleight, P. (1985). Beta blockade
 <!-- The data input can be specified either through the arguments `ai,bi,ci,di,n1i`, and `n2i` (columns of the data frame data) or through the argument `x`, which takes an object that results from applying the `rareDescribe()` function to the data (i.e., the input for argument x must be an object of type `rareData`). A `rareData` object can be produced from a data frame by applying the `rareDescribe()` function to it. The `rareDescribe()` function pre-processes the data frame and stores the information required by the `rareMH()` function in a list. See `?rareDescribe` for more details. -->
 
 <!-- ##### Effect size measures -->
-<!-- The function includes meta-analytic methods for log odds ratios, log risk ratios, and risk differences. The effect size measure can be specified using the measure argument. The respective effect size, along with an estimate of its sampling variance, is then calculated for each study based on the entries of the study's 2x2 table: -->
+<!-- The function includes meta-analytic methods for log odds ratios, log relative risks, and risk differences. The effect size measure can be specified using the measure argument. The respective effect size, along with an estimate of its sampling variance, is then calculated for each study based on the entries of the study's 2x2 table: -->
 
 <!-- ::: center -->
 <!--                event   no-event -->
