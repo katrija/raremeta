@@ -232,6 +232,35 @@ The standard error associated with the pooled log odds ratio is estimated at $0.
 
 ## rareBetabin: meta-analysis using the beta-binomial model
 
+The beta-binomial model, which has been proposed for meta-analysis of rare events by Kuss (2015), can be fitted using the function `rareBetabin`:
+
+```{r, eval=FALSE}
+rareBetabin(x, ai, bi, ci, di, n1i, n2i, data, measure,
+  common_rho = TRUE, drop00 = FALSE, level = 95, test = "z", digits = 4,
+  verbose = FALSE, control, ...)
+```
+
+Data input can be achieved for instance by specifying the arguments `data, ai, bi, ci, di` or `data, ai, n1i, ci, n2i`.
+
+The `measure` argument specifies which effect size shall be estimated. Currently, the function only allows for `measure = "logOR"` or `measure = "logRR"`. Methods for the risk difference may be added in future versions of this package.
+
+For the example, a meta-analysis using the beta-binomial model for the log odds ratio can be obtained using the following code:
+
+```{r}
+rareBetabin(ai = ai, ci = ci, n1i = n1i, n2i = n2i, data = dat.hoppen2023,
+            measure = "logOR")
+```
+
+This fits a beta-binomial model with a common intraclass correlation (cf. Mathes & Kuss, 2021). The output shows the number of studies which the estimation was based on, the estimate of the intraclass correlation `rho`, and a summary of the model results including the estimates of the intercept and the pooled log odds ratio, their standard errors, their $z$-values and the associated $p$-values as well as the 95 \% confidence intervals. For the data by Hoppen et al. (2023), the pooled log odds ratio is estimated to be $0.6229$. The Wald-test indicates that it is not significantly different from zero ($z = 1.6645$, $p = 0.0960$), and the confidence interval is $(-0.1106, 1.3563)$.
+
+It is also possible to fit a model where the intraclass correlation is allowed to be different for control vs. treatment groups. This can be achieved by setting `common_rho = FALSE`:
+
+```{r}
+rareBetabin(ai = ai, ci = ci, n1i = n1i, n2i = n2i, data = dat.hoppen2023,
+            measure = "logOR", common_rho = FALSE)
+```
+
+Here, we see that the intraclass correlation estimated for group 1  (the treatment group) is considerably larger than the intraclass correlation estimated for group 2 (the control group). Specifically, for the control group, the intraclass correlation is estimated to be $0$.
 
 ## rareGLMM: meta-analysis using the generalized linear mixed model
 
@@ -397,6 +426,8 @@ Jackson, D., Law, M., Stijnen, T., Viechtbauer, W., & White, I. R. (2018). A com
 Kuss, O. (2015). Statistical methods for meta-analyses including information from studies without any events–add nothing to nothing and succeed nevertheless. Statistics in Medicine, 34 (7), 1097–1116. doi: 10.1002/sim.6383
 
 Mantel, N., & Haenszel, W. (1959). Statistical Aspects of the Analysis of Data From Retrospective Studies of Disease. JNCI: Journal of the National Cancer Institute. doi: 10.1093/jnci/22.4.719
+
+Mathes, T., & Kuss, O. (2021). Beta-binomial models for meta-analysis with binary outcomes: Variations, extensions, and additional insights from econometrics. Research Methods in Medicine & Health Sciences, 2(2), 82-89. doi: 10.1177/2632084321996225
 
 Stijnen, T., Hamza, T. H., & Özdemir, P. (2010). Random effects meta-analysis of event outcome in the framework of the generalized linear mixed model with applications in sparse data. Statistics in Medicine, 29 (29), 3046–3067. doi: 10.1002/sim.4040
 
