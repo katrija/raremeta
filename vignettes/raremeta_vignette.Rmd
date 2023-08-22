@@ -39,18 +39,6 @@ The `raremeta` package contains functions for fitting several alternative models
 
 Additionally, the package contains several functions for pre-processing meta-analytic data.
 
-<!-- For a quick dive into the workflow, we begin with an example interlaced with the corresponding `R`-code.  -->
-<!-- For anybody familiar with the mathematical modeling and -->
-<!-- methodological techniques used when conducting meta analysis and their -->
-<!-- implementation in `R` this might be sufficient.  -->
-<!-- For anybody new to -->
-<!-- either the statistical concepts or similar programs, there is a more -->
-<!-- in-depth description, which includes documentation of all functions, following this example. -->
-<!-- We also include a dedicated section introducing -->
-<!-- continuity corrections on a theoretical and practical level.  -->
-
-# A tour through `raremeta`
-
 The models implemented in the `raremeta` package are suitable for meta-analysis of 2x2 contingency tables, in particular when the event that is investigated is rare. 
 An example for such data is provided in a meta-analysis by Hoppen et al. (2023). In this meta-analysis, the authors evaluate the efficacy and acceptability of different treatments for posttraumatic stress disorder (PTSD) in adults using network and pairwise meta-analysis.
 Here, we focus on the pairwise comparison of Eye Movement Desensitization and Reprocessing (EMDR) and passive control groups with respect to the acceptability of the intervention. Acceptability is examined by investigating whether EMDR is associated with a larger (or smaller) number of dropouts compared to control treatments. A larger number of dropouts in EMDR indicates a lower acceptability of this treatment.  
