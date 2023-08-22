@@ -160,7 +160,7 @@ exp(fitIV$beta)
 
 indicating that on average the odds of dropout are about $1.79$ times as large in EMDR groups as compared to passive control groups.
 
-The standard error associated with the pooled log odds ratio is estimated at $0.5649$. The Wald test for which the test statistic and the $p$-value are reported ($z = 1.0351$, $p = 0.3006$) indicates that the treatment effect is not significantly different from zero. This information can also be obtained from the confidence interval $(-0.5225, 1.6920)$, which overlaps $0$. 
+The standard error associated with the pooled log odds ratio is estimated at $0.5649$. The Wald test for which the test statistic and the $p$-value are reported ($z = 1.0351$, $p = .3006$) indicates that the treatment effect is not significantly different from zero. This information can also be obtained from the confidence interval $(-0.5225, 1.6920)$, which overlaps $0$. 
 
 ## rareMH: meta-analysis using the Mantel-Haenszel method
 
@@ -199,7 +199,7 @@ exp(fitMH$b)
 ```
 which indicates that on average the risk of dropout is about $1.44$ times as large in EMDR groups as compared to passive control groups.
 
-The standard error associated with the pooled log relative risk is estimated at $0.1942$. The Wald test indicates that the treatment effect is not significantly different from zero ($z = 1.8740$, $p = 0.0609$). The confidence interval for the pooled log relative risk is given by $(-0.0167, 0.7447)$.
+The standard error associated with the pooled log relative risk is estimated at $0.1942$. The Wald test indicates that the treatment effect is not significantly different from zero ($z = 1.8740$, $p = .0609$). The confidence interval for the pooled log relative risk is given by $(-0.0167, 0.7447)$.
 
 ## rarePeto: meta-analysis using Peto's method
 
@@ -228,7 +228,7 @@ exp(fitPeto$b)
 ```
 which indicates that on average the odds of dropout are about $1.58$ times as large in EMDR groups as compared to passive control groups.
 
-The standard error associated with the pooled log odds ratio is estimated at $0.2386$. The Wald test indicates that the treatment effect is not significantly different from zero ($z = 1.9092$, $p = 0.0562$). The confidence interval for the pooled effect is $(-0.0121, 0.9233)$.
+The standard error associated with the pooled log odds ratio is estimated at $0.2386$. The Wald test indicates that the treatment effect is not significantly different from zero ($z = 1.9092$, $p = .0562$). The confidence interval for the pooled effect is $(-0.0121, 0.9233)$.
 
 ## rareBetabin: meta-analysis using the beta-binomial model
 
@@ -251,7 +251,7 @@ rareBetabin(ai = ai, ci = ci, n1i = n1i, n2i = n2i, data = dat.hoppen2023,
             measure = "logOR")
 ```
 
-This fits a beta-binomial model with a common intraclass correlation (cf. Mathes & Kuss, 2021). The output shows the number of studies which the estimation was based on, the estimate of the intraclass correlation `rho`, and a summary of the model results including the estimates of the intercept and the pooled log odds ratio, their standard errors, their $z$-values and the associated $p$-values as well as the 95 \% confidence intervals. For the data by Hoppen et al. (2023), the pooled log odds ratio is estimated to be $0.6229$. The Wald-test indicates that it is not significantly different from zero ($z = 1.6645$, $p = 0.0960$), and the confidence interval is $(-0.1106, 1.3563)$.
+This fits a beta-binomial model with a common intraclass correlation (cf. Mathes & Kuss, 2021). The output shows the number of studies which the estimation was based on, the estimate of the intraclass correlation `rho`, and a summary of the model results including the estimates of the intercept and the pooled log odds ratio, their standard errors, their $z$-values and the associated $p$-values as well as the 95 \% confidence intervals. For the data by Hoppen et al. (2023), the pooled log odds ratio is estimated to be $0.6229$. The Wald-test indicates that it is not significantly different from zero ($z = 1.6645$, $p = .0960$), and the confidence interval is $(-0.1106, 1.3563)$.
 
 It is also possible to fit a model where the intraclass correlation is allowed to be different for control vs. treatment groups. This can be achieved by setting `common_rho = FALSE`:
 
@@ -264,6 +264,72 @@ Here, we see that the intraclass correlation estimated for group 1  (the treatme
 
 ## rareGLMM: meta-analysis using the generalized linear mixed model
 
+The `rareGLMM` function allows for fitting several different types of generalized linear mixed models, including unconditional GLMMs with fixed, study-specific intercepts or a random intercept (Böhning et al., 2015; Jackson et al, 2017) and conditional GLMMs such as the hypergeometric-normal (van Houwelingen et al. 1993) and the conditional-binomial model (Stijnen et al., 2010). The function allows for specifying the following arguments:
+
+```{r, eval = FALSE}
+rareGLMM(x, ai, bi, ci, di, n1i, n2i, data, measure,
+  intercept = "fixed", slope = "random",  cor = FALSE, coding = 1/2,
+  conditional = FALSE, approx = FALSE,
+  drop00 = FALSE, level = 95, test = "z", digits = 4, verbose = FALSE, control,
+  ...
+)
+```
+
+###### Unconditional GLMMs
+
+An unconditional GLMM may be fitted by setting the argument `conditional` to `FALSE` (which is also the default).
+
+For the example data by Hoppen et al. (2023), an unconditional GLMM for the log odds ratio with fixed, study-specific intercepts may be fitted using the following code:
+
+```{r}
+rareGLMM(ai = ai, ci = ci, n1i = n1i, n2i = n2i, data = dat.hoppen2023,
+         measure = "logOR", 
+         intercept = "fixed", slope = "random")
+```
+
+Note that several warnings are displayed which mainly concern the computation of the variance-covariance matrix of the parameters. These warnings arise because the data contain double-zero studies. Fitting the same model excluding double-zero studies removes the warning and results only in slight changes of the model results.
+
+```{r}
+rareGLMM(ai = ai, ci = ci, n1i = n1i, n2i = n2i, data = dat.hoppen2023,
+         measure = "logOR",
+         intercept = "fixed", slope = "random", drop00 = TRUE)
+```
+
+The output displays the number of studies included in the estimation (here, 6 studies were included since the double-zero study was removed). Then, information with respect to between-study heterogeneity is given: Specifically, the result of the likelihood ratio test for heterogeneity is displayed, and finally the estimate of the between-study variance $\tau^2$ as well as its square root, $\tau$ are shown. In what follows, the model results are presented, specifically, the estimates of the study-specific intercepts and the pooled log odds ratio, including their standard errors, $z$-values, $p$-values and 95 \% confidence intervals. The estimate of the pooled log odds ratio is $0.6674$ with a standard error of $0.3679$. The Wald-test is not significant ($z = 1.5744$, $p = .1154$), indicating that the pooled log odds ratio is not significantly different from zero. The confidence interval is $(-0.1419, 1.3005)$.
+
+A model with a random intercept instead of fixed, study-specific intercepts is fitted when using the following code:
+
+```{r}
+rareGLMM(ai = ai, ci = ci, n1i = n1i, n2i = n2i, data = dat.hoppen2023,
+         measure = "logOR",
+         intercept = "random", slope = "random")
+```
+
+Now, an additional variance is displayed in the heterogeneity section of the output, which is the estimated variance of the study intercepts. The estimate of the average intercept is given in the model results section.
+
+Note that per default, the random effects are assumed to be uncorrelated. This may be changed by adding `cor = TRUE` to the arguments of the `rareGLMM` function. However, allowing for correlated random effects will often result in convergence issues in meta-analysis of rare events.
+
+###### Conditional GLMMs
+
+The conditional GLMM for the log odds ratio is the hypergeometric model. A random-effects version of this model, the hypergeometric-normal model (van Houwelingen et al., 1993), can be fitted using the following code:
+
+```{r}
+rareGLMM(ai = ai, ci = ci, n1i = n1i, n2i = n2i, data = dat.hoppen2023,
+         measure = "logOR", conditional = TRUE, approx = FALSE,
+         intercept = "random")
+```
+
+Note that the argument `intercept = "random"` is required to obtain a random-effects model, since the hypergeometric model is an intercept-only model. Note that this model is currently implemented by internally calling the `rma.glmm` function from the `metafor` package. The output is similar to the output obtained when fitting an unconditional GLMM, but shorter since the only parameters of this model are the log odds ratio and the between-study variance. The estimate of the pooled log odds ratio for the hypergeometric-normal model is $0.6953$ with a standard error of $0.4522$ and a 95 \% confidence interval of $(-0.1910, 1.5817)$. The Wald test indicates that the pooled log odds ratio is not significantly different from $0$ ($z = 1.5376$, $p = .1242$). 
+
+An approximate version of this model, the conditional-binomial model (Stijnen et al., 2010), can be obtained by specifying `approx = TRUE`.
+
+```{r}
+rareGLMM(ai = ai, ci = ci, n1i = n1i, n2i = n2i, data = dat.hoppen2023,
+         measure = "logOR", conditional = TRUE, approx = TRUE,
+         intercept = "random")
+```
+
+Compared to the exact model, we obtain a smaller estimate of the pooled log odds ratio as well as a smaller estimate of the between-study variance.
 
 # Pre-processing meta-analytic rare event data
 
