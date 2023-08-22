@@ -69,7 +69,7 @@ Default is \code{cor = FALSE}. This argument is only relevant if \code{intercept
 See below for more details.}
 
 \item{coding}{numeric specifying the coding scheme used for the random effects structure. Values between 0
-and 1 can be specified. Default is \code{coding = 1/2}. Given that \code{cor = FALSE}is specified, the default
+and 1 can be specified. Default is \code{coding = 1/2}. Given that \code{cor = FALSE} is specified, the default
 option implies equal variances in the two groups. Values closer to 0 imply a larger variance in the
 control group (group 2), while values closer to 1 imply a larger variance in the treatment group (group 1).
 See below for more details.}

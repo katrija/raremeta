@@ -30,7 +30,7 @@
 #' Default is `cor = FALSE`. This argument is only relevant if `intercept = "random"` and `slope = "random"`.
 #' See below for more details.
 #' @param coding numeric specifying the coding scheme used for the random effects structure. Values between 0
-#' and 1 can be specified. Default is `coding = 1/2`. Given that `cor = FALSE`is specified, the default
+#' and 1 can be specified. Default is `coding = 1/2`. Given that `cor = FALSE` is specified, the default
 #' option implies equal variances in the two groups. Values closer to 0 imply a larger variance in the
 #' control group (group 2), while values closer to 1 imply a larger variance in the treatment group (group 1).
 #' See below for more details.
