@@ -570,6 +570,7 @@ rareGLMM <- function(x, ai, bi, ci, di, n1i, n2i, data, measure,
           stop("Unable to fit model.")
         }
 
+        conv <- NA
         # conv <- ifelse(fitML$convergence == 0, TRUE, FALSE)
 
         beta <- fitML$beta
