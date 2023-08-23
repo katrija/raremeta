@@ -65,7 +65,7 @@ This information is usually depicted in form of a 2x2 contingency table,
 
 where $a_i$ and $c_i$ are the numbers of events (here: dropout) in the treatment and control group of the $i-$th study, respectively, and $n_{1i}$, $n_{2i}$ are the sample sizes of these groups. The meta-analysis by Hoppen et al. is in fact an example for a meta-analysis of a rare event: Specifically, it contains one study with no event in one of the groups (single-zero study) and one study with no event in both groups (double-zero study).  
 
-To exemplify the usage of the `raremeta` package, we apply the  the inverse-variance method for the log odds ratio with the standard continuity correction (add 0.5 to all cells of all studies with zero counts) to the data:  
+To exemplify the usage of the `raremeta` package, we apply the inverse-variance method for the log odds ratio with the standard continuity correction (add 0.5 to all cells of all studies with zero counts) to the data:  
 
 ```{r, eval = TRUE}
 fitIV <- rareIV(ai=ai,ci=ci,n1i=n1i,n2i=n2i,data=dat.hoppen2023,
@@ -74,7 +74,7 @@ fitIV <- rareIV(ai=ai,ci=ci,n1i=n1i,n2i=n2i,data=dat.hoppen2023,
 fitIV
 ```
 
-Readers who are already familiar with other `R`-packages for meta analysis might recognize parts of the input syntax and the structure of the output. In the following sections, these aspects will be explained in more detail for the different functions which are part of the `raremeta`  package.
+Readers who are already familiar with other `R`-packages for meta-analysis might recognize parts of the input syntax and the structure of the output. In the following sections, these aspects will be explained in more detail for the different functions which are part of the `raremeta`  package.
 
 The `raremeta` package contains several functions for fitting models for rare events meta-analysis:
 
@@ -173,7 +173,7 @@ We aim to estimate the pooled log relative risk without applying any continuity 
 
 ```{r,eval=TRUE}
 fitMH <- rareMH(ai=ai,ci=ci,n1i=n1i,n2i=n2i,data=dat.hoppen2023,
-       measure="logRR",correct=FALSE)
+                measure="logRR",correct=FALSE)
 fitMH
 ```
 
@@ -458,6 +458,7 @@ x <- rareES(ai=ai,ci=ci,n1i=n1i,n2i=n2i,data=dat.hoppen2023,
 ```
 
 The `rareES` function turned the Hoppen data into an object of type `rareData`, adding the information about the estimated effect size and the sampling variances.
+The warning indicates that since no continuity correction was specified, per default, the single-zero study was excluded from the analysis.
 
 The estimates of the study-specific effect sizes and their sampling variances can be obtained by calling `x$yi` and `x$vi`, respectively:
 
