@@ -494,6 +494,6 @@ Sweeting, M. J., Sutton, A. J., & Lambert, P. C. (2004). What to add to nothing?
 
 van Houwelingen, H. C., Zwinderman, K. H., & Stijnen, T. (1993). A bivariate approach to meta-analysis. Statistics in Medicine, 12 (24), 2273–2284. doi: 10.1002/sim.4780122405
 
-Viechtbauer, W. (2010). Conducting meta-analyses in R with the metafor package. Journal of Statistical Software, 36(3), 1-48. https://doi.org/10.18637/jss.v036.i03
+Viechtbauer, W. (2010). Conducting meta-analyses in R with the metafor package. Journal of Statistical Software, 36(3), 1-48. doi: 10.18637/jss.v036.i03
 
 Yusuf, S., Peto, R., Lewis, J., Collins, R., & Sleight, P. (1985). Beta blockade during and after myocardial infarction: an overview of the randomized trials. Progress in Cardiovascular Diseases, 27 (5), 335–371. doi: 10.1016/s0033-0620(85)80003-7
