@@ -307,7 +307,7 @@ rareGLMM(ai = ai, ci = ci, n1i = n1i, n2i = n2i, data = dat.hoppen2023,
          intercept = "random")
 ```
 
-Note that the argument `intercept = "random"` is required to obtain a random-effects model, since the hypergeometric model is an intercept-only model. Note that this model is currently implemented by internally calling the `rma.glmm` function from the `metafor` package. The output is similar to the output obtained when fitting an unconditional GLMM, but shorter since the only parameters of this model are the log odds ratio and the between-study variance. The estimate of the pooled log odds ratio for the hypergeometric-normal model is $0.6953$ with a standard error of $0.4522$ and a 95 \% confidence interval of $(-0.1910, 1.5817)$. The Wald test indicates that the pooled log odds ratio is not significantly different from $0$ ($z = 1.5376$, $p = .1242$). 
+Note that the argument `intercept = "random"` is required to obtain a random-effects model, since the hypergeometric model is an intercept-only model. Note that this model is currently implemented by internally calling the `rma.glmm` function from the **metafor** package. The output is similar to the output obtained when fitting an unconditional GLMM, but shorter since the only parameters of this model are the log odds ratio and the between-study variance. The estimate of the pooled log odds ratio for the hypergeometric-normal model is $0.6953$ with a standard error of $0.4522$ and a 95 \% confidence interval of $(-0.1910, 1.5817)$. The Wald test indicates that the pooled log odds ratio is not significantly different from $0$ ($z = 1.5376$, $p = .1242$). 
 
 An approximate version of this model, the conditional-binomial model (Stijnen et al., 2010), can be obtained by specifying `approx = TRUE`.
 
@@ -388,17 +388,21 @@ When setting `cc = "constant"`, a constant value will be added to all cells of a
 Through specification of `tccval` and `cccval` different values can be specified for the cells of the treatment group and the control group, respectively. 
 By specifying vectors as inputs for the `tccval` and `cccval` arguments, different values can be added to different studies (adding the k-th value to the k-th study), making it possible for the user to introduce their own continuity correction.
 
+The argument `ccto` specifies to which studies the continuity correction shall be applied. The options are `"only0"`, if the continuity correction shall be applied to all studies for which the number of events is zero in at least one of the groups, `"all"`, if the continuity correction shall be applied to all studies irrespective of whether or not they are zero-studies, or `"if0all"`, if the continuity correction shall be applied to all studies if any of the individual studies has zero events in at least one of the groups.
+
+Double-zero studies can be removed from the data by specifying `drop00 = TRUE`.
+
 ###### Treatment-arm continuity correction
 When setting `cc = "tacc"` (treatment-arm continuity correction), the values of the continuity correction that are applied to the treatment and control groups are based on the ratios of their sample sizes. For a detailed description of this type of continuity correction, see Sweeting et al. (2004).
+
+The arguments `ccto` and `drop00` can be used to specify to which studies the continuity correction shall be applied (see above).
 
 ###### Empirical correction
 When setting `cc = "empirical"`, the value of the continuity correction is obtained based on an estimate of the pooled effect that is obtained from the inverse-variance model excluding all zero-studies. This means that there must be at least one non-zero study providing an estimate of the study-specific effect size. For a detailed description of the empirical continuity correction, see Sweeting et al. (2004).
 
-Since the value of the empirical continuity correction depends on the effect size, it is necessary to specify the `measure` argument when using this continuity correction. Possible effect sizes are `"logOR`, `"logRR"`, and `"RD"`. The estimate of the pooled effect used to calculate the value of the continuity correction may be based on different models, i.e., on the fixed-effects model (also known as equal-effects model) or on the random-effects model. A fixed-effects model is fitted when `method` is set to `"FE"` (or `"EE"`). A random-effects model is fitted when `method` is set to either `"DL", "HE", "SJ", "ML", "REML", "EB", "HS", "PM", "IPM", "GENQ", "PMM"` or `"GENQM"`, which also specifies the type of between-study variance estimator to be used. 
-Currently, the model is fitted by applying the `rma()` function from the **metafor** package, see Viechtbauer (2010).  
+Since the value of the empirical continuity correction depends on the effect size, it is necessary to specify the `measure` argument when using this continuity correction. Possible effect sizes are `"logOR`, `"logRR"`, and `"RD"`. The estimate of the pooled effect used to calculate the value of the continuity correction may be based on different models, i.e., on the fixed-effects model (also known as equal-effects model) or on the random-effects model. A fixed-effects model is fitted when `method` is set to `"FE"` (or `"EE"`). A random-effects model is fitted when `method` is set to either `"DL", "HE", "SJ", "ML", "REML", "EB", "HS", "PM", "IPM", "GENQ", "PMM"` or `"GENQM"`, which also specifies the type of between-study variance estimator to be used.  Currently, the model is fitted by applying the `rma()` function from the **metafor** package, see Viechtbauer (2010).  
 
-<!-- As always, `drop00` is a logical, indicating whether double-zero studies shall be dropped from the analysis.   -->
-<!-- The argument `ccto` is a character string indicating which studies the continuity correction should be applied to. Either `"only0"`, for which the continuity correction is applied to all studies for which the number of events is zero in at least one of the groups, `"all"`, for which the continuity correction is applied to all studies, or `"if0all"`, for which the continuity correction is applied to all studies if any of the individual studies has zero events in at least one of the groups.   -->
+The arguments `ccto` and `drop00` can be used to specify to which studies the continuity correction shall be applied (see above).
 
 We will now show how to use the `rareCC` function using the data by Hoppen et al. (2023) as an example.  
 
@@ -489,5 +493,7 @@ Stijnen, T., Hamza, T. H., & Özdemir, P. (2010). Random effects meta-analysis o
 Sweeting, M. J., Sutton, A. J., & Lambert, P. C. (2004). What to add to nothing? Use and avoidance of continuity corrections in meta-analysis of sparse data. Statistics in Medicine, 23 (9), 1351–1375. doi: 10.1002/sim.1761
 
 van Houwelingen, H. C., Zwinderman, K. H., & Stijnen, T. (1993). A bivariate approach to meta-analysis. Statistics in Medicine, 12 (24), 2273–2284. doi: 10.1002/sim.4780122405
+
+Viechtbauer, W. (2010). Conducting meta-analyses in R with the metafor package. Journal of Statistical Software, 36(3), 1-48. https://doi.org/10.18637/jss.v036.i03
 
 Yusuf, S., Peto, R., Lewis, J., Collins, R., & Sleight, P. (1985). Beta blockade during and after myocardial infarction: an overview of the randomized trials. Progress in Cardiovascular Diseases, 27 (5), 335–371. doi: 10.1016/s0033-0620(85)80003-7
