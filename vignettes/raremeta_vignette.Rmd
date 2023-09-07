@@ -107,8 +107,11 @@ An explanation of the purpose and usage of these functions is given further belo
 The `rareIV` function allows the user to conduct a meta-analysis using the inverse-variance model.  
 
 ```{r, eval=FALSE}
-rareIV(x,ai,bi,ci,di,n1i,n2i,data,measure,method,cc="none",ccval=0.5,tccval,cccval,ccsum=1,ccto="only0",
-       drop00=TRUE,weighted=TRUE,weights,level=95,test="z",digits=4,verbose=FALSE,control,...)
+rareIV(x,ai,bi,ci,di,n1i,n2i,data,
+       measure,method,
+       cc="none",ccval=0.5,tccval,cccval,ccsum=1,ccto="only0",
+       drop00=TRUE,weighted=TRUE,weights,level=95,test="z",
+       digits=4,verbose=FALSE,control,...)
 ```
 The data input may be achieved in several ways.
 In line with other packages for meta-analysis such as **metafor** or **meta**, the reader may specify the data frame and the columns which include the cells of the 2x2 contingency table. 
@@ -252,7 +255,7 @@ Here, we see that the intraclass correlation estimated for group 1  (the treatme
 
 ## rareGLMM: meta-analysis using the generalized linear mixed model
 
-The `rareGLMM` function allows for fitting several different types of generalized linear mixed models, including unconditional GLMMs with fixed, study-specific intercepts or a random intercept (Böhning et al., 2015; Jackson et al, 2017) and conditional GLMMs such as the hypergeometric-normal (van Houwelingen et al. 1993) and the conditional-binomial model (Stijnen et al., 2010). The function allows for specifying the following arguments:
+The `rareGLMM` function allows for fitting several different types of generalized linear mixed models, including unconditional GLMMs with fixed, study-specific intercepts or a random intercept (Böhning et al., 2015; Jackson et al., 2017) and conditional GLMMs such as the hypergeometric-normal (van Houwelingen et al., 1993) and the conditional-binomial model (Stijnen et al., 2010). The function allows for specifying the following arguments:
 
 ```{r, eval = FALSE}
 rareGLMM(x, ai, bi, ci, di, n1i, n2i, data, measure,
