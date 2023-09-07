@@ -7,16 +7,16 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-```{r setup, include=FALSE}
+```{r, include=FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>")
-library(devtools) 
-load_all() 
 ```
 
+```{r setup}
+library(raremeta)
 
-
+```
 
 <!-- # Abstract -->
 <!-- This article gives an introduction to the `R`-software package -->
