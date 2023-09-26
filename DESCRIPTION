@@ -1,5 +1,5 @@
 Package: raremeta
-Title: Meta-Analysis of Rare Events
+Title: An R Package for Meta-Analysis of Rare Events
 Version: 0.0.0.9000
 Authors@R: 
     person("Katrin", "Jansen", , "katrinjansen@uni-muenster.de", role = c("aut", "cre"),
