@@ -4,7 +4,7 @@ Version: 0.0.0.9000
 Authors@R: 
     c(person(given = "Katrin", family = "Jansen", role = c("aut", "cre"), email = "katrinjansen@uni-muenster.de", 
             comment = c(ORCID = "0000-0002-4533-3779")),
-    person(given = "Karl", family = "Westphal",  role = c("aut", "cre"), 
+    person(given = "Karl", family = "Westphal",  role = c("aut"), 
             comment = c(ORCID = "0009-0004-7735-1519")),    
     person(given = "Heinz", family = "Holling", role = c("aut"), 
             comment = c(ORCID = "0000-0002-0311-3970")))
