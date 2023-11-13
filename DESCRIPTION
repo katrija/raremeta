@@ -2,11 +2,11 @@ Package: raremeta
 Title: An R Package for Meta-Analysis of Rare Events
 Version: 0.0.0.9000
 Authors@R: 
-    person("Katrin", "Jansen", , "katrinjansen@uni-muenster.de", role = c("aut", "cre"),
+    person("Katrin", "Jansen", "katrinjansen@uni-muenster.de", role = c("aut", "cre"),
             comment = c(ORCID = "0000-0002-4533-3779"))
-    person("Karl", "Westphal", ,"westphalkk@gmail.com", role = c("aut", "cre"), 
+    person("Karl", "Westphal","westphalkk@gmail.com", role = c("aut", "cre"), 
             comment = c(ORCID = "0009-0004-7735-1519"))    
-    person("Heinz", "Holling", ,"holling@uni-muenster.de", role = c("aut"), 
+    person("Heinz", "Holling","holling@uni-muenster.de", role = c("aut"), 
             comment = c(ORCID = "0000-0002-0311-3970"))   
 Description: Conduct meta-analyses of 2x2 contingency tables when events are rare.
 License: GPL (>= 2)
